@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 import { login, registrar, setToken } from "../api";
 
 export default function Auth({ onAutenticado }) {
   const [modo, setModo] = useState("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [verPassword, setVerPassword] = useState(false);
   const [codigoAcceso, setCodigoAcceso] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
@@ -14,8 +16,11 @@ export default function Auth({ onAutenticado }) {
     setError("");
     setCargando(true);
     try {
+      const emailLimpio = email.trim().toLowerCase();
       const data =
-        modo === "login" ? await login(email, password) : await registrar(email, password, codigoAcceso);
+        modo === "login"
+          ? await login(emailLimpio, password)
+          : await registrar(emailLimpio, password, codigoAcceso.trim());
       setToken(data.token);
       onAutenticado();
     } catch (err) {
@@ -36,6 +41,8 @@ export default function Auth({ onAutenticado }) {
           <input
             type="email"
             required
+            autoCapitalize="off"
+            autoCorrect="off"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2.5 outline-none focus:border-[#D4A017]"
@@ -43,14 +50,30 @@ export default function Auth({ onAutenticado }) {
         </div>
         <div>
           <p className="text-xs text-[#9CA39C] mb-1.5">Contraseña</p>
-          <input
-            type="password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2.5 outline-none focus:border-[#D4A017]"
-          />
+          <div className="relative">
+            <input
+              type={verPassword ? "text" : "password"}
+              required
+              minLength={6}
+              autoCapitalize="off"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2.5 pr-11 outline-none focus:border-[#D4A017]"
+            />
+            <button
+              type="button"
+              onClick={() => setVerPassword(!verPassword)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6E756F]"
+              tabIndex={-1}
+            >
+              {verPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+            </button>
+          </div>
+          {password.length > 0 && (
+            <p className="text-[10px] text-[#6E756F] mt-1">
+              {verPassword ? "Verifica que sea la correcta." : "Toca el ojo para verla mientras escribes."}
+            </p>
+          )}
         </div>
         {modo === "registro" && (
           <div>
@@ -74,7 +97,10 @@ export default function Auth({ onAutenticado }) {
       </form>
 
       <button
-        onClick={() => setModo(modo === "login" ? "registro" : "login")}
+        onClick={() => {
+          setModo(modo === "login" ? "registro" : "login");
+          setError("");
+        }}
         className="mt-5 text-xs text-[#9CA39C] underline text-center"
       >
         {modo === "login" ? "¿No tienes cuenta? Regístrate" : "¿Ya tienes cuenta? Inicia sesión"}
