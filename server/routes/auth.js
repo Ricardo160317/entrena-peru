@@ -6,11 +6,8 @@ const { pool } = require("../db");
 const router = express.Router();
 
 router.post("/registro", async (req, res) => {
-  const { email, password, codigoAcceso } = req.body;
+  const { email, password } = req.body;
 
-  if (process.env.ACCESS_CODE && codigoAcceso !== process.env.ACCESS_CODE) {
-    return res.status(403).json({ error: "Código de acceso inválido" });
-  }
   if (!email || !password || password.length < 6) {
     return res.status(400).json({ error: "Email y contraseña (mínimo 6 caracteres) son requeridos" });
   }

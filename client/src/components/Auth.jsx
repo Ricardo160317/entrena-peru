@@ -7,7 +7,6 @@ export default function Auth({ onAutenticado }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [verPassword, setVerPassword] = useState(false);
-  const [codigoAcceso, setCodigoAcceso] = useState("");
   const [error, setError] = useState("");
   const [cargando, setCargando] = useState(false);
 
@@ -17,10 +16,7 @@ export default function Auth({ onAutenticado }) {
     setCargando(true);
     try {
       const emailLimpio = email.trim().toLowerCase();
-      const data =
-        modo === "login"
-          ? await login(emailLimpio, password)
-          : await registrar(emailLimpio, password, codigoAcceso.trim());
+      const data = modo === "login" ? await login(emailLimpio, password) : await registrar(emailLimpio, password);
       setToken(data.token);
       onAutenticado();
     } catch (err) {
@@ -69,22 +65,7 @@ export default function Auth({ onAutenticado }) {
               {verPassword ? <EyeOff size={17} /> : <Eye size={17} />}
             </button>
           </div>
-          {password.length > 0 && (
-            <p className="text-[10px] text-[#6E756F] mt-1">
-              {verPassword ? "Verifica que sea la correcta." : "Toca el ojo para verla mientras escribes."}
-            </p>
-          )}
         </div>
-        {modo === "registro" && (
-          <div>
-            <p className="text-xs text-[#9CA39C] mb-1.5">Código de acceso (si te lo compartieron)</p>
-            <input
-              value={codigoAcceso}
-              onChange={(e) => setCodigoAcceso(e.target.value)}
-              className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2.5 outline-none focus:border-[#D4A017]"
-            />
-          </div>
-        )}
 
         {error && <p className="text-sm text-[#E07A7A]">{error}</p>}
 

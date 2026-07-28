@@ -28,8 +28,8 @@ async function api(path, { method = "GET", body } = {}) {
   return data;
 }
 
-export const registrar = (email, password, codigoAcceso) =>
-  api("/auth/registro", { method: "POST", body: { email, password, codigoAcceso } });
+export const registrar = (email, password) =>
+  api("/auth/registro", { method: "POST", body: { email, password } });
 
 export const login = (email, password) =>
   api("/auth/login", { method: "POST", body: { email, password } });
