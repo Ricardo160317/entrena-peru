@@ -15,11 +15,20 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
     equipo: [],
   });
 
+  const [equipoPersonalizado, setEquipoPersonalizado] = useState("");
+
   const toggleEquipo = (id) =>
     setForm((f) => ({
       ...f,
       equipo: f.equipo.includes(id) ? f.equipo.filter((e) => e !== id) : [...f.equipo, id],
     }));
+
+  function agregarEquipoPersonalizado() {
+    const valor = equipoPersonalizado.trim();
+    if (!valor || form.equipo.includes(valor)) return;
+    setForm((f) => ({ ...f, equipo: [...f.equipo, valor] }));
+    setEquipoPersonalizado("");
+  }
 
   const puedeAvanzar = paso === 0 ? form.peso && form.altura && form.edad : true;
 
@@ -36,13 +45,13 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
   }
 
   return (
-    <div className="min-h-[700px] bg-[#14181A] text-[#F2EFE9] font-sans flex flex-col max-w-md mx-auto px-6 py-8">
-      <p className="text-xs tracking-[0.2em] uppercase text-[#D4A017]">Entrena Perú</p>
+    <div className="min-h-[700px] bg-[#0F1318] text-[#F2EFE9] font-sans flex flex-col max-w-md mx-auto px-6 py-8">
+      <p className="text-xs tracking-[0.2em] uppercase text-[#C9A227]">Entrena Perú</p>
       <h1 className="text-2xl font-bold mt-1 mb-1">Armemos tu perfil</h1>
-      <p className="text-sm text-[#9CA39C] mb-6">Con esto calculamos tus rutinas y tus macros. Toma 1 minuto.</p>
+      <p className="text-sm text-[#8B96A3] mb-6">Con esto calculamos tus rutinas y tus macros. Toma 1 minuto.</p>
 
       {errorGuardado && (
-        <div className="mb-4 text-xs text-[#D4A017] bg-[#2A2620] border border-[#4A3F1F] rounded-lg p-3">
+        <div className="mb-4 text-xs text-[#C9A227] bg-[#241D14] border border-[#4A3A1B] rounded-lg p-3">
           No se pudo guardar tu perfil. Intenta de nuevo en unos segundos.
         </div>
       )}
@@ -54,7 +63,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.peso}
               onChange={(e) => setForm({ ...form, peso: e.target.value })}
-              className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2 text-[#F2EFE9] outline-none focus:border-[#D4A017]"
+              className="w-full bg-[#1A2028] border border-[#2F3A47] rounded-lg px-3 py-2 text-[#F2EFE9] outline-none focus:border-[#C9A227]"
               placeholder="70"
             />
           </Campo>
@@ -63,7 +72,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.altura}
               onChange={(e) => setForm({ ...form, altura: e.target.value })}
-              className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2 text-[#F2EFE9] outline-none focus:border-[#D4A017]"
+              className="w-full bg-[#1A2028] border border-[#2F3A47] rounded-lg px-3 py-2 text-[#F2EFE9] outline-none focus:border-[#C9A227]"
               placeholder="170"
             />
           </Campo>
@@ -72,7 +81,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.edad}
               onChange={(e) => setForm({ ...form, edad: e.target.value })}
-              className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2 text-[#F2EFE9] outline-none focus:border-[#D4A017]"
+              className="w-full bg-[#1A2028] border border-[#2F3A47] rounded-lg px-3 py-2 text-[#F2EFE9] outline-none focus:border-[#C9A227]"
               placeholder="28"
             />
           </Campo>
@@ -114,7 +123,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
 
       {paso === 2 && (
         <div className="space-y-3">
-          <p className="text-sm text-[#9CA39C]">
+          <p className="text-sm text-[#8B96A3]">
             Marca el equipo que tienes en casa. En el gimnasio asumimos que tienes todo disponible.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -123,6 +132,28 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
                 {eq.label}
               </Chip>
             ))}
+            {form.equipo
+              .filter((id) => !EQUIPO_OPCIONES.some((eq) => eq.id === id))
+              .map((personalizado) => (
+                <Chip key={personalizado} active onClick={() => toggleEquipo(personalizado)}>
+                  {personalizado} ✕
+                </Chip>
+              ))}
+          </div>
+          <div className="flex gap-2 pt-1">
+            <input
+              value={equipoPersonalizado}
+              onChange={(e) => setEquipoPersonalizado(e.target.value)}
+              placeholder="¿Tienes algo más? Escríbelo aquí"
+              className="flex-1 bg-[#1A2028] border border-[#2F3A47] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C9A227]"
+            />
+            <button
+              type="button"
+              onClick={agregarEquipoPersonalizado}
+              className="px-3 rounded-lg border border-[#2F3A47] text-[#8B96A3] text-sm"
+            >
+              Agregar
+            </button>
           </div>
         </div>
       )}
@@ -131,7 +162,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
         {paso > 0 && (
           <button
             onClick={() => setPaso(paso - 1)}
-            className="px-4 py-3 rounded-xl border border-[#3A4340] text-[#B9C0BB] text-sm font-medium"
+            className="px-4 py-3 rounded-xl border border-[#2F3A47] text-[#B9C0BB] text-sm font-medium"
           >
             Atrás
           </button>
@@ -140,13 +171,13 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
           <button
             disabled={!puedeAvanzar}
             onClick={() => setPaso(paso + 1)}
-            className="flex-1 bg-[#C1272D] disabled:opacity-40 text-white rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
+            className="flex-1 bg-[#A32638] disabled:opacity-40 text-white rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
           >
             Continuar <ChevronRight size={16} />
           </button>
         )}
         {paso === 2 && (
-          <button onClick={finalizar} className="flex-1 bg-[#C1272D] text-white rounded-xl py-3 text-sm font-semibold">
+          <button onClick={finalizar} className="flex-1 bg-[#A32638] text-white rounded-xl py-3 text-sm font-semibold">
             Empezar
           </button>
         )}

@@ -84,8 +84,8 @@ export default function App() {
 
   if (cargando) {
     return (
-      <div className="min-h-[600px] flex items-center justify-center bg-[#14181A]">
-        <div className="text-[#B9C0BB] text-sm animate-pulse">Cargando tu progreso…</div>
+      <div className="min-h-[600px] flex items-center justify-center bg-[#0F1318]">
+        <div className="text-[#8B96A3] text-sm animate-pulse">Cargando tu progreso…</div>
       </div>
     );
   }
@@ -97,9 +97,9 @@ export default function App() {
   const diaHoy = nutricion.find((d) => d.fecha.slice(0, 10) === hoy()) || { fecha: hoy(), comidas: [] };
 
   return (
-    <div className="min-h-[700px] bg-[#14181A] text-[#F2EFE9] font-sans flex flex-col max-w-md mx-auto relative">
+    <div className="min-h-[700px] bg-[#0F1318] text-[#F2EFE9] font-sans flex flex-col max-w-md mx-auto relative">
       <header className="px-5 pt-6 pb-4">
-        <p className="text-xs tracking-[0.2em] uppercase text-[#D4A017]">Entrena Perú</p>
+        <p className="text-xs tracking-[0.2em] uppercase text-[#C9A227]">Entrena Perú</p>
         <h1 className="text-2xl font-bold tracking-tight mt-1">
           {tab === "entrenar" && "Tu rutina de hoy"}
           {tab === "progreso" && "Tu progreso"}
@@ -131,7 +131,7 @@ export default function App() {
         )}
       </main>
 
-      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#1B211F] border-t border-[#2A312E] flex justify-around py-2">
+      <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#141A22] border-t border-[#263140] flex justify-around py-2">
         <NavBtn icon={Dumbbell} label="Entrenar" active={tab === "entrenar"} onClick={() => setTab("entrenar")} />
         <NavBtn icon={TrendingUp} label="Progreso" active={tab === "progreso"} onClick={() => setTab("progreso")} />
         <NavBtn icon={Salad} label="Nutrición" active={tab === "nutricion"} onClick={() => setTab("nutricion")} />
@@ -145,8 +145,8 @@ export default function App() {
 function NavBtn({ icon: Icon, label, active, onClick }) {
   return (
     <button onClick={onClick} className="flex flex-col items-center gap-1 px-2 py-1">
-      <Icon size={19} color={active ? "#C1272D" : "#6E756F"} />
-      <span className={`text-[9px] font-medium ${active ? "text-[#C1272D]" : "text-[#6E756F]"}`}>{label}</span>
+      <Icon size={19} color={active ? "#A32638" : "#6B7684"} />
+      <span className={`text-[9px] font-medium ${active ? "text-[#A32638]" : "text-[#6B7684]"}`}>{label}</span>
     </button>
   );
 }

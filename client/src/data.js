@@ -9,6 +9,15 @@ export const EQUIPO_OPCIONES = [
   { id: "kettlebell", label: "Kettlebell" },
   { id: "barra_dominadas", label: "Barra de dominadas" },
   { id: "colchoneta", label: "Colchoneta" },
+  { id: "trx", label: "TRX / bandas de suspensión" },
+  { id: "step", label: "Step / cajón pliométrico" },
+  { id: "soga", label: "Soga para saltar" },
+  { id: "rueda_abdominal", label: "Rueda abdominal" },
+  { id: "rodillo_espuma", label: "Rodillo de espuma" },
+  { id: "chaleco_peso", label: "Chaleco con peso" },
+  { id: "disco_deslizante", label: "Discos deslizantes" },
+  { id: "bici_estatica", label: "Bicicleta estática" },
+  { id: "caminadora", label: "Caminadora / trotadora" },
 ];
 
 export const TODO_EQUIPO = EQUIPO_OPCIONES.map((e) => e.id);

@@ -41,39 +41,39 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#1E2422] border border-[#2A312E] rounded-xl p-4">
-        <p className="text-xs text-[#9CA39C] mb-3">Tu meta diaria</p>
+      <div className="bg-[#1A2028] border border-[#263140] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] p-4">
+        <p className="text-xs text-[#8B96A3] mb-3">Tu meta diaria</p>
         <div className="flex items-center gap-4">
           <div className="relative">
-            <Anillo pct={totales.kcal / metas.kcal} color="#C1272D" />
+            <Anillo pct={totales.kcal / metas.kcal} color="#A32638" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <Flame size={14} color="#C1272D" />
+              <Flame size={14} color="#A32638" />
               <p className="text-[11px] font-semibold">{totales.kcal}</p>
             </div>
           </div>
           <div className="flex-1 space-y-1.5">
-            <BarraMacro label="Proteína" valor={totales.prot} meta={metas.prot} color="#C1272D" />
-            <BarraMacro label="Carbos" valor={totales.carb} meta={metas.carb} color="#D4A017" />
-            <BarraMacro label="Grasa" valor={totales.grasa} meta={metas.grasa} color="#7A9B57" />
+            <BarraMacro label="Proteína" valor={totales.prot} meta={metas.prot} color="#A32638" />
+            <BarraMacro label="Carbos" valor={totales.carb} meta={metas.carb} color="#C9A227" />
+            <BarraMacro label="Grasa" valor={totales.grasa} meta={metas.grasa} color="#6B8F4E" />
           </div>
         </div>
-        <p className="text-[11px] text-[#6E756F] mt-3">
+        <p className="text-[11px] text-[#6B7684] mt-3">
           Meta: {metas.kcal} kcal · {metas.prot}g prot · {metas.carb}g carbs · {metas.grasa}g grasa
         </p>
       </div>
 
-      <div className="bg-[#1E2422] border border-[#2A312E] rounded-xl p-4">
-        <p className="text-xs text-[#D4A017] font-medium mb-1">Consejo rápido</p>
+      <div className="bg-[#1A2028] border border-[#263140] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] p-4">
+        <p className="text-xs text-[#C9A227] font-medium mb-1">Consejo rápido</p>
         <p className="text-sm text-[#F2EFE9]">{consejo}</p>
       </div>
 
       <div>
-        <p className="text-xs text-[#9CA39C] mb-2">Agregar comida peruana</p>
+        <p className="text-xs text-[#8B96A3] mb-2">Agregar comida peruana</p>
         <input
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}
           placeholder="Buscar: pollo, ceviche, quinoa…"
-          className="w-full bg-[#1E2422] border border-[#3A4340] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#D4A017]"
+          className="w-full bg-[#1A2028] border border-[#2F3A47] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C9A227]"
         />
         {filtrados.length > 0 && (
           <div className="mt-2 space-y-2">
@@ -81,15 +81,15 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
               <button
                 key={a.nombre}
                 onClick={() => agregarAlimento(a)}
-                className="w-full bg-[#1E2422] border border-[#2A312E] rounded-lg px-3 py-2.5 flex items-center justify-between text-left"
+                className="w-full bg-[#1A2028] border border-[#263140] rounded-lg px-3 py-2.5 flex items-center justify-between text-left"
               >
                 <div>
                   <p className="text-sm">{a.nombre}</p>
-                  <p className="text-xs text-[#6E756F]">
+                  <p className="text-xs text-[#6B7684]">
                     {a.kcal} kcal · {a.prot}g prot
                   </p>
                 </div>
-                <Plus size={16} color="#D4A017" />
+                <Plus size={16} color="#C9A227" />
               </button>
             ))}
           </div>
@@ -97,21 +97,21 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
       </div>
 
       <div>
-        <p className="text-xs text-[#9CA39C] mb-2">Hoy comiste</p>
+        <p className="text-xs text-[#8B96A3] mb-2">Hoy comiste</p>
         {comidas.length === 0 && (
-          <p className="text-sm text-[#6E756F] bg-[#1E2422] rounded-xl p-4">Aún no registras comidas hoy.</p>
+          <p className="text-sm text-[#6B7684] bg-[#1A2028] rounded-xl p-4">Aún no registras comidas hoy.</p>
         )}
         <div className="space-y-2">
           {comidas.map((c, i) => (
-            <div key={i} className="bg-[#1E2422] border border-[#2A312E] rounded-lg px-3 py-2.5 flex items-center justify-between">
+            <div key={i} className="bg-[#1A2028] border border-[#263140] rounded-lg px-3 py-2.5 flex items-center justify-between">
               <div>
                 <p className="text-sm">{c.nombre}</p>
-                <p className="text-xs text-[#6E756F]">
+                <p className="text-xs text-[#6B7684]">
                   {c.kcal} kcal · P {c.prot}g · C {c.carb}g · G {c.grasa}g
                 </p>
               </div>
               <button onClick={() => quitarComida(i)}>
-                <Trash2 size={15} color="#6E756F" />
+                <Trash2 size={15} color="#6B7684" />
               </button>
             </div>
           ))}
