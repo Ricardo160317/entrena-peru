@@ -30,32 +30,57 @@ export const GRUPOS = [
 ];
 
 export const EJERCICIOS = [
-  { nombre: "Sentadilla con barra", grupo: "pierna", equipo: ["barra", "discos"], series: 4, reps: "8-10" },
-  { nombre: "Sentadilla goblet", grupo: "pierna", equipo: ["mancuernas"], series: 4, reps: "10-12" },
-  { nombre: "Peso muerto rumano", grupo: "pierna", equipo: ["barra", "discos"], series: 4, reps: "8-10" },
-  { nombre: "Zancadas con mancuernas", grupo: "pierna", equipo: ["mancuernas"], series: 3, reps: "12 c/pierna" },
-  { nombre: "Prensa de pierna", grupo: "pierna", equipo: ["maquina"], series: 4, reps: "10-12" },
-  { nombre: "Puente de glúteo", grupo: "pierna", equipo: ["colchoneta"], series: 3, reps: "15" },
-  { nombre: "Sentadilla búlgara", grupo: "pierna", equipo: ["mancuernas", "banco"], series: 3, reps: "10 c/pierna" },
-  { nombre: "Press banca", grupo: "empuje", equipo: ["barra", "banco", "discos"], series: 4, reps: "8-10" },
-  { nombre: "Press banca con mancuernas", grupo: "empuje", equipo: ["mancuernas", "banco"], series: 4, reps: "8-10" },
-  { nombre: "Press militar", grupo: "empuje", equipo: ["barra", "discos"], series: 3, reps: "8-10" },
-  { nombre: "Press militar con mancuernas", grupo: "empuje", equipo: ["mancuernas"], series: 3, reps: "10" },
-  { nombre: "Fondos en banco", grupo: "empuje", equipo: ["banco"], series: 3, reps: "12-15" },
-  { nombre: "Flexiones de pecho", grupo: "empuje", equipo: [], series: 3, reps: "15-20" },
-  { nombre: "Extensión de tríceps con mancuerna", grupo: "empuje", equipo: ["mancuernas"], series: 3, reps: "12" },
-  { nombre: "Elevaciones laterales", grupo: "empuje", equipo: ["mancuernas"], series: 3, reps: "12-15" },
-  { nombre: "Jalón al pecho en polea", grupo: "tiron", equipo: ["polea"], series: 4, reps: "10-12" },
-  { nombre: "Remo con barra", grupo: "tiron", equipo: ["barra", "discos"], series: 4, reps: "8-10" },
-  { nombre: "Remo con mancuerna a una mano", grupo: "tiron", equipo: ["mancuernas", "banco"], series: 3, reps: "10-12 c/lado" },
-  { nombre: "Dominadas", grupo: "tiron", equipo: ["barra_dominadas"], series: 3, reps: "al fallo" },
-  { nombre: "Curl de bíceps con mancuernas", grupo: "tiron", equipo: ["mancuernas"], series: 3, reps: "12" },
-  { nombre: "Remo con banda elástica", grupo: "tiron", equipo: ["banda"], series: 3, reps: "15" },
-  { nombre: "Peso muerto con kettlebell", grupo: "full", equipo: ["kettlebell"], series: 3, reps: "12" },
-  { nombre: "Swing con kettlebell", grupo: "full", equipo: ["kettlebell"], series: 4, reps: "15" },
-  { nombre: "Plancha abdominal", grupo: "full", equipo: ["colchoneta"], series: 3, reps: "40s" },
-  { nombre: "Burpees", grupo: "full", equipo: [], series: 3, reps: "12" },
-  { nombre: "Zancadas caminando", grupo: "full", equipo: [], series: 3, reps: "20 pasos" },
+  // EMPUJE
+  { nombre: "Press banca", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 4, reps: "8-10" },
+  { nombre: "Press banca con mancuernas", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["mancuernas", "banco"], series: 4, reps: "8-10" },
+  { nombre: "Press en máquina", grupo: "empuje", patron: "press_horizontal", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12" },
+  { nombre: "Flexiones de pecho", grupo: "empuje", patron: "press_horizontal", estilo: "funcional", equipo: [], series: 3, reps: "15-20" },
+  { nombre: "Press militar", grupo: "empuje", patron: "press_vertical", estilo: "libre", equipo: ["barra", "discos"], series: 3, reps: "8-10" },
+  { nombre: "Press militar con mancuernas", grupo: "empuje", patron: "press_vertical", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "10" },
+  { nombre: "Fondos en banco", grupo: "empuje", patron: "fondos", estilo: "funcional", equipo: ["banco"], series: 3, reps: "12-15" },
+  { nombre: "Extensión de tríceps con mancuerna", grupo: "empuje", patron: "aislamiento_triceps", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12" },
+  { nombre: "Elevaciones laterales", grupo: "empuje", patron: "aislamiento_hombro", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12-15" },
+
+  // TIRÓN
+  { nombre: "Jalón al pecho en polea", grupo: "tiron", patron: "jalon_vertical", estilo: "maquina", equipo: ["polea"], series: 4, reps: "10-12" },
+  { nombre: "Dominadas", grupo: "tiron", patron: "jalon_vertical", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "al fallo" },
+  { nombre: "Remo con barra", grupo: "tiron", patron: "remo_horizontal", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "8-10" },
+  { nombre: "Remo con mancuerna a una mano", grupo: "tiron", patron: "remo_horizontal", estilo: "libre", equipo: ["mancuernas", "banco"], series: 3, reps: "10-12 c/lado" },
+  { nombre: "Remo con banda elástica", grupo: "tiron", patron: "remo_horizontal", estilo: "funcional", equipo: ["banda"], series: 3, reps: "15" },
+  { nombre: "Remo en TRX", grupo: "tiron", patron: "remo_horizontal", estilo: "funcional", equipo: ["trx"], series: 3, reps: "12-15" },
+  { nombre: "Curl de bíceps con mancuernas", grupo: "tiron", patron: "aislamiento_biceps", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12" },
+
+  // PIERNA
+  { nombre: "Sentadilla con barra", grupo: "pierna", patron: "sentadilla", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "8-10" },
+  { nombre: "Sentadilla goblet", grupo: "pierna", patron: "sentadilla", estilo: "libre", equipo: ["mancuernas"], series: 4, reps: "10-12" },
+  { nombre: "Prensa de pierna", grupo: "pierna", patron: "sentadilla", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12" },
+  { nombre: "Peso muerto rumano", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "8-10" },
+  { nombre: "Peso muerto con kettlebell", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["kettlebell"], series: 3, reps: "12" },
+  { nombre: "Puente de glúteo", grupo: "pierna", patron: "bisagra_cadera", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "15" },
+  { nombre: "Zancadas con mancuernas", grupo: "pierna", patron: "zancada", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12 c/pierna" },
+  { nombre: "Sentadilla búlgara", grupo: "pierna", patron: "zancada", estilo: "libre", equipo: ["mancuernas", "banco"], series: 3, reps: "10 c/pierna" },
+  { nombre: "Zancadas caminando", grupo: "pierna", patron: "zancada", estilo: "funcional", equipo: [], series: 3, reps: "20 pasos" },
+  { nombre: "Step-ups con step", grupo: "pierna", patron: "zancada", estilo: "funcional", equipo: ["step"], series: 3, reps: "12 c/pierna" },
+
+  // FULL BODY / CORE / CARDIO
+  { nombre: "Swing con kettlebell", grupo: "full", patron: "cardio_funcional", estilo: "libre", equipo: ["kettlebell"], series: 4, reps: "15" },
+  { nombre: "Burpees", grupo: "full", patron: "cardio_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12" },
+  { nombre: "Salto de soga", grupo: "full", patron: "cardio_funcional", estilo: "funcional", equipo: ["soga"], series: 4, reps: "1 min" },
+  { nombre: "Plancha abdominal", grupo: "full", patron: "core", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "40s" },
+  { nombre: "Rueda abdominal", grupo: "full", patron: "core", estilo: "funcional", equipo: ["rueda_abdominal"], series: 3, reps: "10-12" },
+];
+
+export const TIEMPOS_DISPONIBLES = [
+  { id: 30, label: "30 min" },
+  { id: 45, label: "45 min" },
+  { id: 60, label: "60+ min" },
+];
+
+export const ESTILOS_ENTRENAMIENTO = [
+  { id: "mixto", label: "Sin preferencia" },
+  { id: "libre", label: "Pesas libres" },
+  { id: "maquina", label: "Máquinas" },
+  { id: "funcional", label: "Funcional / peso corporal" },
 ];
 
 export const ALIMENTOS = [
