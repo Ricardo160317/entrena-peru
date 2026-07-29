@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS } from "../data";
+import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES } from "../data";
 import { Campo, Chip } from "./Comunes";
 
 export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
@@ -53,6 +53,16 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
           {OBJETIVOS.map((o) => (
             <Chip key={o.id} active={form.objetivo === o.id} onClick={() => setForm({ ...form, objetivo: o.id })}>
               {o.label}
+            </Chip>
+          ))}
+        </div>
+      </Campo>
+
+      <Campo label="Días a la semana que entrenas">
+        <div className="flex gap-2 flex-wrap">
+          {DIAS_ENTRENO_OPCIONES.map((d) => (
+            <Chip key={d} active={Number(form.dias_entreno) === d} onClick={() => setForm({ ...form, dias_entreno: d })}>
+              {d} {d === 1 ? "día" : "días"}
             </Chip>
           ))}
         </div>

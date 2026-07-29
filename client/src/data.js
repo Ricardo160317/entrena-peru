@@ -59,6 +59,40 @@ export const CALENTAMIENTO = {
   ],
 };
 
+export const DIAS_SEMANA = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+
+export const NOMBRE_DIA_GRUPO = {
+  empuje: "Pecho, Hombro y Tríceps",
+  tiron: "Espalda y Bíceps",
+  pierna: "Pierna y Glúteo",
+  abdomen: "Abdomen",
+  full: "Cardio y Full Body",
+};
+
+// Según cuántos días a la semana entrena la persona, arma un split recomendado (empieza en lunes).
+// Devuelve un array de 7 posiciones (domingo=0 ... sábado=6), con el grupo del día o null (descanso).
+export function armarPlanSemanal(diasPorSemana) {
+  const secuencias = {
+    1: ["full"],
+    2: ["full", "full"],
+    3: ["empuje", "tiron", "pierna"],
+    4: ["empuje", "tiron", "pierna", "abdomen"],
+    5: ["empuje", "tiron", "pierna", "abdomen", "full"],
+    6: ["empuje", "tiron", "pierna", "empuje", "tiron", "pierna"],
+    7: ["empuje", "tiron", "pierna", "abdomen", "empuje", "tiron", "pierna"],
+  };
+  const secuencia = secuencias[diasPorSemana] || secuencias[3];
+  // Lunes a domingo, asignando la secuencia en orden y dejando descanso el resto
+  const plan = [null, null, null, null, null, null, null]; // dom..sab
+  const ordenLunesADomingo = [1, 2, 3, 4, 5, 6, 0];
+  ordenLunesADomingo.forEach((diaIndex, i) => {
+    plan[diaIndex] = secuencia[i] || null;
+  });
+  return plan;
+}
+
+export const DIAS_ENTRENO_OPCIONES = [1, 2, 3, 4, 5, 6, 7];
+
 export const TIEMPOS_DISPONIBLES = [
   { id: 30, label: "30 min" },
   { id: 45, label: "45 min" },
@@ -278,6 +312,32 @@ export function calcularMacros(perfil) {
   return { kcal, prot, carb, grasa };
 }
 
+export const TIPS_DIARIOS = [
+  { categoria: "Fitness", texto: "La técnica correcta con menos peso siempre gana a más peso con mala forma. Prioriza el control del movimiento." },
+  { categoria: "Alimentación", texto: "La proteína en cada comida ayuda a mantenerte saciado y a preservar músculo, entrenes o no ese día." },
+  { categoria: "Superación", texto: "El progreso no es lineal. Una semana floja no borra las anteriores — lo que importa es volver a empezar." },
+  { categoria: "Fitness", texto: "El descanso entre series importa tanto como el ejercicio: 60-90s en aislamiento, 2-3 min en compuestos pesados." },
+  { categoria: "Alimentación", texto: "Tomar agua antes de cada comida ayuda a regular el apetito y es un hábito simple de sostener." },
+  { categoria: "Superación", texto: "No necesitas motivación todos los días, necesitas un sistema. Los hábitos sostienen cuando la motivación falta." },
+  { categoria: "Fitness", texto: "El calentamiento no es opcional: reduce el riesgo de lesión y mejora tu rendimiento en la sesión." },
+  { categoria: "Alimentación", texto: "Comer variado (proteínas, carbos, grasas, vegetales) es más sostenible a largo plazo que restringir grupos enteros." },
+  { categoria: "Superación", texto: "Divide la meta grande en la acción de hoy. '30 min de ejercicio hoy' es más manejable que 'ponerme en forma'." },
+  { categoria: "Fitness", texto: "El sueño es parte del entrenamiento: la recuperación muscular ocurre mientras descansas, no solo en el gimnasio." },
+  { categoria: "Alimentación", texto: "No hay alimentos 'prohibidos' en una dieta balanceada, hay cantidades y frecuencia. Todo entra con moderación." },
+  { categoria: "Superación", texto: "Escribe lo que lograste hoy, aunque sea pequeño. Ver el progreso escrito ayuda a sostener el hábito." },
+];
+
+export function tipDelDia() {
+  const diaDelAño = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return TIPS_DIARIOS[diaDelAño % TIPS_DIARIOS.length];
+}
+
+export const TECNICAS_PRODUCTIVIDAD = [
+  { nombre: "Pomodoro", descripcion: "25 min de trabajo enfocado + 5 min de descanso. Cada 4 ciclos, un descanso largo de 15-20 min." },
+  { nombre: "Regla de los 2 minutos", descripcion: "Si una tarea toma menos de 2 minutos, hazla de inmediato en vez de anotarla para después." },
+  { nombre: "Time blocking", descripcion: "Asigna bloques fijos de tu calendario a tareas específicas, incluyendo entrenar y comer." },
+  { nombre: "Matriz de Eisenhower", descripcion: "Clasifica tareas en urgente/importante para decidir qué hacer, delegar, agendar o eliminar." },
+];
 export const hoy = () => new Date().toISOString().slice(0, 10);
 export const fechaLegible = (iso) => {
   const soloFecha = String(iso).slice(0, 10);

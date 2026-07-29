@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dumbbell, TrendingUp, Salad, UserCircle2, MessageCircleHeart, CheckSquare } from "lucide-react";
+import { Dumbbell, TrendingUp, Salad, UserCircle2, MessageCircleHeart, CheckSquare, Home as HomeIcon } from "lucide-react";
 import {
   getToken,
   clearToken,
@@ -19,6 +19,7 @@ import Progreso from "./components/Progreso";
 import Nutricion from "./components/Nutricion";
 import Asesor from "./components/Asesor";
 import Habitos from "./components/Habitos";
+import Inicio from "./components/Inicio";
 import PerfilTab from "./components/PerfilTab";
 
 export default function App() {
@@ -28,7 +29,7 @@ export default function App() {
   const [entrenamientos, setEntrenamientos] = useState([]);
   const [nutricion, setNutricion] = useState([]);
   const [medidas, setMedidas] = useState([]);
-  const [tab, setTab] = useState("entrenar");
+  const [tab, setTab] = useState("inicio");
 
   useEffect(() => {
     if (!autenticado) {
@@ -107,6 +108,7 @@ export default function App() {
       <header className="px-5 pt-6 pb-4">
         <p className="text-xs tracking-[0.2em] uppercase text-[#15803D]">Entrena Perú</p>
         <h1 className="text-2xl font-bold tracking-tight mt-1">
+          {tab === "inicio" && "Hola de nuevo"}
           {tab === "entrenar" && "Tu rutina de hoy"}
           {tab === "progreso" && "Tu progreso"}
           {tab === "nutricion" && "Asesor de macros"}
@@ -117,6 +119,7 @@ export default function App() {
       </header>
 
       <main className="flex-1 px-5 pb-24 overflow-y-auto">
+        {tab === "inicio" && <Inicio entrenamientos={entrenamientos} />}
         {tab === "entrenar" && (
           <Entrenar perfil={perfil} entrenamientos={entrenamientos} onGuardarSesion={guardarSesionEntrenamiento} />
         )}
@@ -140,6 +143,7 @@ export default function App() {
       </main>
 
       <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[#F8FAFC] border-t border-[#E5E7EB] flex justify-around py-2">
+        <NavBtn icon={HomeIcon} label="Inicio" active={tab === "inicio"} onClick={() => setTab("inicio")} />
         <NavBtn icon={Dumbbell} label="Entrenar" active={tab === "entrenar"} onClick={() => setTab("entrenar")} />
         <NavBtn icon={TrendingUp} label="Progreso" active={tab === "progreso"} onClick={() => setTab("progreso")} />
         <NavBtn icon={Salad} label="Nutrición" active={tab === "nutricion"} onClick={() => setTab("nutricion")} />
@@ -153,9 +157,9 @@ export default function App() {
 
 function NavBtn({ icon: Icon, label, active, onClick }) {
   return (
-    <button onClick={onClick} className="flex flex-col items-center gap-0.5 px-1 py-1">
-      <Icon size={17} color={active ? "#111827" : "#9CA3AF"} />
-      <span className={`text-[8px] font-medium ${active ? "text-[#111827]" : "text-[#9CA3AF]"}`}>{label}</span>
+    <button onClick={onClick} className="flex flex-col items-center gap-0.5 px-0.5 py-1">
+      <Icon size={16} color={active ? "#111827" : "#9CA3AF"} />
+      <span className={`text-[7.5px] font-medium ${active ? "text-[#111827]" : "text-[#9CA3AF]"}`}>{label}</span>
     </button>
   );
 }

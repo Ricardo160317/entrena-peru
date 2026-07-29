@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle } from "lucide-react";
-import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, hoy } from "../data";
+import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, hoy } from "../data";
 import { Chip } from "./Comunes";
 
 const INCREMENTOS = {
@@ -69,12 +69,30 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar }) {
   const seleccion = elegidos.slice(0, maxEjercicios);
 
   // Con 60+ minutos, dale una serie extra a los movimientos compuestos principales
-  return seleccion.map(({ ejercicio, prioridad }) => {
+  const rutina = seleccion.map(({ ejercicio, prioridad }) => {
     if (tiempo >= 60 && prioridad === 1 && ejercicio.series) {
       return { ...ejercicio, series: ejercicio.series + 1 };
     }
     return ejercicio;
   });
+
+  // Si el día no es de abdomen, cerramos con 2 ejercicios de core (no cuentan contra el máximo de arriba)
+  if (grupo !== "abdomen") {
+    const absDisponibles = EJERCICIOS.filter(
+      (ej) => ej.grupo === "abdomen" && ej.equipo.every((id) => equipoDisponible.includes(id))
+    );
+    const absPorPatron = {};
+    absDisponibles.forEach((ej) => {
+      if (!absPorPatron[ej.patron]) absPorPatron[ej.patron] = [];
+      absPorPatron[ej.patron].push(ej);
+    });
+    const absElegidos = Object.values(absPorPatron)
+      .map((opciones) => elegirEjercicio(opciones, estilo, lugar))
+      .slice(0, 2);
+    return [...rutina, ...absElegidos];
+  }
+
+  return rutina;
 }
 
 function objetivoMaxReps(repsStr) {
@@ -143,6 +161,11 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
   const [registro, setRegistro] = useState({});
 
   const equipoDisponible = lugar === "gimnasio" ? TODO_EQUIPO : perfil.equipo || [];
+
+  const planSemanal = armarPlanSemanal(perfil.dias_entreno || 3);
+  const diaSemanaHoy = new Date().getDay();
+  const grupoSugeridoHoy = planSemanal[diaSemanaHoy];
+  const nombreDiaHoy = DIAS_SEMANA[diaSemanaHoy];
 
   function generar(g) {
     setGrupo(g);
@@ -232,7 +255,24 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           </div>
 
           <div className="space-y-2.5">
-            <p className="text-xs text-[#6B7280]">¿Qué grupo muscular toca hoy?</p>
+            {grupoSugeridoHoy && (
+              <button
+                onClick={() => generar(grupoSugeridoHoy)}
+                className="w-full bg-[#111827] rounded-xl px-4 py-4 flex items-center justify-between text-left"
+              >
+                <div>
+                  <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF]">Hoy es {nombreDiaHoy} · según tu plan</p>
+                  <p className="font-semibold text-white text-base mt-0.5">{NOMBRE_DIA_GRUPO[grupoSugeridoHoy]}</p>
+                </div>
+                <ChevronRight size={18} color="#FFFFFF" />
+              </button>
+            )}
+            {!grupoSugeridoHoy && (
+              <div className="w-full bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl px-4 py-3">
+                <p className="text-sm text-[#6B7280]">Hoy {nombreDiaHoy.toLowerCase()} te tocaría descansar según tu plan. Puedes entrenar igual eligiendo un grupo abajo.</p>
+              </div>
+            )}
+            <p className="text-xs text-[#6B7280] pt-1">O elige otro grupo manualmente:</p>
             {GRUPOS.map((g) => (
               <button
                 key={g.id}
@@ -254,7 +294,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <p className="text-sm font-semibold text-[#15803D]">
-              {GRUPOS.find((g) => g.id === grupo)?.label} · {lugar === "casa" ? "Casa" : "Gimnasio"} · {tiempo} min
+              {NOMBRE_DIA_GRUPO[grupo] || GRUPOS.find((g) => g.id === grupo)?.label} · {lugar === "casa" ? "Casa" : "Gimnasio"} · {tiempo} min
             </p>
             <button onClick={() => { setRutina(null); setGrupo(null); }} className="text-xs text-[#6B7280]">
               Cambiar

@@ -14,6 +14,7 @@ app.use("/api/entrenamientos", require("./routes/entrenamientos"));
 app.use("/api/nutricion", require("./routes/nutricion"));
 app.use("/api/asesor", require("./routes/asesor"));
 app.use("/api/habitos", require("./routes/habitos"));
+app.use("/api/foto", require("./routes/foto"));
 
 app.get("/api/salud", (req, res) => res.json({ ok: true }));
 

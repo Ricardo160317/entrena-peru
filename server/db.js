@@ -30,8 +30,11 @@ async function initSchema() {
       musculo_pct NUMERIC,
       agua_pct NUMERIC,
       visceral NUMERIC,
+      dias_entreno INTEGER DEFAULT 3,
       actualizado_en TIMESTAMP DEFAULT NOW()
     );
+
+    ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS dias_entreno INTEGER DEFAULT 3;
 
     CREATE TABLE IF NOT EXISTS entrenamientos (
       id SERIAL PRIMARY KEY,

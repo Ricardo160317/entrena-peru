@@ -1,13 +1,18 @@
-import { useState } from "react";
-import { Plus, Trash2, Flame } from "lucide-react";
+import { useRef, useState } from "react";
+import { Plus, Trash2, Flame, Camera, Loader2 } from "lucide-react";
 import { ALIMENTOS, calcularMacros, hoy } from "../data";
 import { Anillo, BarraMacro } from "./Comunes";
+import { redimensionarImagen } from "../imageUtils";
+import { analizarFotoComida } from "../api";
 
 export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
   const metas = calcularMacros(perfil);
   const [buscar, setBuscar] = useState("");
   const [seleccionado, setSeleccionado] = useState(null);
   const [gramos, setGramos] = useState("");
+  const [analizando, setAnalizando] = useState(false);
+  const [errorFoto, setErrorFoto] = useState("");
+  const inputFotoRef = useRef(null);
 
   const comidas = diaHoy?.comidas || [];
 
@@ -48,6 +53,34 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
     onGuardarDia(hoy(), comidas.filter((_, i) => i !== idx));
   }
 
+  async function elegirFotoComida(e) {
+    const archivo = e.target.files?.[0];
+    if (!archivo) return;
+    setAnalizando(true);
+    setErrorFoto("");
+    try {
+      const dataUrl = await redimensionarImagen(archivo, 700, 0.6);
+      const resultado = await analizarFotoComida(dataUrl);
+      if (!resultado.kcal && resultado.nombre === "No identificado") {
+        setErrorFoto("No pude reconocer comida en esa foto, intenta con otra o agrégala manualmente.");
+        return;
+      }
+      setSeleccionado({
+        nombre: `${resultado.nombre} (estimado por foto)`,
+        gramos: resultado.gramos_estimados || 100,
+        kcal: resultado.kcal,
+        prot: resultado.prot,
+        carb: resultado.carb,
+        grasa: resultado.grasa,
+      });
+      setGramos(String(resultado.gramos_estimados || 100));
+    } catch (err) {
+      setErrorFoto(err.message);
+    } finally {
+      setAnalizando(false);
+    }
+  }
+
   const faltaProt = Math.max(0, metas.prot - totales.prot);
   let consejo = "Vas bien encaminado, sigue registrando tus comidas.";
   if (faltaProt > 25) {
@@ -85,7 +118,19 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
       </div>
 
       <div>
-        <p className="text-xs text-[#6B7280] mb-2">Agregar comida</p>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-[#6B7280]">Agregar comida</p>
+          <button
+            onClick={() => inputFotoRef.current?.click()}
+            disabled={analizando}
+            className="text-xs text-[#15803D] flex items-center gap-1 border border-[#E5E7EB] rounded-full px-2.5 py-1 disabled:opacity-50"
+          >
+            {analizando ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
+            {analizando ? "Analizando…" : "Foto de tu comida"}
+          </button>
+          <input ref={inputFotoRef} type="file" accept="image/*" capture="environment" onChange={elegirFotoComida} className="hidden" />
+        </div>
+        {errorFoto && <p className="text-xs text-[#EF4444] mb-2">{errorFoto}</p>}
         <input
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}

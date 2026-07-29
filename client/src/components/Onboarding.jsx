@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS } from "../data";
+import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES } from "../data";
 import { Campo, Chip } from "./Comunes";
 
 export default function Onboarding({ onGuardar, errorGuardado }) {
@@ -12,6 +12,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
     sexo: "M",
     nivel: "moderado",
     objetivo: "mantener",
+    diasEntreno: 3,
     equipo: [],
   });
 
@@ -41,6 +42,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
       nivel: form.nivel,
       objetivo: form.objetivo,
       equipo: form.equipo,
+      dias_entreno: form.diasEntreno,
     });
   }
 
@@ -117,6 +119,18 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
                 </Chip>
               ))}
             </div>
+          </Campo>
+          <Campo label="¿Cuántos días a la semana planeas entrenar?">
+            <div className="flex gap-2 flex-wrap">
+              {DIAS_ENTRENO_OPCIONES.map((d) => (
+                <Chip key={d} active={form.diasEntreno === d} onClick={() => setForm({ ...form, diasEntreno: d })}>
+                  {d} {d === 1 ? "día" : "días"}
+                </Chip>
+              ))}
+            </div>
+            <p className="text-[11px] text-[#9CA3AF] mt-1.5">
+              Con esto armamos un plan por día (ej. pecho/bíceps, pierna, espalda) en vez de que elijas cada vez.
+            </p>
           </Campo>
         </div>
       )}
