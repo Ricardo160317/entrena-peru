@@ -6,7 +6,7 @@ const { initSchema } = require("./db");
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "2mb" }));
+app.use(express.json({ limit: "10mb" }));
 
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/perfil", require("./routes/perfil"));

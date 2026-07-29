@@ -62,6 +62,13 @@ async function initSchema() {
       visceral NUMERIC,
       creado_en TIMESTAMP DEFAULT NOW()
     );
+
+    ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS cintura NUMERIC;
+    ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS pecho NUMERIC;
+    ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS brazo NUMERIC;
+    ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS pierna NUMERIC;
+    ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS cadera NUMERIC;
+    ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS foto TEXT;
   `);
 }
 

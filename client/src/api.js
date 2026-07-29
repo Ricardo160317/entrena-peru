@@ -37,6 +37,8 @@ export const login = (email, password) =>
 export const obtenerPerfil = () => api("/perfil");
 export const guardarPerfil = (perfil) => api("/perfil", { method: "PUT", body: perfil });
 export const obtenerMedidas = () => api("/perfil/medidas");
+export const registrarMedida = (datos) => api("/perfil/medidas", { method: "POST", body: datos });
+export const borrarMedida = (id) => api(`/perfil/medidas/${id}`, { method: "DELETE" });
 
 export const obtenerEntrenamientos = () => api("/entrenamientos");
 export const crearEntrenamiento = (sesion) => api("/entrenamientos", { method: "POST", body: sesion });

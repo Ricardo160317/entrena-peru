@@ -43,4 +43,26 @@ router.get("/medidas", async (req, res) => {
   res.json(result.rows);
 });
 
+router.post("/medidas", async (req, res) => {
+  const { fecha, peso, grasa_pct, musculo_pct, agua_pct, visceral, cintura, pecho, brazo, pierna, cadera, foto } = req.body;
+  try {
+    const result = await pool.query(
+      `INSERT INTO medidas_corporales
+        (usuario_id, fecha, peso, grasa_pct, musculo_pct, agua_pct, visceral, cintura, pecho, brazo, pierna, cadera, foto)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
+       RETURNING *`,
+      [req.usuarioId, fecha || new Date().toISOString().slice(0, 10), peso, grasa_pct, musculo_pct, agua_pct, visceral, cintura, pecho, brazo, pierna, cadera, foto]
+    );
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "No se pudo guardar la medición" });
+  }
+});
+
+router.delete("/medidas/:id", async (req, res) => {
+  await pool.query("DELETE FROM medidas_corporales WHERE id = $1 AND usuario_id = $2", [req.params.id, req.usuarioId]);
+  res.json({ ok: true });
+});
+
 module.exports = router;

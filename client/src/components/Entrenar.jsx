@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp } from "lucide-react";
-import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, hoy } from "../data";
+import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle } from "lucide-react";
+import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, hoy } from "../data";
 import { Chip } from "./Comunes";
 
-// Cuánto peso sumar cuando toca progresar, según el tipo de movimiento
 const INCREMENTOS = {
   sentadilla: 2.5,
   bisagra_cadera: 2.5,
@@ -12,15 +11,36 @@ const INCREMENTOS = {
   remo_horizontal: 2,
   jalon_vertical: 2.5,
   zancada: 1,
+  fondos: 1,
+  gluteo_aislado: 1.5,
   aislamiento_biceps: 1,
   aislamiento_triceps: 1,
   aislamiento_hombro: 1,
-  fondos: 1,
+  aislamiento_cuadriceps: 1.5,
+  aislamiento_isquios: 1.5,
+  aislamiento_pecho: 1,
+  antebrazo: 0.5,
+  pantorrilla: 2,
   core: 0,
   cardio_funcional: 0,
 };
 
-function generarRutina({ grupo, equipoDisponible, estilo, tiempo }) {
+// Elige el mejor ejercicio disponible para un patrón, según preferencia explícita del usuario
+// o, si no hay preferencia, según el lugar: en gimnasio se prioriza máquina/cable, en casa libre/funcional.
+function elegirEjercicio(opciones, estiloUsuario, lugar) {
+  if (estiloUsuario && estiloUsuario !== "mixto") {
+    const match = opciones.find((o) => o.estilo === estiloUsuario);
+    if (match) return match;
+  }
+  const orden = lugar === "gimnasio" ? ["maquina", "libre", "funcional"] : ["libre", "funcional", "maquina"];
+  for (const est of orden) {
+    const match = opciones.find((o) => o.estilo === est);
+    if (match) return match;
+  }
+  return opciones[0];
+}
+
+function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar }) {
   const disponibles = EJERCICIOS.filter(
     (ej) => ej.grupo === grupo && ej.equipo.every((id) => equipoDisponible.includes(id))
   );
@@ -31,20 +51,29 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo }) {
     porPatron[ej.patron].push(ej);
   });
 
-  const elegidos = Object.values(porPatron).map((opciones) => {
-    if (estilo && estilo !== "mixto") {
-      const match = opciones.find((o) => o.estilo === estilo);
-      if (match) return match;
-    }
-    return opciones[0];
-  });
+  let elegidos = Object.entries(porPatron).map(([patron, opciones]) => ({
+    patron,
+    prioridad: PRIORIDAD_PATRON[patron] ?? 2,
+    ejercicio: elegirEjercicio(opciones, estilo, lugar),
+  }));
 
-  const maxEjercicios = tiempo <= 30 ? 3 : tiempo <= 45 ? 5 : 6;
-  return elegidos.slice(0, maxEjercicios);
+  // Prioridad 1 (compuestos) siempre primero; con más tiempo entran accesorios y aislamiento
+  elegidos.sort((a, b) => a.prioridad - b.prioridad);
+
+  const maxPrioridad = tiempo <= 30 ? 1 : tiempo <= 45 ? 2 : 3;
+  const maxEjercicios = tiempo <= 30 ? 4 : tiempo <= 45 ? 6 : 8;
+
+  const filtrados = elegidos.filter((e) => e.prioridad <= maxPrioridad).slice(0, maxEjercicios);
+
+  // Con 60+ minutos, dale una serie extra a los movimientos compuestos principales
+  return filtrados.map(({ ejercicio, prioridad }) => {
+    if (tiempo >= 60 && prioridad === 1) {
+      return { ...ejercicio, series: ejercicio.series + 1 };
+    }
+    return ejercicio;
+  });
 }
 
-// Extrae el número más alto del rango de reps objetivo (ej. "8-10" -> 10). Devuelve null si no es un
-// ejercicio medido en repeticiones (ej. "al fallo", "40s", "1 min").
 function objetivoMaxReps(repsStr) {
   if (/fallo/i.test(repsStr) || /\bmin\b/i.test(repsStr) || /\d+s\b/.test(repsStr)) return null;
   const numeros = repsStr.match(/\d+/g);
@@ -60,9 +89,7 @@ function historialDe(nombreEj, entrenamientos) {
   const registros = [];
   entrenamientos.forEach((s) => {
     const ej = s.ejercicios.find((e) => e.nombre === nombreEj);
-    if (ej && ej.peso) {
-      registros.push({ peso: ej.peso, repsLogradas: ej.repsLogradas ?? null });
-    }
+    if (ej && ej.peso) registros.push({ peso: ej.peso, repsLogradas: ej.repsLogradas ?? null });
   });
   return registros;
 }
@@ -93,12 +120,15 @@ function sugerirProgresion(ej, entrenamientos) {
       referencia = `Última vez: ${ultimo.peso}kg × ${ultimo.repsLogradas} reps. Meta: ${objetivo} reps antes de subir peso`;
     }
   } else if (incremento > 0 && penultimo && penultimo.peso === ultimo.peso) {
-    // Sin dato de reps logradas (ejercicios "al fallo" o por tiempo): regla simple de respaldo
     pesoSugerido = redondear(ultimo.peso + incremento);
     referencia = `Última vez: ${ultimo.peso}kg (x2) → Sugerido: ${pesoSugerido}kg 💪`;
   }
 
   return { peso: pesoSugerido, referencia };
+}
+
+function urlVideoEjercicio(nombre) {
+  return `https://www.youtube.com/results?search_query=${encodeURIComponent(nombre + " técnica ejecución")}`;
 }
 
 export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
@@ -113,7 +143,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
 
   function generar(g) {
     setGrupo(g);
-    const elegidos = generarRutina({ grupo: g, equipoDisponible, estilo, tiempo });
+    const elegidos = generarRutina({ grupo: g, equipoDisponible, estilo, tiempo, lugar });
     setRutina(elegidos);
     const inicial = {};
     elegidos.forEach((ej) => {
@@ -143,10 +173,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
     <div className="space-y-5">
       <div className="flex gap-2">
         <button
-          onClick={() => {
-            setLugar("casa");
-            setRutina(null);
-          }}
+          onClick={() => { setLugar("casa"); setRutina(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium ${
             lugar === "casa" ? "bg-[#6B8F4E] border-[#6B8F4E] text-[#0F1318]" : "border-[#2F3A47] text-[#8B96A3]"
           }`}
@@ -154,10 +181,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           <Home size={16} /> Casa
         </button>
         <button
-          onClick={() => {
-            setLugar("gimnasio");
-            setRutina(null);
-          }}
+          onClick={() => { setLugar("gimnasio"); setRutina(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium ${
             lugar === "gimnasio" ? "bg-[#6B8F4E] border-[#6B8F4E] text-[#0F1318]" : "border-[#2F3A47] text-[#8B96A3]"
           }`}
@@ -165,6 +189,11 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           <Building2 size={16} /> Gimnasio
         </button>
       </div>
+      <p className="text-[11px] text-[#6B7684] -mt-3">
+        {lugar === "casa"
+          ? "Prioriza pesas libres y peso corporal con tu equipo registrado."
+          : "Prioriza máquinas y cable, asumiendo que tienes acceso a todo."}
+      </p>
 
       {!rutina && (
         <>
@@ -179,6 +208,11 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
                 </Chip>
               ))}
             </div>
+            <p className="text-[11px] text-[#6B7684] mt-1.5">
+              {tiempo <= 30 && "Solo movimientos compuestos principales — rutina corta y eficiente."}
+              {tiempo === 45 && "Compuestos + accesorios — rutina balanceada."}
+              {tiempo >= 60 && "Rutina completa: compuestos con una serie extra, accesorios y aislamiento."}
+            </p>
           </div>
 
           <div>
@@ -219,13 +253,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
             <p className="text-sm font-semibold text-[#C9A227]">
               {GRUPOS.find((g) => g.id === grupo)?.label} · {lugar === "casa" ? "Casa" : "Gimnasio"} · {tiempo} min
             </p>
-            <button
-              onClick={() => {
-                setRutina(null);
-                setGrupo(null);
-              }}
-              className="text-xs text-[#8B96A3]"
-            >
+            <button onClick={() => { setRutina(null); setGrupo(null); }} className="text-xs text-[#8B96A3]">
               Cambiar
             </button>
           </div>
@@ -238,26 +266,34 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
 
           {rutina.map((ej) => (
             <div key={ej.nombre} className="bg-[#1A2028] border border-[#263140] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] p-3.5">
-              <div className="mb-2">
-                <p className="font-medium text-sm">{ej.nombre}</p>
-                <p className="text-xs text-[#8B96A3]">
-                  {ej.series} series × {ej.reps}
-                </p>
-                {registro[ej.nombre]?.referencia && (
-                  <p className="text-[11px] text-[#C9A227] mt-1 flex items-center gap-1">
-                    <TrendingUp size={11} /> {registro[ej.nombre].referencia}
+              <div className="mb-2 flex items-start justify-between gap-2">
+                <div>
+                  <p className="font-medium text-sm">{ej.nombre}</p>
+                  <p className="text-xs text-[#8B96A3]">
+                    {ej.series} series × {ej.reps}
                   </p>
-                )}
+                </div>
+                <a
+                  href={urlVideoEjercicio(ej.nombre)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[10px] text-[#8B96A3] border border-[#2F3A47] rounded-full px-2 py-1 shrink-0"
+                >
+                  <PlayCircle size={12} /> Ver técnica
+                </a>
               </div>
+              {registro[ej.nombre]?.referencia && (
+                <p className="text-[11px] text-[#C9A227] mb-2 flex items-center gap-1">
+                  <TrendingUp size={11} /> {registro[ej.nombre].referencia}
+                </p>
+              )}
               <div className="flex gap-2 items-center flex-wrap">
                 <div>
                   <p className="text-[10px] text-[#6B7684] mb-1">Peso kg</p>
                   <input
                     type="number"
                     value={registro[ej.nombre]?.peso ?? ""}
-                    onChange={(e) =>
-                      setRegistro({ ...registro, [ej.nombre]: { ...registro[ej.nombre], peso: e.target.value } })
-                    }
+                    onChange={(e) => setRegistro({ ...registro, [ej.nombre]: { ...registro[ej.nombre], peso: e.target.value } })}
                     className="w-20 bg-[#0F1318] border border-[#2F3A47] rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-[#C9A227]"
                   />
                 </div>
@@ -267,12 +303,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
                     type="number"
                     placeholder="ej. 10"
                     value={registro[ej.nombre]?.repsLogradas ?? ""}
-                    onChange={(e) =>
-                      setRegistro({
-                        ...registro,
-                        [ej.nombre]: { ...registro[ej.nombre], repsLogradas: e.target.value },
-                      })
-                    }
+                    onChange={(e) => setRegistro({ ...registro, [ej.nombre]: { ...registro[ej.nombre], repsLogradas: e.target.value } })}
                     className="w-24 bg-[#0F1318] border border-[#2F3A47] rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-[#C9A227]"
                   />
                 </div>

@@ -11,6 +11,7 @@ import {
   Bar,
 } from "recharts";
 import { GRUPOS, fechaLegible } from "../data";
+import SeguidorMedidas from "./SeguidorMedidas";
 
 const tooltipStyle = {
   backgroundColor: "#1A2028",
@@ -20,7 +21,7 @@ const tooltipStyle = {
   color: "#F2EFE9",
 };
 
-export default function Progreso({ entrenamientos, medidas }) {
+export default function Progreso({ entrenamientos, medidas, onMedidaGuardada }) {
   const nombresEjercicios = useMemo(() => {
     const set = new Set();
     entrenamientos.forEach((s) => s.ejercicios.forEach((e) => set.add(e.nombre)));
@@ -67,18 +68,20 @@ export default function Progreso({ entrenamientos, medidas }) {
 
   const ultimaMedida = medidas && medidas.length > 0 ? medidas[medidas.length - 1] : null;
 
-  if (entrenamientos.length === 0 && (!medidas || medidas.length === 0)) {
-    return (
-      <div className="bg-[#1A2028] border border-[#263140] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] p-6 text-center mt-4">
-        <p className="text-sm text-[#8B96A3]">
-          Todavía no registras sesiones. Ve a la pestaña Entrenar y guarda tu primera rutina.
-        </p>
-      </div>
-    );
-  }
+  const sinNadaAun = entrenamientos.length === 0 && (!medidas || medidas.length === 0);
 
   return (
     <div className="space-y-6">
+      <SeguidorMedidas medidas={medidas} onMedidaGuardada={onMedidaGuardada} />
+
+      {sinNadaAun && (
+        <div className="bg-[#1A2028] border border-[#263140] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] p-6 text-center">
+          <p className="text-sm text-[#8B96A3]">
+            Todavía no registras sesiones. Ve a la pestaña Entrenar y guarda tu primera rutina.
+          </p>
+        </div>
+      )}
+
       {ultimaMedida && (
         <div>
           <p className="text-xs text-[#8B96A3] mb-2">Última medición de tu balanza</p>

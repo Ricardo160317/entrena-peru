@@ -72,6 +72,11 @@ export default function App() {
     setEntrenamientos([...entrenamientos, guardada]);
   }
 
+  async function refrescarMedidas() {
+    const m = await obtenerMedidas();
+    setMedidas(m);
+  }
+
   async function guardarDiaNutricionLocal(fecha, comidas) {
     const guardado = await guardarDiaNutricion(fecha, comidas);
     const otros = nutricion.filter((d) => d.fecha.slice(0, 10) !== fecha);
@@ -113,7 +118,7 @@ export default function App() {
         {tab === "entrenar" && (
           <Entrenar perfil={perfil} entrenamientos={entrenamientos} onGuardarSesion={guardarSesionEntrenamiento} />
         )}
-        {tab === "progreso" && <Progreso entrenamientos={entrenamientos} medidas={medidas} />}
+        {tab === "progreso" && <Progreso entrenamientos={entrenamientos} medidas={medidas} onMedidaGuardada={refrescarMedidas} />}
         {tab === "nutricion" && (
           <Nutricion perfil={perfil} diaHoy={diaHoy} onGuardarDia={guardarDiaNutricionLocal} />
         )}

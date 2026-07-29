@@ -6,6 +6,8 @@ import { Anillo, BarraMacro } from "./Comunes";
 export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
   const metas = calcularMacros(perfil);
   const [buscar, setBuscar] = useState("");
+  const [seleccionado, setSeleccionado] = useState(null);
+  const [gramos, setGramos] = useState("");
 
   const comidas = diaHoy?.comidas || [];
 
@@ -21,10 +23,25 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
 
   const filtrados = buscar ? ALIMENTOS.filter((a) => a.nombre.toLowerCase().includes(buscar.toLowerCase())) : [];
 
-  function agregarAlimento(a) {
-    const nuevo = { nombre: a.nombre, kcal: a.kcal, prot: a.prot, carb: a.carb, grasa: a.grasa };
-    onGuardarDia(hoy(), [...comidas, nuevo]);
+  function elegirAlimento(a) {
+    setSeleccionado(a);
+    setGramos(String(a.gramos));
     setBuscar("");
+  }
+
+  function agregarConGramos() {
+    if (!seleccionado || !gramos) return;
+    const factor = Number(gramos) / seleccionado.gramos;
+    const nuevo = {
+      nombre: `${seleccionado.nombre} (${gramos}g)`,
+      kcal: Math.round(seleccionado.kcal * factor),
+      prot: Math.round(seleccionado.prot * factor * 10) / 10,
+      carb: Math.round(seleccionado.carb * factor * 10) / 10,
+      grasa: Math.round(seleccionado.grasa * factor * 10) / 10,
+    };
+    onGuardarDia(hoy(), [...comidas, nuevo]);
+    setSeleccionado(null);
+    setGramos("");
   }
 
   function quitarComida(idx) {
@@ -68,7 +85,7 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
       </div>
 
       <div>
-        <p className="text-xs text-[#8B96A3] mb-2">Agregar comida peruana</p>
+        <p className="text-xs text-[#8B96A3] mb-2">Agregar comida</p>
         <input
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}
@@ -80,18 +97,43 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
             {filtrados.slice(0, 6).map((a) => (
               <button
                 key={a.nombre}
-                onClick={() => agregarAlimento(a)}
+                onClick={() => elegirAlimento(a)}
                 className="w-full bg-[#1A2028] border border-[#263140] rounded-lg px-3 py-2.5 flex items-center justify-between text-left"
               >
                 <div>
                   <p className="text-sm">{a.nombre}</p>
                   <p className="text-xs text-[#6B7684]">
-                    {a.kcal} kcal · {a.prot}g prot
+                    Base: {a.gramos}g · {a.kcal} kcal · {a.prot}g prot
                   </p>
                 </div>
                 <Plus size={16} color="#C9A227" />
               </button>
             ))}
+          </div>
+        )}
+
+        {seleccionado && (
+          <div className="mt-3 bg-[#1A2028] border border-[#263140] rounded-lg p-3.5">
+            <p className="text-sm font-medium mb-2">{seleccionado.nombre}</p>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                autoFocus
+                value={gramos}
+                onChange={(e) => setGramos(e.target.value)}
+                className="w-24 bg-[#0F1318] border border-[#2F3A47] rounded-lg px-2.5 py-2 text-sm outline-none focus:border-[#C9A227]"
+              />
+              <span className="text-xs text-[#8B96A3]">gramos</span>
+              <button onClick={agregarConGramos} className="ml-auto bg-[#A32638] text-white text-sm rounded-lg px-4 py-2">
+                Agregar
+              </button>
+            </div>
+            {gramos && (
+              <p className="text-[11px] text-[#6B7684] mt-2">
+                ≈ {Math.round(seleccionado.kcal * (Number(gramos) / seleccionado.gramos))} kcal ·{" "}
+                {Math.round(seleccionado.prot * (Number(gramos) / seleccionado.gramos) * 10) / 10}g prot
+              </p>
+            )}
           </div>
         )}
       </div>
