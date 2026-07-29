@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle } from "lucide-react";
-import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, hoy } from "../data";
+import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, hoy } from "../data";
 import { Chip } from "./Comunes";
 
 const INCREMENTOS = {
@@ -21,8 +21,13 @@ const INCREMENTOS = {
   aislamiento_pecho: 1,
   antebrazo: 0.5,
   pantorrilla: 2,
-  core: 0,
-  cardio_funcional: 0,
+  core_isometrico: 0,
+  core_flexion: 0,
+  core_flexion_avanzada: 0,
+  core_piernas: 0,
+  core_rotacion: 0,
+  cardio_constante: 0,
+  hiit_funcional: 0,
 };
 
 // Elige el mejor ejercicio disponible para un patrón, según preferencia explícita del usuario
@@ -57,17 +62,15 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar }) {
     ejercicio: elegirEjercicio(opciones, estilo, lugar),
   }));
 
-  // Prioridad 1 (compuestos) siempre primero; con más tiempo entran accesorios y aislamiento
+  // Los patrones de menor número (compuestos) siempre van primero; con más tiempo entran más patrones
   elegidos.sort((a, b) => a.prioridad - b.prioridad);
 
-  const maxPrioridad = tiempo <= 30 ? 1 : tiempo <= 45 ? 2 : 3;
   const maxEjercicios = tiempo <= 30 ? 4 : tiempo <= 45 ? 6 : 8;
-
-  const filtrados = elegidos.filter((e) => e.prioridad <= maxPrioridad).slice(0, maxEjercicios);
+  const seleccion = elegidos.slice(0, maxEjercicios);
 
   // Con 60+ minutos, dale una serie extra a los movimientos compuestos principales
-  return filtrados.map(({ ejercicio, prioridad }) => {
-    if (tiempo >= 60 && prioridad === 1) {
+  return seleccion.map(({ ejercicio, prioridad }) => {
+    if (tiempo >= 60 && prioridad === 1 && ejercicio.series) {
       return { ...ejercicio, series: ejercicio.series + 1 };
     }
     return ejercicio;
@@ -175,7 +178,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
         <button
           onClick={() => { setLugar("casa"); setRutina(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium ${
-            lugar === "casa" ? "bg-[#6B8F4E] border-[#6B8F4E] text-[#0F1318]" : "border-[#2F3A47] text-[#8B96A3]"
+            lugar === "casa" ? "bg-[#22C55E] border-[#22C55E] text-[#FFFFFF]" : "border-[#E5E7EB] text-[#6B7280]"
           }`}
         >
           <Home size={16} /> Casa
@@ -183,13 +186,13 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
         <button
           onClick={() => { setLugar("gimnasio"); setRutina(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium ${
-            lugar === "gimnasio" ? "bg-[#6B8F4E] border-[#6B8F4E] text-[#0F1318]" : "border-[#2F3A47] text-[#8B96A3]"
+            lugar === "gimnasio" ? "bg-[#22C55E] border-[#22C55E] text-[#FFFFFF]" : "border-[#E5E7EB] text-[#6B7280]"
           }`}
         >
           <Building2 size={16} /> Gimnasio
         </button>
       </div>
-      <p className="text-[11px] text-[#6B7684] -mt-3">
+      <p className="text-[11px] text-[#9CA3AF] -mt-3">
         {lugar === "casa"
           ? "Prioriza pesas libres y peso corporal con tu equipo registrado."
           : "Prioriza máquinas y cable, asumiendo que tienes acceso a todo."}
@@ -198,7 +201,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
       {!rutina && (
         <>
           <div>
-            <p className="text-xs text-[#8B96A3] mb-2 flex items-center gap-1.5">
+            <p className="text-xs text-[#6B7280] mb-2 flex items-center gap-1.5">
               <Clock size={12} /> ¿Cuánto tiempo tienes hoy?
             </p>
             <div className="flex gap-2">
@@ -208,7 +211,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
                 </Chip>
               ))}
             </div>
-            <p className="text-[11px] text-[#6B7684] mt-1.5">
+            <p className="text-[11px] text-[#9CA3AF] mt-1.5">
               {tiempo <= 30 && "Solo movimientos compuestos principales — rutina corta y eficiente."}
               {tiempo === 45 && "Compuestos + accesorios — rutina balanceada."}
               {tiempo >= 60 && "Rutina completa: compuestos con una serie extra, accesorios y aislamiento."}
@@ -216,7 +219,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           </div>
 
           <div>
-            <p className="text-xs text-[#8B96A3] mb-2 flex items-center gap-1.5">
+            <p className="text-xs text-[#6B7280] mb-2 flex items-center gap-1.5">
               <SlidersHorizontal size={12} /> ¿Qué prefieres hoy?
             </p>
             <div className="flex gap-2 flex-wrap">
@@ -229,18 +232,18 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           </div>
 
           <div className="space-y-2.5">
-            <p className="text-xs text-[#8B96A3]">¿Qué grupo muscular toca hoy?</p>
+            <p className="text-xs text-[#6B7280]">¿Qué grupo muscular toca hoy?</p>
             {GRUPOS.map((g) => (
               <button
                 key={g.id}
                 onClick={() => generar(g.id)}
-                className="w-full bg-[#1A2028] border border-[#263140] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] px-4 py-3 flex items-center justify-between text-left"
+                className="w-full bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] px-4 py-3 flex items-center justify-between text-left"
               >
                 <div>
                   <p className="font-semibold text-sm">{g.label}</p>
-                  <p className="text-xs text-[#8B96A3]">{g.sub}</p>
+                  <p className="text-xs text-[#6B7280]">{g.sub}</p>
                 </div>
-                <ChevronRight size={18} color="#6B7684" />
+                <ChevronRight size={18} color="#9CA3AF" />
               </button>
             ))}
           </div>
@@ -250,26 +253,39 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
       {rutina && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <p className="text-sm font-semibold text-[#C9A227]">
+            <p className="text-sm font-semibold text-[#15803D]">
               {GRUPOS.find((g) => g.id === grupo)?.label} · {lugar === "casa" ? "Casa" : "Gimnasio"} · {tiempo} min
             </p>
-            <button onClick={() => { setRutina(null); setGrupo(null); }} className="text-xs text-[#8B96A3]">
+            <button onClick={() => { setRutina(null); setGrupo(null); }} className="text-xs text-[#6B7280]">
               Cambiar
             </button>
           </div>
 
           {rutina.length === 0 && (
-            <p className="text-sm text-[#8B96A3] bg-[#1A2028] rounded-xl p-4">
+            <p className="text-sm text-[#6B7280] bg-[#F8FAFC] rounded-xl p-4">
               No tienes equipo suficiente para este grupo todavía. Prueba otro grupo o revisa tu equipo en Perfil.
             </p>
           )}
 
+          {rutina.length > 0 && CALENTAMIENTO[grupo] && (
+            <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-3.5">
+              <p className="text-xs font-semibold text-[#15803D] mb-1.5">🔥 Calentamiento (5 min)</p>
+              <ul className="space-y-1">
+                {CALENTAMIENTO[grupo].map((paso, i) => (
+                  <li key={i} className="text-xs text-[#6B7280]">
+                    · {paso}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {rutina.map((ej) => (
-            <div key={ej.nombre} className="bg-[#1A2028] border border-[#263140] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.35)] p-3.5">
+            <div key={ej.nombre} className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-3.5">
               <div className="mb-2 flex items-start justify-between gap-2">
                 <div>
                   <p className="font-medium text-sm">{ej.nombre}</p>
-                  <p className="text-xs text-[#8B96A3]">
+                  <p className="text-xs text-[#6B7280]">
                     {ej.series} series × {ej.reps}
                   </p>
                 </div>
@@ -277,34 +293,34 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
                   href={urlVideoEjercicio(ej.nombre)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-1 text-[10px] text-[#8B96A3] border border-[#2F3A47] rounded-full px-2 py-1 shrink-0"
+                  className="flex items-center gap-1 text-[10px] text-[#6B7280] border border-[#E5E7EB] rounded-full px-2 py-1 shrink-0"
                 >
                   <PlayCircle size={12} /> Ver técnica
                 </a>
               </div>
               {registro[ej.nombre]?.referencia && (
-                <p className="text-[11px] text-[#C9A227] mb-2 flex items-center gap-1">
+                <p className="text-[11px] text-[#15803D] mb-2 flex items-center gap-1">
                   <TrendingUp size={11} /> {registro[ej.nombre].referencia}
                 </p>
               )}
               <div className="flex gap-2 items-center flex-wrap">
                 <div>
-                  <p className="text-[10px] text-[#6B7684] mb-1">Peso kg</p>
+                  <p className="text-[10px] text-[#9CA3AF] mb-1">Peso kg</p>
                   <input
                     type="number"
                     value={registro[ej.nombre]?.peso ?? ""}
                     onChange={(e) => setRegistro({ ...registro, [ej.nombre]: { ...registro[ej.nombre], peso: e.target.value } })}
-                    className="w-20 bg-[#0F1318] border border-[#2F3A47] rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-[#C9A227]"
+                    className="w-20 bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-[#15803D]"
                   />
                 </div>
                 <div>
-                  <p className="text-[10px] text-[#6B7684] mb-1">Reps logradas</p>
+                  <p className="text-[10px] text-[#9CA3AF] mb-1">Reps logradas</p>
                   <input
                     type="number"
                     placeholder="ej. 10"
                     value={registro[ej.nombre]?.repsLogradas ?? ""}
                     onChange={(e) => setRegistro({ ...registro, [ej.nombre]: { ...registro[ej.nombre], repsLogradas: e.target.value } })}
-                    className="w-24 bg-[#0F1318] border border-[#2F3A47] rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-[#C9A227]"
+                    className="w-24 bg-[#FFFFFF] border border-[#E5E7EB] rounded-lg px-2.5 py-1.5 text-sm outline-none focus:border-[#15803D]"
                   />
                 </div>
               </div>
@@ -314,7 +330,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           {rutina.length > 0 && (
             <button
               onClick={guardarSesion}
-              className="w-full bg-[#A32638] text-white rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-[#111827] hover:bg-[#374151] text-white rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2 mt-2"
             >
               <Check size={16} /> Guardar sesión de hoy
             </button>

@@ -49,3 +49,8 @@ export const guardarDiaNutricion = (fecha, comidas) =>
 
 export const preguntarAsesor = (mensaje, historial) =>
   api("/asesor", { method: "POST", body: { mensaje, historial } });
+
+export const obtenerHabitos = () => api("/habitos");
+export const crearHabito = (nombre, emoji) => api("/habitos", { method: "POST", body: { nombre, emoji } });
+export const borrarHabito = (id) => api(`/habitos/${id}`, { method: "DELETE" });
+export const alternarHabito = (id, fecha) => api(`/habitos/${id}/toggle`, { method: "POST", body: { fecha } });

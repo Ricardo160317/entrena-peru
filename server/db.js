@@ -69,6 +69,21 @@ async function initSchema() {
     ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS pierna NUMERIC;
     ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS cadera NUMERIC;
     ALTER TABLE medidas_corporales ADD COLUMN IF NOT EXISTS foto TEXT;
+
+    CREATE TABLE IF NOT EXISTS habitos (
+      id SERIAL PRIMARY KEY,
+      usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+      nombre TEXT NOT NULL,
+      emoji TEXT DEFAULT '✅',
+      creado_en TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS habito_registros (
+      id SERIAL PRIMARY KEY,
+      habito_id INTEGER REFERENCES habitos(id) ON DELETE CASCADE,
+      fecha DATE NOT NULL,
+      UNIQUE(habito_id, fecha)
+    );
   `);
 }
 

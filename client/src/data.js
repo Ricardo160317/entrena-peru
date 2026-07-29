@@ -26,8 +26,38 @@ export const GRUPOS = [
   { id: "empuje", label: "Empuje", sub: "Pecho · hombro · tríceps" },
   { id: "tiron", label: "Tirón", sub: "Espalda · bíceps" },
   { id: "pierna", label: "Pierna", sub: "Cuádriceps · glúteo · isquios" },
-  { id: "full", label: "Full body", sub: "Cuerpo completo / cardio" },
+  { id: "abdomen", label: "Abdomen", sub: "Core · abdominales" },
+  { id: "full", label: "Cardio / Full body", sub: "Cuerpo completo · cardio" },
 ];
+
+export const CALENTAMIENTO = {
+  empuje: [
+    "3-5 min de cardio ligero (soga, caminadora o trote suave)",
+    "Círculos de brazos y hombros, 15 c/lado",
+    "Flexiones de pecho suaves, 1-2 series de 10 sin peso",
+  ],
+  tiron: [
+    "3-5 min de cardio ligero",
+    "Círculos de brazos y rotación de hombros, 15 c/lado",
+    "Jalones o remo con banda ligera, 1-2 series de 12",
+  ],
+  pierna: [
+    "3-5 min de cardio ligero (bici o caminadora)",
+    "Sentadillas al aire, 2 series de 12",
+    "Zancadas suaves sin peso, 10 c/pierna",
+    "Movilidad de cadera y tobillo, 30s por lado",
+  ],
+  abdomen: [
+    "2-3 min de cardio ligero",
+    "Rotación de tronco de pie, 15 c/lado",
+    "Plancha suave, 20s para activar el core",
+  ],
+  full: [
+    "3-5 min de cardio ligero, subiendo de intensidad",
+    "Movilidad general: círculos de cadera, hombro y tobillo",
+    "1 serie corta del primer ejercicio a baja intensidad",
+  ],
+};
 
 export const TIEMPOS_DISPONIBLES = [
   { id: 30, label: "30 min" },
@@ -54,8 +84,14 @@ export const PRIORIDAD_PATRON = {
   jalon_vertical: 1,
   zancada: 2,
   fondos: 2,
-  cardio_funcional: 2,
   gluteo_aislado: 2,
+  cardio_constante: 1,
+  hiit_funcional: 2,
+  core_isometrico: 1,
+  core_flexion: 2,
+  core_piernas: 2,
+  core_rotacion: 3,
+  core_flexion_avanzada: 3,
   aislamiento_hombro: 3,
   aislamiento_biceps: 3,
   aislamiento_triceps: 3,
@@ -64,7 +100,6 @@ export const PRIORIDAD_PATRON = {
   aislamiento_pecho: 3,
   antebrazo: 3,
   pantorrilla: 3,
-  core: 3,
 };
 
 export const EJERCICIOS = [
@@ -150,19 +185,35 @@ export const EJERCICIOS = [
   { nombre: "Elevación de talones de pie", grupo: "pierna", patron: "pantorrilla", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "15-20" },
   { nombre: "Elevación de talones con mancuernas", grupo: "pierna", patron: "pantorrilla", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "15-20" },
 
-  // ===== FULL BODY / CORE / CARDIO =====
-  { nombre: "Swing con kettlebell", grupo: "full", patron: "cardio_funcional", estilo: "libre", equipo: ["kettlebell"], series: 4, reps: "15" },
-  { nombre: "Burpees", grupo: "full", patron: "cardio_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12" },
-  { nombre: "Salto de soga", grupo: "full", patron: "cardio_funcional", estilo: "funcional", equipo: ["soga"], series: 4, reps: "1 min" },
-  { nombre: "Bicicleta estática (cardio)", grupo: "full", patron: "cardio_funcional", estilo: "maquina", equipo: ["bici_estatica"], series: 1, reps: "15-20 min" },
-  { nombre: "Caminadora (cardio)", grupo: "full", patron: "cardio_funcional", estilo: "maquina", equipo: ["caminadora"], series: 1, reps: "15-20 min" },
-  { nombre: "Battle ropes / arrastre con chaleco", grupo: "full", patron: "cardio_funcional", estilo: "funcional", equipo: ["chaleco_peso"], series: 3, reps: "30-40s" },
+  // ===== CARDIO / FULL BODY =====
+  { nombre: "Swing con kettlebell", grupo: "full", patron: "cardio_constante", estilo: "libre", equipo: ["kettlebell"], series: 4, reps: "15" },
+  { nombre: "Salto de soga", grupo: "full", patron: "cardio_constante", estilo: "funcional", equipo: ["soga"], series: 4, reps: "1 min" },
+  { nombre: "Bicicleta estática (cardio)", grupo: "full", patron: "cardio_constante", estilo: "maquina", equipo: ["bici_estatica"], series: 1, reps: "15-20 min" },
+  { nombre: "Caminadora (cardio)", grupo: "full", patron: "cardio_constante", estilo: "maquina", equipo: ["caminadora"], series: 1, reps: "15-20 min" },
 
-  { nombre: "Plancha abdominal", grupo: "full", patron: "core", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "40-60s" },
-  { nombre: "Rueda abdominal", grupo: "full", patron: "core", estilo: "funcional", equipo: ["rueda_abdominal"], series: 3, reps: "10-12" },
-  { nombre: "Crunch en polea (cable)", grupo: "full", patron: "core", estilo: "maquina", equipo: ["polea"], series: 3, reps: "15" },
-  { nombre: "Elevación de piernas colgado", grupo: "full", patron: "core", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "12-15" },
-  { nombre: "Deslizamiento de rodillas (discos deslizantes)", grupo: "full", patron: "core", estilo: "funcional", equipo: ["disco_deslizante"], series: 3, reps: "12-15" },
+  { nombre: "Burpees", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12" },
+  { nombre: "Mountain climbers", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "30s" },
+  { nombre: "Jumping jacks", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "40s" },
+  { nombre: "Sentadilla con salto", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12" },
+  { nombre: "Battle ropes / arrastre con chaleco", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: ["chaleco_peso"], series: 3, reps: "30-40s" },
+
+  // ===== ABDOMEN =====
+  { nombre: "Plancha abdominal", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "40-60s" },
+  { nombre: "Plancha lateral", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "30-40s c/lado" },
+  { nombre: "Plancha con toque de hombro", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "16 toques" },
+
+  { nombre: "Crunch abdominal en colchoneta", grupo: "abdomen", patron: "core_flexion", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "15-20" },
+  { nombre: "Crunch en polea (cable)", grupo: "abdomen", patron: "core_flexion", estilo: "maquina", equipo: ["polea"], series: 3, reps: "15" },
+
+  { nombre: "Rueda abdominal", grupo: "abdomen", patron: "core_flexion_avanzada", estilo: "funcional", equipo: ["rueda_abdominal"], series: 3, reps: "10-12" },
+  { nombre: "Deslizamiento de rodillas (discos deslizantes)", grupo: "abdomen", patron: "core_flexion_avanzada", estilo: "funcional", equipo: ["disco_deslizante"], series: 3, reps: "12-15" },
+
+  { nombre: "Elevación de piernas colgado", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "12-15" },
+  { nombre: "Elevación de rodillas colgado", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "12-15" },
+  { nombre: "Elevación de piernas en banco", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["banco"], series: 3, reps: "12-15" },
+
+  { nombre: "Bicicleta abdominal", grupo: "abdomen", patron: "core_rotacion", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "20 c/lado" },
+  { nombre: "Giro ruso con disco o mancuerna", grupo: "abdomen", patron: "core_rotacion", estilo: "libre", equipo: ["discos"], series: 3, reps: "15 c/lado" },
 ];
 
 export const ALIMENTOS = [
