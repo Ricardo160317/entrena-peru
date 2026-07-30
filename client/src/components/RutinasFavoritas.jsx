@@ -26,13 +26,24 @@ export default function RutinasFavoritas() {
 
   function toggleEjercicio(ej) {
     setSeleccionados((s) =>
-      s.some((e) => e.nombre === ej.nombre) ? s.filter((e) => e.nombre !== ej.nombre) : [...s, { nombre: ej.nombre, series: ej.series, reps: ej.reps }]
+      s.some((e) => e.nombre === ej.nombre)
+        ? s.filter((e) => e.nombre !== ej.nombre)
+        : [...s, { nombre: ej.nombre, series: ej.series, reps: ej.reps }]
     );
+  }
+
+  function actualizarCampo(nombreEj, campo, valor) {
+    setSeleccionados((s) => s.map((e) => (e.nombre === nombreEj ? { ...e, [campo]: valor } : e)));
   }
 
   async function guardar() {
     if (!nombre || seleccionados.length === 0) return;
-    await crearRutinaFavorita(nombre, grupo, seleccionados);
+    const ejerciciosFinales = seleccionados.map((e) => ({
+      nombre: e.nombre,
+      series: Number(e.series) || 1,
+      reps: String(e.reps || "10"),
+    }));
+    await crearRutinaFavorita(nombre, grupo, ejerciciosFinales);
     setNombre("");
     setSeleccionados([]);
     setCreando(false);
@@ -82,7 +93,9 @@ export default function RutinasFavoritas() {
               </button>
             ))}
           </div>
-          <div className="space-y-1.5 max-h-64 overflow-y-auto">
+
+          <p className="text-[11px] text-[var(--muted)]">Toca un ejercicio para agregarlo, y ajusta sus series/reps abajo</p>
+          <div className="space-y-1.5 max-h-52 overflow-y-auto">
             {ejerciciosDelGrupo.map((ej) => (
               <button
                 key={ej.nombre}
@@ -95,11 +108,38 @@ export default function RutinasFavoritas() {
               >
                 <span>{ej.nombre}</span>
                 <span className="text-[10px] text-[var(--muted)]">
-                  {ej.series}x{ej.reps}
+                  {ej.series}x{ej.reps} (sugerido)
                 </span>
               </button>
             ))}
           </div>
+
+          {seleccionados.length > 0 && (
+            <div className="space-y-2 border-t border-[var(--border)] pt-3">
+              <p className="text-[11px] text-[var(--muted)]">Ajusta series y repeticiones</p>
+              {seleccionados.map((e) => (
+                <div key={e.nombre} className="flex items-center gap-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2">
+                  <p className="text-xs flex-1 truncate">{e.nombre}</p>
+                  <input
+                    type="number"
+                    value={e.series}
+                    onChange={(ev) => actualizarCampo(e.nombre, "series", ev.target.value)}
+                    className="w-12 bg-[var(--card)] border border-[var(--border)] rounded px-1.5 py-1 text-xs text-center outline-none focus:border-[var(--accent)]"
+                    title="Series"
+                  />
+                  <span className="text-[10px] text-[var(--muted2)]">×</span>
+                  <input
+                    value={e.reps}
+                    onChange={(ev) => actualizarCampo(e.nombre, "reps", ev.target.value)}
+                    placeholder="reps (ej. 8-10)"
+                    className="w-20 bg-[var(--card)] border border-[var(--border)] rounded px-1.5 py-1 text-xs text-center outline-none focus:border-[var(--accent)]"
+                    title="Repeticiones"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
+
           <button
             onClick={guardar}
             disabled={!nombre || seleccionados.length === 0}

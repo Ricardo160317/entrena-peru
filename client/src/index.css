@@ -41,12 +41,12 @@ body {
 
 /* ---------- Modo claro (fijo, no sigue el selector de acento) ---------- */
 [data-theme="claro"] {
-  --bg: #FFFFFF;
-  --card: #F8FAFC;
-  --border: #E5E7EB;
-  --text: #111827;
-  --muted: #6B7280;
-  --muted2: #6B7280;
+  --bg: #FAFAFA;
+  --card: #FFFFFF;
+  --border: #EAEAEA;
+  --text: #1C1C1E;
+  --muted: #7A7A7A;
+  --muted2: #7A7A7A;
   --error: #EF4444;
   --warning: #F59E0B;
   --warning-bg: #FFFBEB;
