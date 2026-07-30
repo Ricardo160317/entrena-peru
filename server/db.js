@@ -55,6 +55,8 @@ async function initSchema() {
       creado_en TIMESTAMP DEFAULT NOW()
     );
 
+    ALTER TABLE entrenamientos ADD COLUMN IF NOT EXISTS duracion_min INTEGER;
+
     CREATE TABLE IF NOT EXISTS nutricion_dias (
       id SERIAL PRIMARY KEY,
       usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -116,6 +118,16 @@ async function initSchema() {
       asignado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
       generado_en TIMESTAMP DEFAULT NOW(),
       UNIQUE(cliente_id, grupo)
+    );
+
+    CREATE TABLE IF NOT EXISTS mensajes (
+      id SERIAL PRIMARY KEY,
+      entrenador_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+      cliente_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+      remitente_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+      contenido TEXT NOT NULL,
+      leido BOOLEAN DEFAULT FALSE,
+      creado_en TIMESTAMP DEFAULT NOW()
     );
   `);
 }

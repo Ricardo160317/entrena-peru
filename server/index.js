@@ -18,6 +18,7 @@ app.use("/api/foto", require("./routes/foto"));
 app.use("/api/entrenador", require("./routes/entrenador"));
 app.use("/api/rutinas", require("./routes/rutinas"));
 app.use("/api/informe", require("./routes/informe"));
+app.use("/api/chat", require("./routes/chat"));
 
 app.get("/api/salud", (req, res) => res.json({ ok: true }));
 

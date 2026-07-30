@@ -73,7 +73,7 @@ router.get("/pdf", async (req, res) => {
         [usuarioObjetivoId, desdeStr]
       ),
       pool.query(
-        "SELECT fecha, grupo, lugar, ejercicios FROM entrenamientos WHERE usuario_id = $1 AND fecha >= $2 ORDER BY fecha ASC",
+        "SELECT fecha, grupo, lugar, ejercicios, duracion_min FROM entrenamientos WHERE usuario_id = $1 AND fecha >= $2 ORDER BY fecha ASC",
         [usuarioObjetivoId, desdeStr]
       ),
       pool.query(
@@ -152,7 +152,9 @@ router.get("/pdf", async (req, res) => {
     doc.text(`Sesiones registradas en el período: ${entrenamientosR.rows.length}`);
     const mejoresPorEjercicio = {};
     entrenamientosR.rows.forEach((s) => {
-      doc.text(`${fechaEs(s.fecha)} — ${NOMBRE_GRUPO[s.grupo] || s.grupo} (${s.lugar === "casa" ? "Casa" : "Gimnasio"})`);
+      doc.text(
+        `${fechaEs(s.fecha)} — ${NOMBRE_GRUPO[s.grupo] || s.grupo} (${s.lugar === "casa" ? "Casa" : "Gimnasio"})${s.duracion_min ? ` · ${s.duracion_min} min` : ""}`
+      );
       (s.ejercicios || []).forEach((ej) => {
         const pesos = Array.isArray(ej.series) ? ej.series.map((x) => x.peso).filter(Boolean) : ej.peso ? [ej.peso] : [];
         if (pesos.length === 0) return;

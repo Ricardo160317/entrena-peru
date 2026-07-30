@@ -66,9 +66,11 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
     dom.setHours(0, 0, 0, 0);
     return dom;
   })();
-  const sesionesEstaSemana = (entrenamientos || []).filter(
+  const sesionesSemanaActual = (entrenamientos || []).filter(
     (s) => new Date(String(s.fecha).slice(0, 10) + "T00:00:00") >= inicioSemana
-  ).length;
+  );
+  const sesionesEstaSemana = sesionesSemanaActual.length;
+  const minutosEstaSemana = sesionesSemanaActual.reduce((acc, s) => acc + (s.duracion_min || 0), 0);
   const metaDias = perfil.dias_entreno || 3;
 
   const totalesHoy = (diaHoy?.comidas || []).reduce((acc, c) => ({ kcal: acc.kcal + c.kcal }), { kcal: 0 });
@@ -135,6 +137,14 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
                 {totalesHoy.kcal}/{metas.kcal} kcal
               </span>
             </div>
+            {minutosEstaSemana > 0 && (
+              <div className="flex justify-between text-xs">
+                <span className="text-[var(--muted)]">Minutos entrenados</span>
+                <span className="font-semibold" style={{ color: "var(--azul)" }}>
+                  {minutosEstaSemana} min
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Dumbbell, TrendingUp, Salad, UserCircle2, MessageCircleHeart, CheckSquare, Home as HomeIcon, Users } from "lucide-react";
+import { Dumbbell, TrendingUp, Salad, UserCircle2, MessageCircleHeart, CheckSquare, Home as HomeIcon, Users, MessageSquare } from "lucide-react";
 import {
   getToken,
   clearToken,
@@ -20,6 +20,7 @@ import Progreso from "./components/Progreso";
 import Nutricion from "./components/Nutricion";
 import Asesor from "./components/Asesor";
 import Habitos from "./components/Habitos";
+import Chat from "./components/Chat";
 import Inicio from "./components/Inicio";
 import MisClientes from "./components/MisClientes";
 import PerfilTab from "./components/PerfilTab";
@@ -121,6 +122,7 @@ export default function App() {
             {tab === "nutricion" && "Asesor de macros"}
             {tab === "asesor" && "Pregúntale al asesor"}
             {tab === "habitos" && "Tus hábitos"}
+            {tab === "chat" && "Chat"}
             {tab === "clientes" && "Mis clientes"}
             {tab === "perfil" && "Tu perfil"}
           </h1>
@@ -140,6 +142,7 @@ export default function App() {
         )}
         {tab === "asesor" && <Asesor />}
         {tab === "habitos" && <Habitos />}
+        {tab === "chat" && <Chat usuario={usuario} />}
         {tab === "clientes" && usuario?.rol === "entrenador" && <MisClientes />}
         {tab === "perfil" && (
           <PerfilTab
@@ -161,6 +164,9 @@ export default function App() {
         <NavBtn icon={Salad} label="Nutrición" active={tab === "nutricion"} onClick={() => setTab("nutricion")} />
         <NavBtn icon={MessageCircleHeart} label="Asesor" active={tab === "asesor"} onClick={() => setTab("asesor")} />
         <NavBtn icon={CheckSquare} label="Hábitos" active={tab === "habitos"} onClick={() => setTab("habitos")} />
+        {(usuario?.rol === "entrenador" || usuario?.entrenador_id) && (
+          <NavBtn icon={MessageSquare} label="Chat" active={tab === "chat"} onClick={() => setTab("chat")} />
+        )}
         {usuario?.rol === "entrenador" && (
           <NavBtn icon={Users} label="Clientes" active={tab === "clientes"} onClick={() => setTab("clientes")} />
         )}

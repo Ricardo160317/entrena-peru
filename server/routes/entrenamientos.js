@@ -14,11 +14,11 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { fecha, lugar, grupo, ejercicios } = req.body;
+  const { fecha, lugar, grupo, ejercicios, duracion_min } = req.body;
   const result = await pool.query(
-    `INSERT INTO entrenamientos (usuario_id, fecha, lugar, grupo, ejercicios)
-     VALUES ($1,$2,$3,$4,$5) RETURNING *`,
-    [req.usuarioId, fecha, lugar, grupo, JSON.stringify(ejercicios)]
+    `INSERT INTO entrenamientos (usuario_id, fecha, lugar, grupo, ejercicios, duracion_min)
+     VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
+    [req.usuarioId, fecha, lugar, grupo, JSON.stringify(ejercicios), duracion_min || null]
   );
   res.json(result.rows[0]);
 });

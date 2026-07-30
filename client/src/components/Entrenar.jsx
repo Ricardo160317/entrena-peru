@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle, Calendar, ChevronDown, ChevronUp, Plus, Sparkles, UserCheck } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle, Calendar, ChevronDown, ChevronUp, Plus, Sparkles, UserCheck, Timer, MapPin } from "lucide-react";
 import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, hoy } from "../data";
 import { Chip } from "./Comunes";
 import { obtenerMisRutinasAsignadas, generarMiRutinaIA } from "../api";
@@ -175,7 +175,23 @@ function urlVideoEjercicio(nombre) {
   return `https://www.youtube.com/results?search_query=${encodeURIComponent(nombre + " técnica ejecución")}`;
 }
 
+// Distancia en metros entre dos coordenadas (fórmula de Haversine)
+function distanciaMetros(a, b) {
+  if (!a || !b) return 0;
+  const R = 6371000;
+  const rad = (x) => (x * Math.PI) / 180;
+  const dLat = rad(b.lat - a.lat);
+  const dLon = rad(b.lon - a.lon);
+  const s =
+    Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+
+const DISTANCIA_AVISO_METROS = 300;
+
 export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
+
+
   const [lugar, setLugar] = useState("casa");
   const [tiempo, setTiempo] = useState(45);
   const [estilo, setEstilo] = useState("mixto");
@@ -184,6 +200,79 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
   const [registro, setRegistro] = useState({});
   const [verSemana, setVerSemana] = useState(false);
   const [rutinasAsignadas, setRutinasAsignadas] = useState([]);
+  const [sesionActiva, setSesionActiva] = useState(false);
+  const [horaInicio, setHoraInicio] = useState(null);
+  const [segundos, setSegundos] = useState(0);
+  const [avisoUbicacion, setAvisoUbicacion] = useState(false);
+  const posicionInicioRef = useRef(null);
+  const watchIdRef = useRef(null);
+
+  // Cronómetro: cuenta el tiempo real mientras la sesión está activa
+  useEffect(() => {
+    if (!sesionActiva || !horaInicio) return;
+    const intervalo = setInterval(() => setSegundos(Math.floor((Date.now() - horaInicio) / 1000)), 1000);
+    return () => clearInterval(intervalo);
+  }, [sesionActiva, horaInicio]);
+
+  // Ubicación: solo se usa mientras la app está visible/en uso, nunca en segundo plano
+  useEffect(() => {
+    function iniciarSeguimiento() {
+      if (!sesionActiva || !posicionInicioRef.current || !navigator.geolocation) return;
+      watchIdRef.current = navigator.geolocation.watchPosition(
+        (pos) => {
+          const actual = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+          const dist = distanciaMetros(posicionInicioRef.current, actual);
+          if (dist > DISTANCIA_AVISO_METROS) setAvisoUbicacion(true);
+        },
+        () => {},
+        { enableHighAccuracy: false, maximumAge: 60000, timeout: 20000 }
+      );
+    }
+    function detenerSeguimiento() {
+      if (watchIdRef.current != null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+        watchIdRef.current = null;
+      }
+    }
+    function alCambiarVisibilidad() {
+      if (document.visibilityState === "visible") iniciarSeguimiento();
+      else detenerSeguimiento();
+    }
+    if (sesionActiva) {
+      iniciarSeguimiento();
+      document.addEventListener("visibilitychange", alCambiarVisibilidad);
+    }
+    return () => {
+      detenerSeguimiento();
+      document.removeEventListener("visibilitychange", alCambiarVisibilidad);
+    };
+  }, [sesionActiva]);
+
+  function iniciarSesionEntreno() {
+    setSesionActiva(true);
+    setHoraInicio(Date.now());
+    setSegundos(0);
+    setAvisoUbicacion(false);
+    posicionInicioRef.current = null;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          posicionInicioRef.current = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        },
+        () => {}, // si no da permiso, seguimos sin el aviso de ubicación, sin bloquear nada
+        { enableHighAccuracy: false, timeout: 10000 }
+      );
+    }
+  }
+
+  function finalizarSesionEntreno() {
+    setSesionActiva(false);
+    setAvisoUbicacion(false);
+    if (watchIdRef.current != null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+  }
   const [origenRutina, setOrigenRutina] = useState(null); // {origen, generado_en} de la rutina actual
   const [generandoIA, setGenerandoIA] = useState(false);
 
@@ -221,6 +310,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
       inicial[ej.nombre] = { filas, referencia };
     });
     setRegistro(inicial);
+    iniciarSesionEntreno();
   }
 
   async function generarConIA(g) {
@@ -242,6 +332,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           inicial[ej.nombre] = { filas, referencia };
         });
         setRegistro(inicial);
+        iniciarSesionEntreno();
       }
     } catch {
       alert("No se pudo generar la rutina con IA, intenta de nuevo.");
@@ -282,10 +373,12 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
       })
       .filter((ej) => ej.series.length > 0);
     if (ejerciciosGuardados.length === 0) return;
-    onGuardarSesion({ fecha: hoy(), lugar, grupo, ejercicios: ejerciciosGuardados });
+    const duracionMin = horaInicio ? Math.max(1, Math.round((Date.now() - horaInicio) / 60000)) : null;
+    onGuardarSesion({ fecha: hoy(), lugar, grupo, ejercicios: ejerciciosGuardados, duracion_min: duracionMin });
     setRutina(null);
     setGrupo(null);
     setRegistro({});
+    finalizarSesionEntreno();
   }
 
   return (
@@ -450,10 +543,44 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
             <p className="text-sm font-semibold text-[var(--accent)]">
               {NOMBRE_DIA_GRUPO[grupo] || GRUPOS.find((g) => g.id === grupo)?.label} · {lugar === "casa" ? "Casa" : "Gimnasio"} · {tiempo} min
             </p>
-            <button onClick={() => { setRutina(null); setGrupo(null); }} className="text-xs text-[var(--muted)]">
+            <button onClick={() => { setRutina(null); setGrupo(null); finalizarSesionEntreno(); }} className="text-xs text-[var(--muted)]">
               Cambiar
             </button>
           </div>
+
+          {sesionActiva && (
+            <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text)] bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 w-fit">
+              <Timer size={14} color="var(--accent)" />
+              {String(Math.floor(segundos / 60)).padStart(2, "0")}:{String(segundos % 60).padStart(2, "0")}
+              <span className="text-[10px] text-[var(--muted)] font-normal">entrenando</span>
+            </div>
+          )}
+          {sesionActiva && (
+            <p className="text-[10px] text-[var(--muted2)] -mt-1">
+              Usamos tu ubicación solo mientras la app está abierta, para avisarte si sales sin guardar.
+            </p>
+          )}
+
+          {avisoUbicacion && (
+            <div className="bg-[var(--warning-bg)] border border-[var(--warning-40)] rounded-xl p-3.5 flex items-start gap-2.5">
+              <MapPin size={16} color="var(--warning)" className="shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-[var(--text)] font-medium">Parece que saliste de donde empezaste a entrenar.</p>
+                <p className="text-[11px] text-[var(--muted)] mt-0.5">¿Ya terminaste? Guarda tu sesión para no perder el progreso.</p>
+                <div className="flex gap-2 mt-2">
+                  <button
+                    onClick={guardarSesion}
+                    className="text-xs bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--btn-text)] rounded-lg px-3 py-1.5 font-semibold"
+                  >
+                    Guardar sesión
+                  </button>
+                  <button onClick={() => setAvisoUbicacion(false)} className="text-xs text-[var(--muted)] px-3 py-1.5">
+                    Sigo entrenando
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {origenRutina && (
             <div className="flex items-center gap-1.5 text-[11px] text-[var(--muted)]">
