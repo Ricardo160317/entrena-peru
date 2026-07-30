@@ -332,12 +332,6 @@ export function tipDelDia() {
   return TIPS_DIARIOS[diaDelAño % TIPS_DIARIOS.length];
 }
 
-export const TECNICAS_PRODUCTIVIDAD = [
-  { nombre: "Pomodoro", descripcion: "25 min de trabajo enfocado + 5 min de descanso. Cada 4 ciclos, un descanso largo de 15-20 min." },
-  { nombre: "Regla de los 2 minutos", descripcion: "Si una tarea toma menos de 2 minutos, hazla de inmediato en vez de anotarla para después." },
-  { nombre: "Time blocking", descripcion: "Asigna bloques fijos de tu calendario a tareas específicas, incluyendo entrenar y comer." },
-  { nombre: "Matriz de Eisenhower", descripcion: "Clasifica tareas en urgente/importante para decidir qué hacer, delegar, agendar o eliminar." },
-];
 export const hoy = () => new Date().toISOString().slice(0, 10);
 export const fechaLegible = (iso) => {
   const soloFecha = String(iso).slice(0, 10);

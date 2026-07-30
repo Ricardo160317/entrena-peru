@@ -98,12 +98,12 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
             value={equipoPersonalizado}
             onChange={(e) => setEquipoPersonalizado(e.target.value)}
             placeholder="¿Tienes algo más? Escríbelo aquí"
-            className="flex-1 bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#15803D]"
+            className="flex-1 bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C8FF3D]"
           />
           <button
             type="button"
             onClick={agregarEquipoPersonalizado}
-            className="px-3 rounded-lg border border-[#E5E7EB] text-[#6B7280] text-sm"
+            className="px-3 rounded-lg border border-[#262E2B] text-[#8B948F] text-sm"
           >
             Agregar
           </button>
@@ -119,12 +119,12 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
         </div>
       </Campo>
 
-      <button onClick={guardar} className="w-full bg-[#111827] hover:bg-[#374151] text-white rounded-xl py-3 text-sm font-semibold">
+      <button onClick={guardar} className="w-full bg-[#C8FF3D] hover:bg-[#9FCC2E] text-[#0D1210] rounded-xl py-3 text-sm font-semibold">
         Guardar cambios
       </button>
 
-      <div className="pt-4 border-t border-[#E5E7EB] flex items-center justify-between">
-        <button onClick={onCerrarSesion} className="text-xs text-[#6B7280] underline flex items-center gap-1">
+      <div className="pt-4 border-t border-[#262E2B] flex items-center justify-between">
+        <button onClick={onCerrarSesion} className="text-xs text-[#8B948F] underline flex items-center gap-1">
           <X size={12} /> Cerrar sesión
         </button>
       </div>
@@ -135,12 +135,12 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
 function MiniCampo({ label, value, onChange }) {
   return (
     <div>
-      <p className="text-[10px] text-[#6B7280] mb-1">{label}</p>
+      <p className="text-[10px] text-[#8B948F] mb-1">{label}</p>
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg px-2 py-2 text-sm text-center outline-none focus:border-[#15803D]"
+        className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-2 py-2 text-sm text-center outline-none focus:border-[#C8FF3D]"
       />
     </div>
   );

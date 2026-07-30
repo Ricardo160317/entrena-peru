@@ -1,111 +1,160 @@
-import { useEffect, useRef, useState } from "react";
-import { Play, Pause, RotateCcw, Sparkles } from "lucide-react";
-import { tipDelDia, TECNICAS_PRODUCTIVIDAD } from "../data";
+import { useEffect, useState } from "react";
+import { Bell, Dumbbell, Flame, Zap, ChevronRight, AlertCircle } from "lucide-react";
+import { tipDelDia, calcularMacros, armarPlanSemanal, NOMBRE_DIA_GRUPO, DIAS_SEMANA, hoy } from "../data";
+import { Anillo } from "./Comunes";
+import { obtenerHabitos } from "../api";
 
-const DURACIONES = { trabajo: 25 * 60, descanso: 5 * 60 };
+const RUTINAS_SUGERIDAS = [
+  { nombre: "Hipertrofia", nivel: "Intermedio", dias: "4 días/semana", icono: Dumbbell },
+  { nombre: "Quema grasa", nivel: "Principiante", dias: "5 días/semana", icono: Flame },
+  { nombre: "Fuerza máxima", nivel: "Avanzado", dias: "4 días/semana", icono: Zap },
+];
 
-export default function Inicio({ entrenamientos }) {
+export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
   const tip = tipDelDia();
-  const [fase, setFase] = useState("trabajo");
-  const [segundosRestantes, setSegundosRestantes] = useState(DURACIONES.trabajo);
-  const [corriendo, setCorriendo] = useState(false);
-  const [ciclos, setCiclos] = useState(0);
-  const intervaloRef = useRef(null);
+  const metas = calcularMacros(perfil);
+  const [habitosPendientes, setHabitosPendientes] = useState(null);
 
   useEffect(() => {
-    if (!corriendo) {
-      clearInterval(intervaloRef.current);
-      return;
-    }
-    intervaloRef.current = setInterval(() => {
-      setSegundosRestantes((s) => {
-        if (s > 1) return s - 1;
-        // se acabó la fase actual: cambia de fase y cuenta el ciclo si terminó "trabajo"
-        setFase((f) => {
-          if (f === "trabajo") setCiclos((c) => c + 1);
-          return f === "trabajo" ? "descanso" : "trabajo";
-        });
-        return 0;
-      });
-    }, 1000);
-    return () => clearInterval(intervaloRef.current);
-  }, [corriendo]);
+    obtenerHabitos()
+      .then((data) => {
+        const marcadosHoy = new Set(
+          data.registros.filter((r) => String(r.fecha).slice(0, 10) === hoy()).map((r) => r.habito_id)
+        );
+        const pendientes = data.habitos.filter((h) => !marcadosHoy.has(h.id));
+        setHabitosPendientes(pendientes);
+      })
+      .catch(() => setHabitosPendientes([]));
+  }, []);
 
-  useEffect(() => {
-    setSegundosRestantes(DURACIONES[fase]);
-  }, [fase]);
+  const inicioSemana = (() => {
+    const d = new Date();
+    const dom = new Date(d);
+    dom.setDate(d.getDate() - d.getDay());
+    dom.setHours(0, 0, 0, 0);
+    return dom;
+  })();
+  const sesionesEstaSemana = (entrenamientos || []).filter(
+    (s) => new Date(String(s.fecha).slice(0, 10) + "T00:00:00") >= inicioSemana
+  ).length;
+  const metaDias = perfil.dias_entreno || 3;
 
-  function reiniciar() {
-    setCorriendo(false);
-    setFase("trabajo");
-    setSegundosRestantes(DURACIONES.trabajo);
-    setCiclos(0);
-  }
+  const totalesHoy = (diaHoy?.comidas || []).reduce((acc, c) => ({ kcal: acc.kcal + c.kcal }), { kcal: 0 });
 
-  const minutos = String(Math.floor(segundosRestantes / 60)).padStart(2, "0");
-  const segundos = String(segundosRestantes % 60).padStart(2, "0");
-
-  const sesionesEstaSemana = (entrenamientos || []).filter((s) => {
-    const f = new Date(String(s.fecha).slice(0, 10) + "T00:00:00");
-    const hoyD = new Date();
-    const inicioSemana = new Date(hoyD);
-    inicioSemana.setDate(hoyD.getDate() - hoyD.getDay());
-    inicioSemana.setHours(0, 0, 0, 0);
-    return f >= inicioSemana;
-  }).length;
+  const planSemanal = armarPlanSemanal(metaDias);
+  const grupoHoy = planSemanal[new Date().getDay()];
+  const nombreDiaHoy = DIAS_SEMANA[new Date().getDay()];
 
   return (
     <div className="space-y-5">
-      <div className="bg-[#111827] rounded-xl p-4">
-        <p className="text-[10px] uppercase tracking-wide text-[#9CA3AF] flex items-center gap-1">
-          <Sparkles size={11} /> Consejo del día · {tip.categoria}
-        </p>
-        <p className="text-white text-sm mt-1.5 leading-relaxed">{tip.texto}</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-lg font-bold">¡Hola de nuevo!</p>
+          <p className="text-xs text-[#8B948F]">Listo para superar tus límites hoy.</p>
+        </div>
+        <button className="w-9 h-9 rounded-full border border-[#262E2B] flex items-center justify-center relative">
+          <Bell size={16} color="#8B948F" />
+          {habitosPendientes && habitosPendientes.length > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#C8FF3D] rounded-full" />
+          )}
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl p-3.5 text-center">
-          <p className="text-xl font-bold text-[#111827]">{sesionesEstaSemana}</p>
-          <p className="text-[11px] text-[#6B7280]">sesiones esta semana</p>
-        </div>
-        <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl p-3.5 text-center">
-          <p className="text-xl font-bold text-[#111827]">{ciclos}</p>
-          <p className="text-[11px] text-[#6B7280]">pomodoros hoy</p>
-        </div>
-      </div>
+      {habitosPendientes && habitosPendientes.length > 0 && (
+        <button
+          onClick={() => onIrATab("habitos")}
+          className="w-full bg-[#2A2313] border border-[#F59E0B]/40 rounded-xl p-3.5 flex items-start gap-2.5 text-left"
+        >
+          <AlertCircle size={16} color="#F59E0B" className="shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-[#F5F7F6] font-medium">Aún no marcas hoy: {habitosPendientes.map((h) => h.nombre).join(", ")}</p>
+            <p className="text-[11px] text-[#8B948F] mt-0.5">Toca para ir a Hábitos</p>
+          </div>
+        </button>
+      )}
 
-      <div className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-5 text-center">
-        <p className="text-xs text-[#6B7280] mb-1">{fase === "trabajo" ? "Enfoque" : "Descanso"}</p>
-        <p className="text-4xl font-bold tabular-nums text-[#111827]">
-          {minutos}:{segundos}
-        </p>
-        <div className="flex justify-center gap-3 mt-4">
-          <button
-            onClick={() => setCorriendo(!corriendo)}
-            className="bg-[#111827] hover:bg-[#374151] text-white rounded-full w-11 h-11 flex items-center justify-center"
-          >
-            {corriendo ? <Pause size={18} /> : <Play size={18} />}
-          </button>
-          <button
-            onClick={reiniciar}
-            className="border border-[#E5E7EB] text-[#6B7280] rounded-full w-11 h-11 flex items-center justify-center"
-          >
-            <RotateCcw size={16} />
+      <div className="bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] p-4">
+        <div className="flex items-center justify-between mb-3">
+          <p className="text-xs text-[#8B948F]">Tu progreso</p>
+          <button onClick={() => onIrATab("progreso")} className="text-xs text-[#C8FF3D]">
+            Ver más
           </button>
         </div>
-        <p className="text-[10px] text-[#9CA3AF] mt-3">Técnica Pomodoro: 25 min de enfoque + 5 min de descanso</p>
+        <div className="flex items-center gap-4">
+          <div className="relative shrink-0">
+            <Anillo pct={sesionesEstaSemana / metaDias} color="#C8FF3D" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center">
+              <p className="text-sm font-bold">{Math.round((sesionesEstaSemana / metaDias) * 100)}%</p>
+              <p className="text-[8px] text-[#5F6864]">objetivo</p>
+            </div>
+          </div>
+          <div className="flex-1 space-y-2">
+            <div className="flex justify-between text-xs">
+              <span className="text-[#8B948F]">Entrenamientos</span>
+              <span className="font-semibold text-[#C8FF3D]">
+                {sesionesEstaSemana}/{metaDias}
+              </span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span className="text-[#8B948F]">Calorías hoy</span>
+              <span className="font-semibold text-[#C8FF3D]">
+                {totalesHoy.kcal}/{metas.kcal} kcal
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div>
-        <p className="text-xs text-[#6B7280] mb-2">Otras técnicas de productividad</p>
-        <div className="space-y-2">
-          {TECNICAS_PRODUCTIVIDAD.map((t) => (
-            <div key={t.nombre} className="bg-[#F8FAFC] border border-[#E5E7EB] rounded-lg p-3">
-              <p className="text-sm font-medium text-[#111827]">{t.nombre}</p>
-              <p className="text-xs text-[#6B7280] mt-0.5">{t.descripcion}</p>
+        <p className="text-xs text-[#8B948F] mb-2">Entrenamiento de hoy</p>
+        <button
+          onClick={() => onIrATab("entrenar")}
+          className="w-full bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] p-4 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-[#C8FF3D]/15 flex items-center justify-center">
+              <Dumbbell size={18} color="#C8FF3D" />
             </div>
-          ))}
+            <div className="text-left">
+              <p className="text-sm font-semibold">{grupoHoy ? NOMBRE_DIA_GRUPO[grupoHoy] : "Descanso"}</p>
+              <p className="text-xs text-[#8B948F]">{nombreDiaHoy}</p>
+            </div>
+          </div>
+          <ChevronRight size={18} color="#5F6864" />
+        </button>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-[#8B948F]">Rutinas recomendadas</p>
+          <button onClick={() => onIrATab("entrenar")} className="text-xs text-[#C8FF3D]">
+            Ver más
+          </button>
         </div>
+        <div className="flex gap-3 overflow-x-auto pb-1">
+          {RUTINAS_SUGERIDAS.map((r) => {
+            const Icono = r.icono;
+            return (
+              <button
+                key={r.nombre}
+                onClick={() => onIrATab("entrenar")}
+                className="shrink-0 w-32 bg-[#171D1B] border border-[#262E2B] rounded-xl p-3.5 text-left"
+              >
+                <div className="w-9 h-9 rounded-lg bg-[#C8FF3D]/15 flex items-center justify-center mb-2">
+                  <Icono size={16} color="#C8FF3D" />
+                </div>
+                <p className="text-xs font-semibold">{r.nombre}</p>
+                <p className="text-[10px] text-[#8B948F] mt-0.5">{r.nivel}</p>
+                <p className="text-[10px] text-[#5F6864]">{r.dias}</p>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="bg-[#171D1B] border border-[#C8FF3D]/40 rounded-xl p-4">
+        <p className="text-[10px] uppercase tracking-wide text-[#8B948F]">Consejo del día · {tip.categoria}</p>
+        <p className="text-[#F5F7F6] text-sm mt-1.5 leading-relaxed">{tip.texto}</p>
       </div>
     </div>
   );
