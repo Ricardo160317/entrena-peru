@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES } from "../data";
+import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES, LESIONES_OPCIONES } from "../data";
 import { Campo, Chip } from "./Comunes";
 
 export default function Onboarding({ onGuardar, errorGuardado }) {
@@ -14,6 +14,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
     objetivo: "mantener",
     diasEntreno: 3,
     equipo: [],
+    lesiones: [],
   });
 
   const [equipoPersonalizado, setEquipoPersonalizado] = useState("");
@@ -22,6 +23,12 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
     setForm((f) => ({
       ...f,
       equipo: f.equipo.includes(id) ? f.equipo.filter((e) => e !== id) : [...f.equipo, id],
+    }));
+
+  const toggleLesion = (id) =>
+    setForm((f) => ({
+      ...f,
+      lesiones: f.lesiones.includes(id) ? f.lesiones.filter((e) => e !== id) : [...f.lesiones, id],
     }));
 
   function agregarEquipoPersonalizado() {
@@ -43,6 +50,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
       objetivo: form.objetivo,
       equipo: form.equipo,
       dias_entreno: form.diasEntreno,
+      lesiones: form.lesiones,
     });
   }
 
@@ -172,6 +180,24 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
         </div>
       )}
 
+      {paso === 3 && (
+        <div className="space-y-3">
+          <p className="text-sm text-[var(--muted)]">
+            ¿Tienes alguna lesión o molestia? Evitaremos ejercicios que carguen esa zona. Puedes dejarlo vacío si no aplica.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {LESIONES_OPCIONES.map((l) => (
+              <Chip key={l.id} active={form.lesiones.includes(l.id)} onClick={() => toggleLesion(l.id)}>
+                {l.label}
+              </Chip>
+            ))}
+          </div>
+          <p className="text-[11px] text-[var(--muted2)] mt-2">
+            Esto no reemplaza el consejo de un profesional de salud. Si tienes una lesión activa, consulta a un médico o fisioterapeuta antes de entrenar.
+          </p>
+        </div>
+      )}
+
       <div className="mt-8 flex gap-3">
         {paso > 0 && (
           <button
@@ -181,7 +207,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
             Atrás
           </button>
         )}
-        {paso < 2 && (
+        {paso < 3 && (
           <button
             disabled={!puedeAvanzar}
             onClick={() => setPaso(paso + 1)}
@@ -190,7 +216,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
             Continuar <ChevronRight size={16} />
           </button>
         )}
-        {paso === 2 && (
+        {paso === 3 && (
           <button onClick={finalizar} className="flex-1 bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] rounded-xl py-3 text-sm font-semibold">
             Empezar
           </button>

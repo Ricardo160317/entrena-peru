@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES, TEMAS_COLOR } from "../data";
+import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES, TEMAS_COLOR, LESIONES_OPCIONES } from "../data";
 import { Campo, Chip } from "./Comunes";
 
 export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
@@ -11,6 +11,7 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
     agua_pct: perfil.agua_pct ?? "",
     visceral: perfil.visceral ?? "",
     tema: perfil.tema || "verde",
+    lesiones: perfil.lesiones || [],
   });
 
   const [equipoPersonalizado, setEquipoPersonalizado] = useState("");
@@ -28,6 +29,12 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
     setForm((f) => ({ ...f, equipo: [...f.equipo, valor] }));
     setEquipoPersonalizado("");
   }
+
+  const toggleLesion = (id) =>
+    setForm((f) => ({
+      ...f,
+      lesiones: f.lesiones.includes(id) ? f.lesiones.filter((e) => e !== id) : [...f.lesiones, id],
+    }));
 
   async function guardar() {
     setEstado("guardando");
@@ -146,6 +153,16 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
           >
             Agregar
           </button>
+        </div>
+      </Campo>
+
+      <Campo label="Lesiones o molestias (evitamos ejercicios de riesgo para esa zona)">
+        <div className="flex flex-wrap gap-2">
+          {LESIONES_OPCIONES.map((l) => (
+            <Chip key={l.id} active={form.lesiones.includes(l.id)} onClick={() => toggleLesion(l.id)}>
+              {l.label}
+            </Chip>
+          ))}
         </div>
       </Campo>
 

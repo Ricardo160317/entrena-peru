@@ -43,6 +43,7 @@ async function initSchema() {
 
     ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS dias_entreno INTEGER DEFAULT 3;
     ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS tema TEXT DEFAULT 'verde';
+    ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS lesiones JSONB DEFAULT '[]';
 
     CREATE TABLE IF NOT EXISTS entrenamientos (
       id SERIAL PRIMARY KEY,

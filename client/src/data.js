@@ -102,6 +102,15 @@ export const CONSEJOS_DESCANSO = [
   "Usa un rodillo de espuma o haz automasaje en las zonas más cargadas de la semana.",
 ];
 
+export const LESIONES_OPCIONES = [
+  { id: "rodilla", label: "Rodilla" },
+  { id: "hombro", label: "Hombro" },
+  { id: "espalda_baja", label: "Espalda baja" },
+  { id: "muñeca", label: "Muñeca" },
+  { id: "cadera", label: "Cadera" },
+  { id: "tobillo", label: "Tobillo / pie" },
+];
+
 export const DIAS_ENTRENO_OPCIONES = [1, 2, 3, 4, 5, 6, 7];
 
 export const TIEMPOS_DISPONIBLES = [
@@ -149,21 +158,21 @@ export const PRIORIDAD_PATRON = {
 
 export const EJERCICIOS = [
   // ===== EMPUJE =====
-  { nombre: "Press banca", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 4, reps: "6-8" },
-  { nombre: "Press banca con mancuernas", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["mancuernas", "banco"], series: 4, reps: "8-10" },
+  { nombre: "Press banca", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 4, reps: "6-8", evitar_si: ["hombro"] },
+  { nombre: "Press banca con mancuernas", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["mancuernas", "banco"], series: 4, reps: "8-10", evitar_si: ["hombro"] },
   { nombre: "Press en máquina de pecho", grupo: "empuje", patron: "press_horizontal", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12" },
-  { nombre: "Press inclinado con mancuernas", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["mancuernas", "banco"], series: 3, reps: "8-10" },
-  { nombre: "Flexiones de pecho", grupo: "empuje", patron: "press_horizontal", estilo: "funcional", equipo: [], series: 3, reps: "15-20" },
-  { nombre: "Flexiones con déficit (en discos)", grupo: "empuje", patron: "press_horizontal", estilo: "funcional", equipo: ["discos"], series: 3, reps: "12-15" },
+  { nombre: "Press inclinado con mancuernas", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["mancuernas", "banco"], series: 3, reps: "8-10", evitar_si: ["hombro"] },
+  { nombre: "Flexiones de pecho", grupo: "empuje", patron: "press_horizontal", estilo: "funcional", equipo: [], series: 3, reps: "15-20", evitar_si: ["muñeca"] },
+  { nombre: "Flexiones con déficit (en discos)", grupo: "empuje", patron: "press_horizontal", estilo: "funcional", equipo: ["discos"], series: 3, reps: "12-15", evitar_si: ["muñeca"] },
 
-  { nombre: "Press militar con barra", grupo: "empuje", patron: "press_vertical", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "6-8" },
-  { nombre: "Press militar con mancuernas", grupo: "empuje", patron: "press_vertical", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "8-10" },
-  { nombre: "Press de hombro en máquina", grupo: "empuje", patron: "press_vertical", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12" },
-  { nombre: "Pike push-up (flexión pica)", grupo: "empuje", patron: "press_vertical", estilo: "funcional", equipo: [], series: 3, reps: "10-12" },
+  { nombre: "Press militar con barra", grupo: "empuje", patron: "press_vertical", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "6-8", evitar_si: ["hombro"] },
+  { nombre: "Press militar con mancuernas", grupo: "empuje", patron: "press_vertical", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "8-10", evitar_si: ["hombro"] },
+  { nombre: "Press de hombro en máquina", grupo: "empuje", patron: "press_vertical", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12", evitar_si: ["hombro"] },
+  { nombre: "Pike push-up (flexión pica)", grupo: "empuje", patron: "press_vertical", estilo: "funcional", equipo: [], series: 3, reps: "10-12", evitar_si: ["hombro"] },
 
-  { nombre: "Fondos en paralelas", grupo: "empuje", patron: "fondos", estilo: "funcional", equipo: [], series: 3, reps: "10-15" },
-  { nombre: "Fondos en banco", grupo: "empuje", patron: "fondos", estilo: "funcional", equipo: ["banco"], series: 3, reps: "12-15" },
-  { nombre: "Fondos en máquina asistida", grupo: "empuje", patron: "fondos", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "10-12" },
+  { nombre: "Fondos en paralelas", grupo: "empuje", patron: "fondos", estilo: "funcional", equipo: [], series: 3, reps: "10-15", evitar_si: ["hombro"] },
+  { nombre: "Fondos en banco", grupo: "empuje", patron: "fondos", estilo: "funcional", equipo: ["banco"], series: 3, reps: "12-15", evitar_si: ["hombro", "muñeca"] },
+  { nombre: "Fondos en máquina asistida", grupo: "empuje", patron: "fondos", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "10-12", evitar_si: ["hombro"] },
 
   { nombre: "Aperturas con mancuernas", grupo: "empuje", patron: "aislamiento_pecho", estilo: "libre", equipo: ["mancuernas", "banco"], series: 3, reps: "12-15" },
   { nombre: "Cruce de poleas (pec deck cable)", grupo: "empuje", patron: "aislamiento_pecho", estilo: "maquina", equipo: ["polea"], series: 3, reps: "12-15" },
@@ -178,12 +187,12 @@ export const EJERCICIOS = [
   { nombre: "Fondos entre bancos (tríceps)", grupo: "empuje", patron: "aislamiento_triceps", estilo: "funcional", equipo: ["banco"], series: 3, reps: "12-15" },
 
   // ===== TIRÓN =====
-  { nombre: "Dominadas", grupo: "tiron", patron: "jalon_vertical", estilo: "funcional", equipo: ["barra_dominadas"], series: 4, reps: "6-10" },
+  { nombre: "Dominadas", grupo: "tiron", patron: "jalon_vertical", estilo: "funcional", equipo: ["barra_dominadas"], series: 4, reps: "6-10", evitar_si: ["hombro"] },
   { nombre: "Jalón al pecho en polea (agarre ancho)", grupo: "tiron", patron: "jalon_vertical", estilo: "maquina", equipo: ["polea"], series: 4, reps: "10-12" },
   { nombre: "Jalón al pecho agarre cerrado", grupo: "tiron", patron: "jalon_vertical", estilo: "maquina", equipo: ["polea"], series: 3, reps: "10-12" },
   { nombre: "Jalón con banda elástica", grupo: "tiron", patron: "jalon_vertical", estilo: "funcional", equipo: ["banda"], series: 3, reps: "15" },
 
-  { nombre: "Remo con barra", grupo: "tiron", patron: "remo_horizontal", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "6-8" },
+  { nombre: "Remo con barra", grupo: "tiron", patron: "remo_horizontal", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "6-8", evitar_si: ["espalda_baja"] },
   { nombre: "Remo con mancuerna a una mano", grupo: "tiron", patron: "remo_horizontal", estilo: "libre", equipo: ["mancuernas", "banco"], series: 4, reps: "10-12 c/lado" },
   { nombre: "Remo en máquina (sentado)", grupo: "tiron", patron: "remo_horizontal", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12" },
   { nombre: "Remo en polea baja", grupo: "tiron", patron: "remo_horizontal", estilo: "maquina", equipo: ["polea"], series: 3, reps: "10-12" },
@@ -197,34 +206,34 @@ export const EJERCICIOS = [
   { nombre: "Curl martillo con mancuernas", grupo: "tiron", patron: "aislamiento_biceps", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "10-12" },
   { nombre: "Curl de bíceps en polea", grupo: "tiron", patron: "aislamiento_biceps", estilo: "maquina", equipo: ["polea"], series: 3, reps: "12-15" },
 
-  { nombre: "Curl de muñeca con mancuernas", grupo: "tiron", patron: "antebrazo", estilo: "libre", equipo: ["mancuernas"], series: 2, reps: "15-20" },
+  { nombre: "Curl de muñeca con mancuernas", grupo: "tiron", patron: "antebrazo", estilo: "libre", equipo: ["mancuernas"], series: 2, reps: "15-20", evitar_si: ["muñeca"] },
 
   // ===== PIERNA =====
-  { nombre: "Sentadilla con barra (back squat)", grupo: "pierna", patron: "sentadilla", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "6-8" },
+  { nombre: "Sentadilla con barra (back squat)", grupo: "pierna", patron: "sentadilla", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "6-8", evitar_si: ["rodilla"] },
   { nombre: "Sentadilla goblet", grupo: "pierna", patron: "sentadilla", estilo: "libre", equipo: ["mancuernas"], series: 4, reps: "10-12" },
-  { nombre: "Sentadilla en máquina Smith", grupo: "pierna", patron: "sentadilla", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "8-10" },
-  { nombre: "Prensa de pierna (leg press)", grupo: "pierna", patron: "sentadilla", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12" },
+  { nombre: "Sentadilla en máquina Smith", grupo: "pierna", patron: "sentadilla", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "8-10", evitar_si: ["rodilla"] },
+  { nombre: "Prensa de pierna (leg press)", grupo: "pierna", patron: "sentadilla", estilo: "maquina", equipo: ["maquina"], series: 4, reps: "10-12", evitar_si: ["rodilla"] },
   { nombre: "Sentadilla al aire (bodyweight)", grupo: "pierna", patron: "sentadilla", estilo: "funcional", equipo: [], series: 3, reps: "20-25" },
 
-  { nombre: "Peso muerto rumano con barra", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "8-10" },
-  { nombre: "Peso muerto con kettlebell", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["kettlebell"], series: 3, reps: "10-12" },
-  { nombre: "Peso muerto rumano con mancuernas", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "10-12" },
+  { nombre: "Peso muerto rumano con barra", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "8-10", evitar_si: ["espalda_baja"] },
+  { nombre: "Peso muerto con kettlebell", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["kettlebell"], series: 3, reps: "10-12", evitar_si: ["espalda_baja"] },
+  { nombre: "Peso muerto rumano con mancuernas", grupo: "pierna", patron: "bisagra_cadera", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "10-12", evitar_si: ["espalda_baja"] },
   { nombre: "Hiperextensión (máquina lumbar)", grupo: "pierna", patron: "bisagra_cadera", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "12-15" },
   { nombre: "Puente de glúteo", grupo: "pierna", patron: "bisagra_cadera", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "15-20" },
 
-  { nombre: "Zancadas con mancuernas", grupo: "pierna", patron: "zancada", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12 c/pierna" },
-  { nombre: "Sentadilla búlgara", grupo: "pierna", patron: "zancada", estilo: "libre", equipo: ["mancuernas", "banco"], series: 3, reps: "10 c/pierna" },
-  { nombre: "Zancadas caminando", grupo: "pierna", patron: "zancada", estilo: "funcional", equipo: [], series: 3, reps: "20 pasos" },
-  { nombre: "Step-ups con step", grupo: "pierna", patron: "zancada", estilo: "funcional", equipo: ["step"], series: 3, reps: "12 c/pierna" },
+  { nombre: "Zancadas con mancuernas", grupo: "pierna", patron: "zancada", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12 c/pierna", evitar_si: ["rodilla"] },
+  { nombre: "Sentadilla búlgara", grupo: "pierna", patron: "zancada", estilo: "libre", equipo: ["mancuernas", "banco"], series: 3, reps: "10 c/pierna", evitar_si: ["rodilla"] },
+  { nombre: "Zancadas caminando", grupo: "pierna", patron: "zancada", estilo: "funcional", equipo: [], series: 3, reps: "20 pasos", evitar_si: ["rodilla", "tobillo"] },
+  { nombre: "Step-ups con step", grupo: "pierna", patron: "zancada", estilo: "funcional", equipo: ["step"], series: 3, reps: "12 c/pierna", evitar_si: ["rodilla", "tobillo"] },
 
-  { nombre: "Extensión de cuádriceps en máquina", grupo: "pierna", patron: "aislamiento_cuadriceps", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "12-15" },
-  { nombre: "Sentadilla sissy (cuádriceps)", grupo: "pierna", patron: "aislamiento_cuadriceps", estilo: "funcional", equipo: [], series: 3, reps: "12-15" },
+  { nombre: "Extensión de cuádriceps en máquina", grupo: "pierna", patron: "aislamiento_cuadriceps", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "12-15", evitar_si: ["rodilla"] },
+  { nombre: "Sentadilla sissy (cuádriceps)", grupo: "pierna", patron: "aislamiento_cuadriceps", estilo: "funcional", equipo: [], series: 3, reps: "12-15", evitar_si: ["rodilla"] },
 
   { nombre: "Curl femoral en máquina", grupo: "pierna", patron: "aislamiento_isquios", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "12-15" },
-  { nombre: "Peso muerto a una pierna (mancuerna)", grupo: "pierna", patron: "aislamiento_isquios", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "10 c/pierna" },
+  { nombre: "Peso muerto a una pierna (mancuerna)", grupo: "pierna", patron: "aislamiento_isquios", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "10 c/pierna", evitar_si: ["espalda_baja"] },
 
   { nombre: "Patada de glúteo en polea", grupo: "pierna", patron: "gluteo_aislado", estilo: "maquina", equipo: ["polea"], series: 3, reps: "12-15 c/lado" },
-  { nombre: "Hip thrust con barra", grupo: "pierna", patron: "gluteo_aislado", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 4, reps: "10-12" },
+  { nombre: "Hip thrust con barra", grupo: "pierna", patron: "gluteo_aislado", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 4, reps: "10-12", evitar_si: ["espalda_baja"] },
   { nombre: "Patada de glúteo (cuadrupedia)", grupo: "pierna", patron: "gluteo_aislado", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "15 c/lado" },
 
   { nombre: "Elevación de talones de pie", grupo: "pierna", patron: "pantorrilla", estilo: "maquina", equipo: ["maquina"], series: 3, reps: "15-20" },
@@ -232,33 +241,33 @@ export const EJERCICIOS = [
 
   // ===== CARDIO / FULL BODY =====
   { nombre: "Swing con kettlebell", grupo: "full", patron: "cardio_constante", estilo: "libre", equipo: ["kettlebell"], series: 4, reps: "15" },
-  { nombre: "Salto de soga", grupo: "full", patron: "cardio_constante", estilo: "funcional", equipo: ["soga"], series: 4, reps: "1 min" },
+  { nombre: "Salto de soga", grupo: "full", patron: "cardio_constante", estilo: "funcional", equipo: ["soga"], series: 4, reps: "1 min", evitar_si: ["tobillo"] },
   { nombre: "Bicicleta estática (cardio)", grupo: "full", patron: "cardio_constante", estilo: "maquina", equipo: ["bici_estatica"], series: 1, reps: "15-20 min" },
   { nombre: "Caminadora (cardio)", grupo: "full", patron: "cardio_constante", estilo: "maquina", equipo: ["caminadora"], series: 1, reps: "15-20 min" },
 
-  { nombre: "Burpees", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12" },
-  { nombre: "Mountain climbers", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "30s" },
+  { nombre: "Burpees", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12", evitar_si: ["muñeca", "tobillo"] },
+  { nombre: "Mountain climbers", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "30s", evitar_si: ["muñeca"] },
   { nombre: "Jumping jacks", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "40s" },
-  { nombre: "Sentadilla con salto", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12" },
+  { nombre: "Sentadilla con salto", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: [], series: 3, reps: "12", evitar_si: ["rodilla", "tobillo"] },
   { nombre: "Battle ropes / arrastre con chaleco", grupo: "full", patron: "hiit_funcional", estilo: "funcional", equipo: ["chaleco_peso"], series: 3, reps: "30-40s" },
 
   // ===== ABDOMEN =====
-  { nombre: "Plancha abdominal", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "40-60s" },
-  { nombre: "Plancha lateral", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "30-40s c/lado" },
+  { nombre: "Plancha abdominal", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "40-60s", evitar_si: ["muñeca"] },
+  { nombre: "Plancha lateral", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "30-40s c/lado", evitar_si: ["muñeca"] },
   { nombre: "Plancha con toque de hombro", grupo: "abdomen", patron: "core_isometrico", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "16 toques" },
 
   { nombre: "Crunch abdominal en colchoneta", grupo: "abdomen", patron: "core_flexion", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "15-20" },
   { nombre: "Crunch en polea (cable)", grupo: "abdomen", patron: "core_flexion", estilo: "maquina", equipo: ["polea"], series: 3, reps: "15" },
 
-  { nombre: "Rueda abdominal", grupo: "abdomen", patron: "core_flexion_avanzada", estilo: "funcional", equipo: ["rueda_abdominal"], series: 3, reps: "10-12" },
+  { nombre: "Rueda abdominal", grupo: "abdomen", patron: "core_flexion_avanzada", estilo: "funcional", equipo: ["rueda_abdominal"], series: 3, reps: "10-12", evitar_si: ["muñeca"] },
   { nombre: "Deslizamiento de rodillas (discos deslizantes)", grupo: "abdomen", patron: "core_flexion_avanzada", estilo: "funcional", equipo: ["disco_deslizante"], series: 3, reps: "12-15" },
 
-  { nombre: "Elevación de piernas colgado", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "12-15" },
-  { nombre: "Elevación de rodillas colgado", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "12-15" },
+  { nombre: "Elevación de piernas colgado", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "12-15", evitar_si: ["hombro"] },
+  { nombre: "Elevación de rodillas colgado", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["barra_dominadas"], series: 3, reps: "12-15", evitar_si: ["hombro"] },
   { nombre: "Elevación de piernas en banco", grupo: "abdomen", patron: "core_piernas", estilo: "funcional", equipo: ["banco"], series: 3, reps: "12-15" },
 
-  { nombre: "Bicicleta abdominal", grupo: "abdomen", patron: "core_rotacion", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "20 c/lado" },
-  { nombre: "Giro ruso con disco o mancuerna", grupo: "abdomen", patron: "core_rotacion", estilo: "libre", equipo: ["discos"], series: 3, reps: "15 c/lado" },
+  { nombre: "Bicicleta abdominal", grupo: "abdomen", patron: "core_rotacion", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "20 c/lado", evitar_si: ["cadera"] },
+  { nombre: "Giro ruso con disco o mancuerna", grupo: "abdomen", patron: "core_rotacion", estilo: "libre", equipo: ["discos"], series: 3, reps: "15 c/lado", evitar_si: ["espalda_baja"] },
 ];
 
 export const ALIMENTOS = [

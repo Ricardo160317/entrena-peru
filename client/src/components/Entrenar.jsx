@@ -46,9 +46,12 @@ function elegirEjercicio(opciones, estiloUsuario, lugar) {
   return opciones[0];
 }
 
-function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar }) {
+function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesiones }) {
   const disponibles = EJERCICIOS.filter(
-    (ej) => ej.grupo === grupo && ej.equipo.every((id) => equipoDisponible.includes(id))
+    (ej) =>
+      ej.grupo === grupo &&
+      ej.equipo.every((id) => equipoDisponible.includes(id)) &&
+      !(ej.evitar_si || []).some((zona) => (lesiones || []).includes(zona))
   );
 
   const porPatron = {};
@@ -80,7 +83,10 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar }) {
   // Si el día no es de abdomen, cerramos con 2 ejercicios de core (no cuentan contra el máximo de arriba)
   if (grupo !== "abdomen") {
     const absDisponibles = EJERCICIOS.filter(
-      (ej) => ej.grupo === "abdomen" && ej.equipo.every((id) => equipoDisponible.includes(id))
+      (ej) =>
+        ej.grupo === "abdomen" &&
+        ej.equipo.every((id) => equipoDisponible.includes(id)) &&
+        !(ej.evitar_si || []).some((zona) => (lesiones || []).includes(zona))
     );
     const absPorPatron = {};
     absDisponibles.forEach((ej) => {
@@ -201,7 +207,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
   function generar(g) {
     setGrupo(g);
     const asignada = rutinaAsignadaDe(g);
-    const elegidos = asignada ? asignada.ejercicios : generarRutina({ grupo: g, equipoDisponible, estilo, tiempo, lugar });
+    const elegidos = asignada ? asignada.ejercicios : generarRutina({ grupo: g, equipoDisponible, estilo, tiempo, lugar, lesiones: perfil.lesiones });
     setOrigenRutina(asignada ? { origen: asignada.origen, generado_en: asignada.generado_en } : null);
     setRutina(elegidos);
     const inicial = {};

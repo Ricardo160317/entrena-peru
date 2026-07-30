@@ -75,6 +75,7 @@ router.post("/asignar", requireEntrenador, async (req, res) => {
 async function generarRutinaConIA({ grupo, perfilCliente }) {
   const prompt = `Genera una rutina de ejercicios para el grupo muscular "${grupo}" (opciones de grupo: empuje=pecho/hombro/tríceps, tiron=espalda/bíceps, pierna, abdomen, full=cardio/full body).
 Perfil de la persona: objetivo=${perfilCliente.objetivo}, nivel de actividad=${perfilCliente.nivel}, equipo disponible=${JSON.stringify(perfilCliente.equipo || [])}.
+Lesiones o molestias a evitar: ${JSON.stringify(perfilCliente.lesiones || [])} (si la lista no está vacía, evita ejercicios que carguen esas zonas; por ejemplo si dice "rodilla", evita sentadillas profundas o saltos).
 Responde ÚNICAMENTE con JSON válido, sin texto ni markdown, con este formato exacto:
 {"ejercicios": [{"nombre": string, "series": number, "reps": string}]}
 Incluye entre 4 y 6 ejercicios variados y realistas, usando solo equipo de la lista disponible (o ninguno si la lista está vacía, usando peso corporal).`;
@@ -106,8 +107,8 @@ router.post("/asignar-ia", requireEntrenador, async (req, res) => {
   if (!esCliente) return res.status(403).json({ error: "Ese usuario no es tu cliente" });
 
   try {
-    const perfilResult = await pool.query("SELECT objetivo, nivel, equipo FROM perfiles WHERE usuario_id = $1", [clienteId]);
-    const perfilCliente = perfilResult.rows[0] || { objetivo: "mantener", nivel: "moderado", equipo: [] };
+    const perfilResult = await pool.query("SELECT objetivo, nivel, equipo, lesiones FROM perfiles WHERE usuario_id = $1", [clienteId]);
+    const perfilCliente = perfilResult.rows[0] || { objetivo: "mantener", nivel: "moderado", equipo: [], lesiones: [] };
     const ejercicios = await generarRutinaConIA({ grupo, perfilCliente });
 
     const result = await pool.query(
@@ -129,8 +130,8 @@ router.post("/asignar-ia", requireEntrenador, async (req, res) => {
 router.post("/mi-ia", async (req, res) => {
   const { grupo } = req.body;
   try {
-    const perfilResult = await pool.query("SELECT objetivo, nivel, equipo FROM perfiles WHERE usuario_id = $1", [req.usuarioId]);
-    const perfilCliente = perfilResult.rows[0] || { objetivo: "mantener", nivel: "moderado", equipo: [] };
+    const perfilResult = await pool.query("SELECT objetivo, nivel, equipo, lesiones FROM perfiles WHERE usuario_id = $1", [req.usuarioId]);
+    const perfilCliente = perfilResult.rows[0] || { objetivo: "mantener", nivel: "moderado", equipo: [], lesiones: [] };
     const ejercicios = await generarRutinaConIA({ grupo, perfilCliente });
 
     const result = await pool.query(
