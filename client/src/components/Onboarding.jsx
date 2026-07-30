@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES } from "../data";
+import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES, LESIONES_OPCIONES } from "../data";
 import { Campo, Chip } from "./Comunes";
 
 export default function Onboarding({ onGuardar, errorGuardado }) {
@@ -14,6 +14,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
     objetivo: "mantener",
     diasEntreno: 3,
     equipo: [],
+    lesiones: [],
   });
 
   const [equipoPersonalizado, setEquipoPersonalizado] = useState("");
@@ -22,6 +23,12 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
     setForm((f) => ({
       ...f,
       equipo: f.equipo.includes(id) ? f.equipo.filter((e) => e !== id) : [...f.equipo, id],
+    }));
+
+  const toggleLesion = (id) =>
+    setForm((f) => ({
+      ...f,
+      lesiones: f.lesiones.includes(id) ? f.lesiones.filter((e) => e !== id) : [...f.lesiones, id],
     }));
 
   function agregarEquipoPersonalizado() {
@@ -43,17 +50,18 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
       objetivo: form.objetivo,
       equipo: form.equipo,
       dias_entreno: form.diasEntreno,
+      lesiones: form.lesiones,
     });
   }
 
   return (
-    <div className="min-h-[700px] bg-[#0D1210] text-[#F5F7F6] font-sans flex flex-col max-w-md mx-auto px-6 py-8">
-      <p className="text-xs tracking-[0.2em] uppercase text-[#C8FF3D]">Entrena Perú</p>
+    <div className="min-h-[700px] bg-[var(--bg)] text-[var(--text)] font-sans flex flex-col max-w-md mx-auto px-6 py-8">
+      <p className="text-xl font-black tracking-wide text-[var(--accent)]">NEX-FIT</p>
       <h1 className="text-2xl font-bold mt-1 mb-1">Armemos tu perfil</h1>
-      <p className="text-sm text-[#8B948F] mb-6">Con esto calculamos tus rutinas y tus macros. Toma 1 minuto.</p>
+      <p className="text-sm text-[var(--muted)] mb-6">Con esto calculamos tus rutinas y tus macros. Toma 1 minuto.</p>
 
       {errorGuardado && (
-        <div className="mb-4 text-xs text-[#C8FF3D] bg-[#2A2313] border border-[#F59E0B] rounded-lg p-3">
+        <div className="mb-4 text-xs text-[var(--accent)] bg-[var(--warning-bg)] border border-[var(--warning)] rounded-lg p-3">
           No se pudo guardar tu perfil. Intenta de nuevo en unos segundos.
         </div>
       )}
@@ -65,7 +73,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.peso}
               onChange={(e) => setForm({ ...form, peso: e.target.value })}
-              className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-[#F5F7F6] outline-none focus:border-[#C8FF3D]"
+              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text)] outline-none focus:border-[var(--accent)]"
               placeholder="70"
             />
           </Campo>
@@ -74,7 +82,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.altura}
               onChange={(e) => setForm({ ...form, altura: e.target.value })}
-              className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-[#F5F7F6] outline-none focus:border-[#C8FF3D]"
+              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text)] outline-none focus:border-[var(--accent)]"
               placeholder="170"
             />
           </Campo>
@@ -83,7 +91,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.edad}
               onChange={(e) => setForm({ ...form, edad: e.target.value })}
-              className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-[#F5F7F6] outline-none focus:border-[#C8FF3D]"
+              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text)] outline-none focus:border-[var(--accent)]"
               placeholder="28"
             />
           </Campo>
@@ -128,7 +136,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
                 </Chip>
               ))}
             </div>
-            <p className="text-[11px] text-[#5F6864] mt-1.5">
+            <p className="text-[11px] text-[var(--muted2)] mt-1.5">
               Con esto armamos un plan por día (ej. pecho/bíceps, pierna, espalda) en vez de que elijas cada vez.
             </p>
           </Campo>
@@ -137,7 +145,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
 
       {paso === 2 && (
         <div className="space-y-3">
-          <p className="text-sm text-[#8B948F]">
+          <p className="text-sm text-[var(--muted)]">
             Marca el equipo que tienes en casa. En el gimnasio asumimos que tienes todo disponible.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -159,12 +167,12 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               value={equipoPersonalizado}
               onChange={(e) => setEquipoPersonalizado(e.target.value)}
               placeholder="¿Tienes algo más? Escríbelo aquí"
-              className="flex-1 bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C8FF3D]"
+              className="flex-1 bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             />
             <button
               type="button"
               onClick={agregarEquipoPersonalizado}
-              className="px-3 rounded-lg border border-[#262E2B] text-[#8B948F] text-sm"
+              className="px-3 rounded-lg border border-[var(--border)] text-[var(--muted)] text-sm"
             >
               Agregar
             </button>
@@ -172,26 +180,44 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
         </div>
       )}
 
+      {paso === 3 && (
+        <div className="space-y-3">
+          <p className="text-sm text-[var(--muted)]">
+            ¿Tienes alguna lesión o molestia? Evitaremos ejercicios que carguen esa zona. Puedes dejarlo vacío si no aplica.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {LESIONES_OPCIONES.map((l) => (
+              <Chip key={l.id} active={form.lesiones.includes(l.id)} onClick={() => toggleLesion(l.id)}>
+                {l.label}
+              </Chip>
+            ))}
+          </div>
+          <p className="text-[11px] text-[var(--muted2)] mt-2">
+            Esto no reemplaza el consejo de un profesional de salud. Si tienes una lesión activa, consulta a un médico o fisioterapeuta antes de entrenar.
+          </p>
+        </div>
+      )}
+
       <div className="mt-8 flex gap-3">
         {paso > 0 && (
           <button
             onClick={() => setPaso(paso - 1)}
-            className="px-4 py-3 rounded-xl border border-[#262E2B] text-[#8B948F] text-sm font-medium"
+            className="px-4 py-3 rounded-xl border border-[var(--border)] text-[var(--muted)] text-sm font-medium"
           >
             Atrás
           </button>
         )}
-        {paso < 2 && (
+        {paso < 3 && (
           <button
             disabled={!puedeAvanzar}
             onClick={() => setPaso(paso + 1)}
-            className="flex-1 bg-[#C8FF3D] hover:bg-[#9FCC2E] disabled:opacity-40 text-[#0D1210] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
+            className="flex-1 bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-40 text-[var(--bg)] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
           >
             Continuar <ChevronRight size={16} />
           </button>
         )}
-        {paso === 2 && (
-          <button onClick={finalizar} className="flex-1 bg-[#C8FF3D] hover:bg-[#9FCC2E] text-[#0D1210] rounded-xl py-3 text-sm font-semibold">
+        {paso === 3 && (
+          <button onClick={finalizar} className="flex-1 bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] rounded-xl py-3 text-sm font-semibold">
             Empezar
           </button>
         )}

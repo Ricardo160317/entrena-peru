@@ -1,4 +1,4 @@
-# Entrena Perú
+# NEX-FIT
 
 App de entrenamiento y nutrición con cuentas de usuario, control de pesos, asesor con IA (ChatGPT) y seguimiento de balanza corporal.
 
@@ -14,7 +14,7 @@ App de entrenamiento y nutrición con cuentas de usuario, control de pesos, ases
 cd entrena-peru
 git init
 git add .
-git commit -m "Primera versión de Entrena Perú"
+git commit -m "Primera versión de NEX-FIT"
 git branch -M main
 git remote add origin https://github.com/TU_USUARIO/entrena-peru.git
 git push -u origin main

@@ -5,3 +5,117 @@
 body {
   margin: 0;
 }
+
+:root {
+  /* Neutros: iguales para todos los temas */
+  --bg: #0D1210;
+  --card: #171D1B;
+  --border: #262E2B;
+  --text: #F5F7F6;
+  --muted: #8B948F;
+  --muted2: #5F6864;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --warning-bg: #2A2313;
+  --warning-40: rgba(245, 158, 11, 0.4);
+  --on-accent: #0D1210;
+
+  /* Acento: por defecto verde neón */
+  --accent: #C8FF3D;
+  --accent-hover: #9FCC2E;
+  --accent-10: rgba(200, 255, 61, 0.1);
+  --accent-15: rgba(200, 255, 61, 0.15);
+  --accent-20: rgba(200, 255, 61, 0.2);
+  --accent-40: rgba(200, 255, 61, 0.4);
+
+  /* Color de los botones: en modo oscuro siguen el acento elegido */
+  --btn: var(--accent);
+  --btn-hover: var(--accent-hover);
+  --btn-text: var(--on-accent);
+
+  /* Colores semánticos fijos (no cambian con el tema): metas/calorías, progreso, logros */
+  --naranja: #F97316;
+  --azul: #3B82F6;
+  --morado: #8B5CF6;
+}
+
+/* ---------- Modo claro (fijo, no sigue el selector de acento) ---------- */
+[data-theme="claro"] {
+  --bg: #FFFFFF;
+  --card: #F8FAFC;
+  --border: #E5E7EB;
+  --text: #111827;
+  --muted: #6B7280;
+  --muted2: #6B7280;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --warning-bg: #FFFBEB;
+  --warning-40: rgba(245, 158, 11, 0.4);
+  --on-accent: #FFFFFF;
+
+  --accent: #22C55E;
+  --accent-hover: #15803D;
+  --accent-10: rgba(34, 197, 94, 0.1);
+  --accent-15: rgba(34, 197, 94, 0.15);
+  --accent-20: rgba(34, 197, 94, 0.2);
+  --accent-40: rgba(34, 197, 94, 0.4);
+
+  /* En modo claro los botones son negros, no verdes */
+  --btn: #111827;
+  --btn-hover: #374151;
+  --btn-text: #FFFFFF;
+}
+
+[data-theme="morado"] {
+  --accent: #C4B5FD;
+  --accent-hover: #8B5CF6;
+  --accent-10: rgba(196, 181, 253, 0.1);
+  --accent-15: rgba(196, 181, 253, 0.15);
+  --accent-20: rgba(196, 181, 253, 0.2);
+  --accent-40: rgba(196, 181, 253, 0.4);
+}
+
+[data-theme="azul"] {
+  --accent: #7DD3FC;
+  --accent-hover: #0EA5E9;
+  --accent-10: rgba(125, 211, 252, 0.1);
+  --accent-15: rgba(125, 211, 252, 0.15);
+  --accent-20: rgba(125, 211, 252, 0.2);
+  --accent-40: rgba(125, 211, 252, 0.4);
+}
+
+[data-theme="turquesa"] {
+  --accent: #5EEAD4;
+  --accent-hover: #14B8A6;
+  --accent-10: rgba(94, 234, 212, 0.1);
+  --accent-15: rgba(94, 234, 212, 0.15);
+  --accent-20: rgba(94, 234, 212, 0.2);
+  --accent-40: rgba(94, 234, 212, 0.4);
+}
+
+[data-theme="naranja"] {
+  --accent: #FDBA74;
+  --accent-hover: #F97316;
+  --accent-10: rgba(253, 186, 116, 0.1);
+  --accent-15: rgba(253, 186, 116, 0.15);
+  --accent-20: rgba(253, 186, 116, 0.2);
+  --accent-40: rgba(253, 186, 116, 0.4);
+}
+
+[data-theme="rosa"] {
+  --accent: #F9A8D4;
+  --accent-hover: #EC4899;
+  --accent-10: rgba(249, 168, 212, 0.1);
+  --accent-15: rgba(249, 168, 212, 0.15);
+  --accent-20: rgba(249, 168, 212, 0.2);
+  --accent-40: rgba(249, 168, 212, 0.4);
+}
+
+[data-theme="dorado"] {
+  --accent: #FCD34D;
+  --accent-hover: #D97706;
+  --accent-10: rgba(252, 211, 77, 0.1);
+  --accent-15: rgba(252, 211, 77, 0.15);
+  --accent-20: rgba(252, 211, 77, 0.2);
+  --accent-40: rgba(252, 211, 77, 0.4);
+}

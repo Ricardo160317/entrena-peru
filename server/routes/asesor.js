@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
       [req.usuarioId]
     );
 
-    const contexto = `Eres un asesor experto en fitness y nutrición para una app peruana llamada Entrena Perú.
+    const contexto = `Eres un asesor experto en fitness y nutrición para una app peruana llamada NEX-FIT.
 Responde en español, de forma breve, cálida y directa, basándote en los datos reales del usuario.
 No des diagnósticos médicos ni reemplaces a un profesional de salud; para temas médicos sugiere consultar a un doctor.
 

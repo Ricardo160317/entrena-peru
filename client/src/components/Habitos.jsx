@@ -67,30 +67,30 @@ export default function Habitos() {
   const marcadoHoy = (id) => registrosPorHabito(id).some((f) => String(f).slice(0, 10) === hoy());
 
   if (cargando) {
-    return <p className="text-sm text-[#8B948F]">Cargando tus hábitos…</p>;
+    return <p className="text-sm text-[var(--muted)]">Cargando tus hábitos…</p>;
   }
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-[#8B948F]">{fechaLegible(hoy())}</p>
+        <p className="text-xs text-[var(--muted)]">{fechaLegible(hoy())}</p>
         <button
           onClick={() => setMostrarForm(!mostrarForm)}
-          className="text-xs text-[#C8FF3D] flex items-center gap-1 border border-[#262E2B] rounded-full px-2.5 py-1"
+          className="text-xs text-[var(--accent)] flex items-center gap-1 border border-[var(--border)] rounded-full px-2.5 py-1"
         >
           {mostrarForm ? <X size={12} /> : <Plus size={12} />} {mostrarForm ? "Cerrar" : "Nuevo hábito"}
         </button>
       </div>
 
       {mostrarForm && (
-        <div className="bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4 space-y-3">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4 space-y-3">
           <div className="flex gap-2 flex-wrap">
             {EMOJIS_SUGERIDOS.map((e) => (
               <button
                 key={e}
                 onClick={() => setEmojiNuevo(e)}
                 className={`w-9 h-9 rounded-lg border flex items-center justify-center text-lg ${
-                  emojiNuevo === e ? "border-[#C8FF3D]" : "border-[#262E2B]"
+                  emojiNuevo === e ? "border-[var(--accent)]" : "border-[var(--border)]"
                 }`}
               >
                 {e}
@@ -101,16 +101,16 @@ export default function Habitos() {
             value={nombreNuevo}
             onChange={(e) => setNombreNuevo(e.target.value)}
             placeholder="Ej: Tomar 2L de agua"
-            className="w-full bg-[#0D1210] border border-[#262E2B] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C8FF3D]"
+            className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           />
-          <button onClick={agregar} className="w-full bg-[#C8FF3D] hover:bg-[#9FCC2E] text-[#0D1210] rounded-lg py-2.5 text-sm font-semibold">
+          <button onClick={agregar} className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] rounded-lg py-2.5 text-sm font-semibold">
             Agregar hábito
           </button>
         </div>
       )}
 
       {habitos.length === 0 && !mostrarForm && (
-        <p className="text-sm text-[#5F6864] bg-[#171D1B] rounded-xl p-4">
+        <p className="text-sm text-[var(--muted2)] bg-[var(--card)] rounded-xl p-4">
           Aún no tienes hábitos. Agrega el primero — ej. tomar agua, leer, dormir temprano.
         </p>
       )}
@@ -122,12 +122,12 @@ export default function Habitos() {
           return (
             <div
               key={h.id}
-              className="bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-3.5 flex items-center gap-3"
+              className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-3.5 flex items-center gap-3"
             >
               <button
                 onClick={() => marcarHoy(h.id)}
                 className={`w-11 h-11 rounded-full border-2 flex items-center justify-center text-xl shrink-0 ${
-                  hecho ? "border-[#C8FF3D] bg-[#C8FF3D]/20" : "border-[#262E2B]"
+                  hecho ? "border-[var(--accent)] bg-[var(--accent-20)]" : "border-[var(--border)]"
                 }`}
               >
                 {h.emoji}
@@ -135,15 +135,15 @@ export default function Habitos() {
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium truncate">{h.nombre}</p>
                 {racha > 0 ? (
-                  <p className="text-[11px] text-[#C8FF3D] flex items-center gap-1">
+                  <p className="text-[11px] text-[var(--accent)] flex items-center gap-1">
                     <Flame size={11} /> {racha} {racha === 1 ? "día seguido" : "días seguidos"}
                   </p>
                 ) : (
-                  <p className="text-[11px] text-[#5F6864]">Aún sin racha</p>
+                  <p className="text-[11px] text-[var(--muted2)]">Aún sin racha</p>
                 )}
               </div>
               <button onClick={() => eliminar(h.id)}>
-                <Trash2 size={15} color="#5F6864" />
+                <Trash2 size={15} color="var(--muted2)" />
               </button>
             </div>
           );

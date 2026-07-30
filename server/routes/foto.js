@@ -65,4 +65,62 @@ router.post("/comida", async (req, res) => {
   }
 });
 
+router.post("/texto", async (req, res) => {
+  const { nombre, gramos } = req.body;
+  if (!process.env.OPENAI_API_KEY) {
+    return res.status(500).json({ error: "El servidor no tiene configurada OPENAI_API_KEY" });
+  }
+  if (!nombre) return res.status(400).json({ error: "Falta el nombre del alimento" });
+
+  try {
+    const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify({
+        model: process.env.OPENAI_MODEL || "gpt-4o-mini",
+        messages: [
+          {
+            role: "system",
+            content:
+              "Eres un nutricionista que conoce los valores nutricionales aproximados de alimentos, incluyendo comida peruana y suplementos deportivos. " +
+              "Responde ÚNICAMENTE con JSON válido, sin texto adicional ni markdown, con esta forma exacta: " +
+              '{"nombre": string, "gramos_estimados": number, "kcal": number, "prot": number, "carb": number, "grasa": number}. ' +
+              "Si te dan una cantidad en gramos, usa esa cantidad para el cálculo; si no, usa una porción típica y común de ese alimento.",
+          },
+          {
+            role: "user",
+            content: `Alimento: ${nombre}${gramos ? `. Cantidad: ${gramos}g` : ""}`,
+          },
+        ],
+        temperature: 0.3,
+      }),
+    });
+
+    if (!openaiRes.ok) {
+      const errText = await openaiRes.text();
+      console.error("Error de OpenAI (texto):", errText);
+      return res.status(502).json({ error: "No se pudo consultar la IA" });
+    }
+
+    const data = await openaiRes.json();
+    let texto = data.choices?.[0]?.message?.content || "{}";
+    texto = texto.replace(/```json|```/g, "").trim();
+
+    let estimado;
+    try {
+      estimado = JSON.parse(texto);
+    } catch {
+      return res.status(502).json({ error: "La IA no devolvió un formato reconocible" });
+    }
+
+    res.json(estimado);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Error al consultar la IA" });
+  }
+});
+
 module.exports = router;
