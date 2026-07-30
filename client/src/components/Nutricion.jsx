@@ -134,9 +134,9 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
         <p className="text-xs text-[var(--muted)] mb-3">Tu meta diaria</p>
         <div className="flex items-center gap-4">
           <div className="relative">
-            <Anillo pct={totales.kcal / metas.kcal} color="var(--accent)" />
+            <Anillo pct={totales.kcal / metas.kcal} color="var(--naranja)" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <Flame size={14} color="var(--accent)" />
+              <Flame size={14} color="var(--naranja)" />
               <p className="text-[11px] font-semibold">{totales.kcal}</p>
             </div>
           </div>

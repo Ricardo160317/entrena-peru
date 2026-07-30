@@ -99,7 +99,7 @@ router.get("/pdf", async (req, res) => {
 
     // ---- Encabezado ----
     doc.fontSize(20).fillColor("#111827").text("Informe de progreso", { align: "left" });
-    doc.fontSize(10).fillColor("#6B7280").text(`Entrena Perú · ${usuario?.email || ""}`);
+    doc.fontSize(10).fillColor("#6B7280").text(`NEX-FIT · ${usuario?.email || ""}`);
     doc.text(`Período: últimos ${dias} días · Generado el ${fechaEs(new Date().toISOString())}`);
     doc.moveDown(1);
 

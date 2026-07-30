@@ -48,7 +48,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
 
   return (
     <div className="min-h-[700px] bg-[var(--bg)] text-[var(--text)] font-sans flex flex-col max-w-md mx-auto px-6 py-8">
-      <p className="text-xs tracking-[0.2em] uppercase text-[var(--accent)]">Entrena Perú</p>
+      <p className="text-xl font-black tracking-wide text-[var(--accent)]">NEX-FIT</p>
       <h1 className="text-2xl font-bold mt-1 mb-1">Armemos tu perfil</h1>
       <p className="text-sm text-[var(--muted)] mb-6">Con esto calculamos tus rutinas y tus macros. Toma 1 minuto.</p>
 

@@ -72,24 +72,35 @@ export const NOMBRE_DIA_GRUPO = {
 // Según cuántos días a la semana entrena la persona, arma un split recomendado (empieza en lunes).
 // Devuelve un array de 7 posiciones (domingo=0 ... sábado=6), con el grupo del día o null (descanso).
 export function armarPlanSemanal(diasPorSemana) {
-  const secuencias = {
-    1: ["full"],
-    2: ["full", "full"],
-    3: ["empuje", "tiron", "pierna"],
-    4: ["empuje", "tiron", "pierna", "abdomen"],
-    5: ["empuje", "tiron", "pierna", "abdomen", "full"],
-    6: ["empuje", "tiron", "pierna", "empuje", "tiron", "pierna"],
-    7: ["empuje", "tiron", "pierna", "abdomen", "empuje", "tiron", "pierna"],
+  // Cada array tiene 7 posiciones en orden Lunes..Domingo (null = descanso).
+  // Diseñados para nunca poner dos días de tren superior (empuje/tirón) seguidos,
+  // alternando con pierna/abdomen/descanso entre medio.
+  const planesLunesADomingo = {
+    1: [null, null, "full", null, null, null, null],
+    2: ["full", null, null, "full", null, null, null],
+    3: ["empuje", null, "pierna", null, "tiron", null, null],
+    4: ["empuje", null, "pierna", null, "tiron", "abdomen", null],
+    5: ["empuje", "pierna", null, "tiron", "abdomen", "full", null],
+    6: ["empuje", "pierna", "tiron", "empuje", "pierna", "tiron", null],
+    7: ["empuje", "pierna", "tiron", "abdomen", "empuje", "pierna", "tiron"],
   };
-  const secuencia = secuencias[diasPorSemana] || secuencias[3];
-  // Lunes a domingo, asignando la secuencia en orden y dejando descanso el resto
-  const plan = [null, null, null, null, null, null, null]; // dom..sab
+  const planLunesADomingo = planesLunesADomingo[diasPorSemana] || planesLunesADomingo[3];
+  // Reordenar a domingo=0 ... sábado=6, como usa el resto de la app
+  const plan = [null, null, null, null, null, null, null];
   const ordenLunesADomingo = [1, 2, 3, 4, 5, 6, 0];
   ordenLunesADomingo.forEach((diaIndex, i) => {
-    plan[diaIndex] = secuencia[i] || null;
+    plan[diaIndex] = planLunesADomingo[i];
   });
   return plan;
 }
+
+export const CONSEJOS_DESCANSO = [
+  "Estira 10 minutos los músculos que trabajaste ayer — mejora la recuperación y la movilidad.",
+  "Camina 20-30 minutos a paso ligero. El descanso activo ayuda a recuperar sin agregar fatiga.",
+  "Prioriza el sueño hoy — es cuando más se repara el músculo que entrenaste esta semana.",
+  "Hidrátate bien y prioriza proteína en tus comidas de hoy para apoyar la recuperación.",
+  "Usa un rodillo de espuma o haz automasaje en las zonas más cargadas de la semana.",
+];
 
 export const DIAS_ENTRENO_OPCIONES = [1, 2, 3, 4, 5, 6, 7];
 

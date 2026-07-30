@@ -32,6 +32,11 @@ body {
   --btn: var(--accent);
   --btn-hover: var(--accent-hover);
   --btn-text: var(--on-accent);
+
+  /* Colores semánticos fijos (no cambian con el tema): metas/calorías, progreso, logros */
+  --naranja: #F97316;
+  --azul: #3B82F6;
+  --morado: #8B5CF6;
 }
 
 /* ---------- Modo claro (fijo, no sigue el selector de acento) ---------- */

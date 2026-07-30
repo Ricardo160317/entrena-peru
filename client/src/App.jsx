@@ -113,17 +113,18 @@ export default function App() {
   return (
     <div className="min-h-[700px] bg-[var(--bg)] text-[var(--text)] font-sans flex flex-col max-w-md mx-auto relative">
       <header className="px-5 pt-6 pb-4">
-        <p className="text-xs tracking-[0.2em] uppercase text-[var(--accent)]">Entrena Perú</p>
-        <h1 className="text-2xl font-bold tracking-tight mt-1">
-          {tab === "inicio" && "Hola de nuevo"}
-          {tab === "entrenar" && "Tu rutina de hoy"}
-          {tab === "progreso" && "Tu progreso"}
-          {tab === "nutricion" && "Asesor de macros"}
-          {tab === "asesor" && "Pregúntale al asesor"}
-          {tab === "habitos" && "Tus hábitos"}
-          {tab === "clientes" && "Mis clientes"}
-          {tab === "perfil" && "Tu perfil"}
-        </h1>
+        <p className="text-xl font-black tracking-wide text-[var(--accent)]">NEX-FIT</p>
+        {tab !== "inicio" && (
+          <h1 className="text-2xl font-bold tracking-tight mt-1">
+            {tab === "entrenar" && "Tu rutina de hoy"}
+            {tab === "progreso" && "Tu progreso"}
+            {tab === "nutricion" && "Asesor de macros"}
+            {tab === "asesor" && "Pregúntale al asesor"}
+            {tab === "habitos" && "Tus hábitos"}
+            {tab === "clientes" && "Mis clientes"}
+            {tab === "perfil" && "Tu perfil"}
+          </h1>
+        )}
       </header>
 
       <main className="flex-1 px-5 pb-24 overflow-y-auto">

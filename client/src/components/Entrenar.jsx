@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle, Calendar, ChevronDown, ChevronUp, Plus, Sparkles, UserCheck } from "lucide-react";
-import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, hoy } from "../data";
+import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, hoy } from "../data";
 import { Chip } from "./Comunes";
 import { obtenerMisRutinasAsignadas, generarMiRutinaIA } from "../api";
 
@@ -195,6 +195,8 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
   const diaSemanaHoy = new Date().getDay();
   const grupoSugeridoHoy = planSemanal[diaSemanaHoy];
   const nombreDiaHoy = DIAS_SEMANA[diaSemanaHoy];
+  const diaDelAño = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  const consejoDescansoHoy = CONSEJOS_DESCANSO[diaDelAño % CONSEJOS_DESCANSO.length];
 
   function generar(g) {
     setGrupo(g);
@@ -394,8 +396,10 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
               </button>
             )}
             {!grupoSugeridoHoy && (
-              <div className="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-3">
-                <p className="text-sm text-[var(--muted)]">Hoy {nombreDiaHoy.toLowerCase()} te tocaría descansar según tu plan. Puedes entrenar igual eligiendo un grupo abajo.</p>
+              <div className="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl px-4 py-3.5">
+                <p className="text-sm text-[var(--muted)]">Hoy {nombreDiaHoy.toLowerCase()} te tocaría descansar según tu plan.</p>
+                <p className="text-xs text-[var(--accent)] mt-2">💡 {consejoDescansoHoy}</p>
+                <p className="text-[11px] text-[var(--muted2)] mt-2">Si igual quieres entrenar, elige un grupo abajo.</p>
               </div>
             )}
             <p className="text-xs text-[var(--muted)] pt-1">O elige otro grupo manualmente:</p>

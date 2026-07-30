@@ -33,7 +33,7 @@ export default function Auth({ onAutenticado }) {
 
   return (
     <div className="min-h-[700px] bg-[var(--bg)] text-[var(--text)] font-sans flex flex-col max-w-md mx-auto px-6 py-10">
-      <p className="text-xs tracking-[0.2em] uppercase text-[var(--accent)]">Entrena Perú</p>
+      <p className="text-xl font-black tracking-wide text-[var(--accent)]">NEX-FIT</p>
       <h1 className="text-2xl font-bold mt-1 mb-6">{modo === "login" ? "Inicia sesión" : "Crea tu cuenta"}</h1>
 
       <form onSubmit={enviar} className="space-y-4">

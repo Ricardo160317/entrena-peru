@@ -1,14 +1,46 @@
 import { useEffect, useState } from "react";
-import { Bell, Dumbbell, Flame, Zap, ChevronRight, AlertCircle } from "lucide-react";
+import { Bell, Dumbbell, ChevronRight, AlertCircle, Flame, Trophy } from "lucide-react";
 import { tipDelDia, calcularMacros, armarPlanSemanal, NOMBRE_DIA_GRUPO, DIAS_SEMANA, hoy } from "../data";
 import { Anillo } from "./Comunes";
 import { obtenerHabitos } from "../api";
 
-const RUTINAS_SUGERIDAS = [
-  { nombre: "Hipertrofia", nivel: "Intermedio", dias: "4 días/semana", icono: Dumbbell },
-  { nombre: "Quema grasa", nivel: "Principiante", dias: "5 días/semana", icono: Flame },
-  { nombre: "Fuerza máxima", nivel: "Avanzado", dias: "4 días/semana", icono: Zap },
-];
+function semanaClave(fechaStr) {
+  const d = new Date(String(fechaStr).slice(0, 10) + "T00:00:00");
+  const dia = d.getDay();
+  const diff = (dia === 0 ? -6 : 1) - dia;
+  const lunes = new Date(d);
+  lunes.setDate(d.getDate() + diff);
+  lunes.setHours(0, 0, 0, 0);
+  return lunes.toISOString().slice(0, 10);
+}
+
+function calcularRachaYSemanas(entrenamientos, metaDias) {
+  const conteoPorSemana = {};
+  (entrenamientos || []).forEach((s) => {
+    const clave = semanaClave(s.fecha);
+    conteoPorSemana[clave] = (conteoPorSemana[clave] || 0) + 1;
+  });
+  const semanas = Object.keys(conteoPorSemana);
+  const completadas = semanas.filter((k) => conteoPorSemana[k] >= metaDias).length;
+
+  const semanaActual = semanaClave(hoy());
+  let racha = 0;
+  let cursor = new Date();
+  while (true) {
+    const clave = semanaClave(cursor.toISOString().slice(0, 10));
+    const cumplida = (conteoPorSemana[clave] || 0) >= metaDias;
+    if (!cumplida) {
+      if (clave === semanaActual) {
+        cursor.setDate(cursor.getDate() - 7);
+        continue;
+      }
+      break;
+    }
+    racha++;
+    cursor.setDate(cursor.getDate() - 7);
+  }
+  return { completadas, racha };
+}
 
 export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
   const tip = tipDelDia();
@@ -40,6 +72,8 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
   const metaDias = perfil.dias_entreno || 3;
 
   const totalesHoy = (diaHoy?.comidas || []).reduce((acc, c) => ({ kcal: acc.kcal + c.kcal }), { kcal: 0 });
+
+  const { completadas, racha } = calcularRachaYSemanas(entrenamientos, metaDias);
 
   const planSemanal = armarPlanSemanal(metaDias);
   const grupoHoy = planSemanal[new Date().getDay()];
@@ -82,26 +116,49 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
         </div>
         <div className="flex items-center gap-4">
           <div className="relative shrink-0">
-            <Anillo pct={sesionesEstaSemana / metaDias} color="var(--accent)" />
+            <Anillo pct={sesionesEstaSemana / metaDias} color="var(--azul)" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p className="text-sm font-bold">{Math.round((sesionesEstaSemana / metaDias) * 100)}%</p>
-              <p className="text-[8px] text-[var(--muted2)]">objetivo</p>
+              <p className="text-[8px] text-[var(--muted2)]">esta semana</p>
             </div>
           </div>
           <div className="flex-1 space-y-2">
             <div className="flex justify-between text-xs">
               <span className="text-[var(--muted)]">Entrenamientos</span>
-              <span className="font-semibold text-[var(--accent)]">
-                {sesionesEstaSemana}/{metaDias}
+              <span className="font-semibold" style={{ color: "var(--azul)" }}>
+                {sesionesEstaSemana}/{metaDias} días
               </span>
             </div>
             <div className="flex justify-between text-xs">
               <span className="text-[var(--muted)]">Calorías hoy</span>
-              <span className="font-semibold text-[var(--accent)]">
+              <span className="font-semibold" style={{ color: "var(--naranja)" }}>
                 {totalesHoy.kcal}/{metas.kcal} kcal
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Flame size={13} color="var(--morado)" />
+            <p className="text-[11px] text-[var(--muted)]">Racha de semanas</p>
+          </div>
+          <p className="text-xl font-bold" style={{ color: "var(--morado)" }}>
+            {racha}
+          </p>
+          <p className="text-[10px] text-[var(--muted2)]">cumpliendo tu meta seguido</p>
+        </div>
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Trophy size={13} color="var(--morado)" />
+            <p className="text-[11px] text-[var(--muted)]">Semanas completas</p>
+          </div>
+          <p className="text-xl font-bold" style={{ color: "var(--morado)" }}>
+            {completadas}
+          </p>
+          <p className="text-[10px] text-[var(--muted2)]">en total</p>
         </div>
       </div>
 
@@ -122,34 +179,6 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
           </div>
           <ChevronRight size={18} color="var(--muted2)" />
         </button>
-      </div>
-
-      <div>
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-[var(--muted)]">Rutinas recomendadas</p>
-          <button onClick={() => onIrATab("entrenar")} className="text-xs text-[var(--accent)]">
-            Ver más
-          </button>
-        </div>
-        <div className="flex gap-3 overflow-x-auto pb-1">
-          {RUTINAS_SUGERIDAS.map((r) => {
-            const Icono = r.icono;
-            return (
-              <button
-                key={r.nombre}
-                onClick={() => onIrATab("entrenar")}
-                className="shrink-0 w-32 bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5 text-left"
-              >
-                <div className="w-9 h-9 rounded-lg bg-[var(--accent-15)] flex items-center justify-center mb-2">
-                  <Icono size={16} color="var(--accent)" />
-                </div>
-                <p className="text-xs font-semibold">{r.nombre}</p>
-                <p className="text-[10px] text-[var(--muted)] mt-0.5">{r.nivel}</p>
-                <p className="text-[10px] text-[var(--muted2)]">{r.dias}</p>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       <div className="bg-[var(--card)] border border-[var(--accent-40)] rounded-xl p-4">

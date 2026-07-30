@@ -32,7 +32,7 @@ const PORT = process.env.PORT || 3000;
 
 initSchema()
   .then(() => {
-    app.listen(PORT, () => console.log(`Entrena Perú corriendo en puerto ${PORT}`));
+    app.listen(PORT, () => console.log(`NEX-FIT corriendo en puerto ${PORT}`));
   })
   .catch((err) => {
     console.error("No se pudo inicializar la base de datos:", err);
