@@ -281,6 +281,17 @@ export const ALIMENTOS = [
   { nombre: "Pan integral", gramos: 60, kcal: 140, prot: 6, carb: 24, grasa: 2 },
   { nombre: "Mango", gramos: 165, kcal: 100, prot: 1, carb: 25, grasa: 0.5 },
   { nombre: "Almendras", gramos: 30, kcal: 174, prot: 6, carb: 6, grasa: 15 },
+  { nombre: "Scoop de proteína en polvo (whey)", gramos: 30, kcal: 120, prot: 24, carb: 3, grasa: 1.5 },
+  { nombre: "Batido de proteína con leche", gramos: 300, kcal: 270, prot: 32, carb: 15, grasa: 6 },
+  { nombre: "Batido de proteína con agua", gramos: 300, kcal: 130, prot: 25, carb: 4, grasa: 2 },
+  { nombre: "Barra proteica", gramos: 60, kcal: 220, prot: 20, carb: 22, grasa: 8 },
+  { nombre: "Claras de huevo líquidas", gramos: 100, kcal: 52, prot: 11, carb: 0.7, grasa: 0.2 },
+  { nombre: "Requesón / cottage cheese", gramos: 150, kcal: 145, prot: 18, carb: 5, grasa: 5 },
+  { nombre: "Avena en hojuelas (cruda)", gramos: 50, kcal: 190, prot: 7, carb: 32, grasa: 3.5 },
+  { nombre: "Mantequilla de maní", gramos: 30, kcal: 190, prot: 7, carb: 6, grasa: 16 },
+  { nombre: "Tostadas integrales", gramos: 30, kcal: 80, prot: 3, carb: 15, grasa: 1 },
+  { nombre: "Pechuga de pavo a la plancha", gramos: 150, kcal: 165, prot: 34, carb: 0, grasa: 2 },
+  { nombre: "Salmón a la plancha", gramos: 150, kcal: 280, prot: 34, carb: 0, grasa: 15 },
 ];
 
 export const NIVEL_ACTIVIDAD = [
@@ -300,16 +311,28 @@ export const OBJETIVOS = [
 export function calcularMacros(perfil) {
   if (!perfil) return null;
   const { peso, altura, edad, sexo, nivel, objetivo } = perfil;
+  const pesoNum = Number(peso);
+  const alturaNum = Number(altura);
+  const edadNum = Number(edad);
   const bmr =
-    sexo === "M" ? 10 * peso + 6.25 * altura - 5 * edad + 5 : 10 * peso + 6.25 * altura - 5 * edad - 161;
+    sexo === "M"
+      ? 10 * pesoNum + 6.25 * alturaNum - 5 * edadNum + 5
+      : 10 * pesoNum + 6.25 * alturaNum - 5 * edadNum - 161;
   const factorActividad = NIVEL_ACTIVIDAD.find((n) => n.id === nivel)?.factor || 1.2;
   const factorObjetivo = OBJETIVOS.find((o) => o.id === objetivo)?.factor || 1;
-  const kcal = Math.round(bmr * factorActividad * factorObjetivo);
-  const prot = Math.round(peso * 2);
-  const grasa = Math.round(peso * 0.8);
+  let kcal = Math.round(bmr * factorActividad * factorObjetivo);
+
+  // Piso de seguridad: nunca sugerir menos de lo que organismos de nutrición consideran un mínimo
+  // razonable sin supervisión profesional. Si el cálculo cae debajo, se avisa en vez de aplicarlo ciego.
+  const pisoSeguridad = sexo === "M" ? 1500 : 1200;
+  const pisoAplicado = kcal < pisoSeguridad;
+  if (pisoAplicado) kcal = pisoSeguridad;
+
+  const prot = Math.round(pesoNum * 2);
+  const grasa = Math.round(pesoNum * 0.8);
   const kcalRestantes = kcal - prot * 4 - grasa * 9;
   const carb = Math.max(0, Math.round(kcalRestantes / 4));
-  return { kcal, prot, carb, grasa };
+  return { kcal, prot, carb, grasa, pisoAplicado, pisoSeguridad };
 }
 
 export const TIPS_DIARIOS = [
@@ -331,6 +354,16 @@ export function tipDelDia() {
   const diaDelAño = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
   return TIPS_DIARIOS[diaDelAño % TIPS_DIARIOS.length];
 }
+
+export const TEMAS_COLOR = [
+  { id: "verde", label: "Verde", color: "#C8FF3D" },
+  { id: "morado", label: "Morado", color: "#C4B5FD" },
+  { id: "azul", label: "Azul", color: "#7DD3FC" },
+  { id: "turquesa", label: "Turquesa", color: "#5EEAD4" },
+  { id: "naranja", label: "Naranja", color: "#FDBA74" },
+  { id: "rosa", label: "Rosa", color: "#F9A8D4" },
+  { id: "dorado", label: "Dorado", color: "#FCD34D" },
+];
 
 export const hoy = () => new Date().toISOString().slice(0, 10);
 export const fechaLegible = (iso) => {

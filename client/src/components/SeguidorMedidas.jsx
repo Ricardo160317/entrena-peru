@@ -58,25 +58,25 @@ export default function SeguidorMedidas({ medidas, onMedidaGuardada }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-[#8B948F]">Tu seguimiento con fotos</p>
+        <p className="text-xs text-[var(--muted)]">Tu seguimiento con fotos</p>
         <button
           onClick={() => setAbierto(!abierto)}
-          className="text-xs text-[#C8FF3D] flex items-center gap-1 border border-[#262E2B] rounded-full px-2.5 py-1"
+          className="text-xs text-[var(--accent)] flex items-center gap-1 border border-[var(--border)] rounded-full px-2.5 py-1"
         >
           {abierto ? <X size={12} /> : <Plus size={12} />} {abierto ? "Cerrar" : "Nueva medición"}
         </button>
       </div>
 
       {abierto && (
-        <div className="bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4 mb-3 space-y-3">
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4 mb-3 space-y-3">
           <button
             onClick={() => inputFotoRef.current?.click()}
-            className="w-full aspect-[4/3] bg-[#0D1210] border border-dashed border-[#262E2B] rounded-lg flex items-center justify-center overflow-hidden"
+            className="w-full aspect-[4/3] bg-[var(--bg)] border border-dashed border-[var(--border)] rounded-lg flex items-center justify-center overflow-hidden"
           >
             {foto ? (
               <img src={foto} alt="Vista previa" className="w-full h-full object-cover" />
             ) : (
-              <div className="flex flex-col items-center gap-1.5 text-[#5F6864]">
+              <div className="flex flex-col items-center gap-1.5 text-[var(--muted2)]">
                 <Camera size={22} />
                 <span className="text-xs">Tomar o subir foto</span>
               </div>
@@ -94,23 +94,23 @@ export default function SeguidorMedidas({ medidas, onMedidaGuardada }) {
               ["cadera", "Cadera cm"],
             ].map(([campo, label]) => (
               <div key={campo}>
-                <p className="text-[10px] text-[#5F6864] mb-1">{label}</p>
+                <p className="text-[10px] text-[var(--muted2)] mb-1">{label}</p>
                 <input
                   type="number"
                   value={form[campo]}
                   onChange={(e) => setForm({ ...form, [campo]: e.target.value })}
-                  className="w-full bg-[#0D1210] border border-[#262E2B] rounded-lg px-2 py-1.5 text-sm text-center outline-none focus:border-[#C8FF3D]"
+                  className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-sm text-center outline-none focus:border-[var(--accent)]"
                 />
               </div>
             ))}
           </div>
 
-          {error && <p className="text-xs text-[#EF4444]">{error}</p>}
+          {error && <p className="text-xs text-[var(--error)]">{error}</p>}
 
           <button
             onClick={guardar}
             disabled={guardando}
-            className="w-full bg-[#C8FF3D] hover:bg-[#9FCC2E] disabled:opacity-50 text-[#0D1210] rounded-lg py-2.5 text-sm font-semibold"
+            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 text-[var(--bg)] rounded-lg py-2.5 text-sm font-semibold"
           >
             {guardando ? "Guardando…" : "Guardar medición"}
           </button>
@@ -122,21 +122,21 @@ export default function SeguidorMedidas({ medidas, onMedidaGuardada }) {
           {conFoto.map((m) => (
             <div key={m.id} className="shrink-0 w-32">
               <div className="relative">
-                <img src={m.foto} alt={fechaLegible(m.fecha)} className="w-32 h-40 object-cover rounded-lg border border-[#262E2B]" />
+                <img src={m.foto} alt={fechaLegible(m.fecha)} className="w-32 h-40 object-cover rounded-lg border border-[var(--border)]" />
                 <button
                   onClick={() => eliminar(m.id)}
-                  className="absolute top-1 right-1 bg-[#0D1210]/80 rounded-full p-1"
+                  className="absolute top-1 right-1 bg-[var(--bg)]/80 rounded-full p-1"
                 >
-                  <Trash2 size={11} color="#EF4444" />
+                  <Trash2 size={11} color="var(--error)" />
                 </button>
               </div>
-              <p className="text-[10px] text-[#5F6864] mt-1">{fechaLegible(m.fecha)}</p>
-              {m.peso && <p className="text-[10px] text-[#8B948F]">{m.peso}kg{m.cintura ? ` · cintura ${m.cintura}cm` : ""}</p>}
+              <p className="text-[10px] text-[var(--muted2)] mt-1">{fechaLegible(m.fecha)}</p>
+              {m.peso && <p className="text-[10px] text-[var(--muted)]">{m.peso}kg{m.cintura ? ` · cintura ${m.cintura}cm` : ""}</p>}
             </div>
           ))}
         </div>
       ) : (
-        !abierto && <p className="text-xs text-[#5F6864] bg-[#171D1B] rounded-xl p-4">Aún no tienes fotos de seguimiento.</p>
+        !abierto && <p className="text-xs text-[var(--muted2)] bg-[var(--card)] rounded-xl p-4">Aún no tienes fotos de seguimiento.</p>
       )}
     </div>
   );

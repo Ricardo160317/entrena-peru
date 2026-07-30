@@ -50,12 +50,12 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-lg font-bold">¡Hola de nuevo!</p>
-          <p className="text-xs text-[#8B948F]">Listo para superar tus límites hoy.</p>
+          <p className="text-xs text-[var(--muted)]">Listo para superar tus límites hoy.</p>
         </div>
-        <button className="w-9 h-9 rounded-full border border-[#262E2B] flex items-center justify-center relative">
-          <Bell size={16} color="#8B948F" />
+        <button className="w-9 h-9 rounded-full border border-[var(--border)] flex items-center justify-center relative">
+          <Bell size={16} color="var(--muted)" />
           {habitosPendientes && habitosPendientes.length > 0 && (
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#C8FF3D] rounded-full" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[var(--accent)] rounded-full" />
           )}
         </button>
       </div>
@@ -63,41 +63,41 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
       {habitosPendientes && habitosPendientes.length > 0 && (
         <button
           onClick={() => onIrATab("habitos")}
-          className="w-full bg-[#2A2313] border border-[#F59E0B]/40 rounded-xl p-3.5 flex items-start gap-2.5 text-left"
+          className="w-full bg-[var(--warning-bg)] border border-[var(--warning-40)] rounded-xl p-3.5 flex items-start gap-2.5 text-left"
         >
-          <AlertCircle size={16} color="#F59E0B" className="shrink-0 mt-0.5" />
+          <AlertCircle size={16} color="var(--warning)" className="shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm text-[#F5F7F6] font-medium">Aún no marcas hoy: {habitosPendientes.map((h) => h.nombre).join(", ")}</p>
-            <p className="text-[11px] text-[#8B948F] mt-0.5">Toca para ir a Hábitos</p>
+            <p className="text-sm text-[var(--text)] font-medium">Aún no marcas hoy: {habitosPendientes.map((h) => h.nombre).join(", ")}</p>
+            <p className="text-[11px] text-[var(--muted)] mt-0.5">Toca para ir a Hábitos</p>
           </div>
         </button>
       )}
 
-      <div className="bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] p-4">
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] p-4">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs text-[#8B948F]">Tu progreso</p>
-          <button onClick={() => onIrATab("progreso")} className="text-xs text-[#C8FF3D]">
+          <p className="text-xs text-[var(--muted)]">Tu progreso</p>
+          <button onClick={() => onIrATab("progreso")} className="text-xs text-[var(--accent)]">
             Ver más
           </button>
         </div>
         <div className="flex items-center gap-4">
           <div className="relative shrink-0">
-            <Anillo pct={sesionesEstaSemana / metaDias} color="#C8FF3D" />
+            <Anillo pct={sesionesEstaSemana / metaDias} color="var(--accent)" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
               <p className="text-sm font-bold">{Math.round((sesionesEstaSemana / metaDias) * 100)}%</p>
-              <p className="text-[8px] text-[#5F6864]">objetivo</p>
+              <p className="text-[8px] text-[var(--muted2)]">objetivo</p>
             </div>
           </div>
           <div className="flex-1 space-y-2">
             <div className="flex justify-between text-xs">
-              <span className="text-[#8B948F]">Entrenamientos</span>
-              <span className="font-semibold text-[#C8FF3D]">
+              <span className="text-[var(--muted)]">Entrenamientos</span>
+              <span className="font-semibold text-[var(--accent)]">
                 {sesionesEstaSemana}/{metaDias}
               </span>
             </div>
             <div className="flex justify-between text-xs">
-              <span className="text-[#8B948F]">Calorías hoy</span>
-              <span className="font-semibold text-[#C8FF3D]">
+              <span className="text-[var(--muted)]">Calorías hoy</span>
+              <span className="font-semibold text-[var(--accent)]">
                 {totalesHoy.kcal}/{metas.kcal} kcal
               </span>
             </div>
@@ -106,28 +106,28 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
       </div>
 
       <div>
-        <p className="text-xs text-[#8B948F] mb-2">Entrenamiento de hoy</p>
+        <p className="text-xs text-[var(--muted)] mb-2">Entrenamiento de hoy</p>
         <button
           onClick={() => onIrATab("entrenar")}
-          className="w-full bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] p-4 flex items-center justify-between"
+          className="w-full bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.3)] p-4 flex items-center justify-between"
         >
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-[#C8FF3D]/15 flex items-center justify-center">
-              <Dumbbell size={18} color="#C8FF3D" />
+            <div className="w-10 h-10 rounded-full bg-[var(--accent-15)] flex items-center justify-center">
+              <Dumbbell size={18} color="var(--accent)" />
             </div>
             <div className="text-left">
               <p className="text-sm font-semibold">{grupoHoy ? NOMBRE_DIA_GRUPO[grupoHoy] : "Descanso"}</p>
-              <p className="text-xs text-[#8B948F]">{nombreDiaHoy}</p>
+              <p className="text-xs text-[var(--muted)]">{nombreDiaHoy}</p>
             </div>
           </div>
-          <ChevronRight size={18} color="#5F6864" />
+          <ChevronRight size={18} color="var(--muted2)" />
         </button>
       </div>
 
       <div>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-[#8B948F]">Rutinas recomendadas</p>
-          <button onClick={() => onIrATab("entrenar")} className="text-xs text-[#C8FF3D]">
+          <p className="text-xs text-[var(--muted)]">Rutinas recomendadas</p>
+          <button onClick={() => onIrATab("entrenar")} className="text-xs text-[var(--accent)]">
             Ver más
           </button>
         </div>
@@ -138,23 +138,23 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab }) {
               <button
                 key={r.nombre}
                 onClick={() => onIrATab("entrenar")}
-                className="shrink-0 w-32 bg-[#171D1B] border border-[#262E2B] rounded-xl p-3.5 text-left"
+                className="shrink-0 w-32 bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5 text-left"
               >
-                <div className="w-9 h-9 rounded-lg bg-[#C8FF3D]/15 flex items-center justify-center mb-2">
-                  <Icono size={16} color="#C8FF3D" />
+                <div className="w-9 h-9 rounded-lg bg-[var(--accent-15)] flex items-center justify-center mb-2">
+                  <Icono size={16} color="var(--accent)" />
                 </div>
                 <p className="text-xs font-semibold">{r.nombre}</p>
-                <p className="text-[10px] text-[#8B948F] mt-0.5">{r.nivel}</p>
-                <p className="text-[10px] text-[#5F6864]">{r.dias}</p>
+                <p className="text-[10px] text-[var(--muted)] mt-0.5">{r.nivel}</p>
+                <p className="text-[10px] text-[var(--muted2)]">{r.dias}</p>
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="bg-[#171D1B] border border-[#C8FF3D]/40 rounded-xl p-4">
-        <p className="text-[10px] uppercase tracking-wide text-[#8B948F]">Consejo del día · {tip.categoria}</p>
-        <p className="text-[#F5F7F6] text-sm mt-1.5 leading-relaxed">{tip.texto}</p>
+      <div className="bg-[var(--card)] border border-[var(--accent-40)] rounded-xl p-4">
+        <p className="text-[10px] uppercase tracking-wide text-[var(--muted)]">Consejo del día · {tip.categoria}</p>
+        <p className="text-[var(--text)] text-sm mt-1.5 leading-relaxed">{tip.texto}</p>
       </div>
     </div>
   );

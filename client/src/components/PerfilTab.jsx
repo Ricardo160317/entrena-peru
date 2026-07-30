@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X } from "lucide-react";
-import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES } from "../data";
+import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES, TEMAS_COLOR } from "../data";
 import { Campo, Chip } from "./Comunes";
 
 export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
@@ -10,9 +10,11 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
     musculo_pct: perfil.musculo_pct ?? "",
     agua_pct: perfil.agua_pct ?? "",
     visceral: perfil.visceral ?? "",
+    tema: perfil.tema || "verde",
   });
 
   const [equipoPersonalizado, setEquipoPersonalizado] = useState("");
+  const [estado, setEstado] = useState("idle"); // idle | guardando | guardado
 
   const toggleEquipo = (id) =>
     setForm((f) => ({
@@ -27,17 +29,24 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
     setEquipoPersonalizado("");
   }
 
-  function guardar() {
-    onGuardarPerfil({
-      ...form,
-      peso: Number(form.peso),
-      altura: Number(form.altura),
-      edad: Number(form.edad),
-      grasa_pct: form.grasa_pct === "" ? null : Number(form.grasa_pct),
-      musculo_pct: form.musculo_pct === "" ? null : Number(form.musculo_pct),
-      agua_pct: form.agua_pct === "" ? null : Number(form.agua_pct),
-      visceral: form.visceral === "" ? null : Number(form.visceral),
-    });
+  async function guardar() {
+    setEstado("guardando");
+    try {
+      await onGuardarPerfil({
+        ...form,
+        peso: Number(form.peso),
+        altura: Number(form.altura),
+        edad: Number(form.edad),
+        grasa_pct: form.grasa_pct === "" ? null : Number(form.grasa_pct),
+        musculo_pct: form.musculo_pct === "" ? null : Number(form.musculo_pct),
+        agua_pct: form.agua_pct === "" ? null : Number(form.agua_pct),
+        visceral: form.visceral === "" ? null : Number(form.visceral),
+      });
+      setEstado("guardado");
+      setTimeout(() => setEstado("idle"), 2000);
+    } catch {
+      setEstado("idle");
+    }
   }
 
   return (
@@ -64,6 +73,32 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
             <Chip key={d} active={Number(form.dias_entreno) === d} onClick={() => setForm({ ...form, dias_entreno: d })}>
               {d} {d === 1 ? "día" : "días"}
             </Chip>
+          ))}
+        </div>
+      </Campo>
+
+      <Campo label="Color de la app">
+        <div className="flex gap-3 flex-wrap">
+          {TEMAS_COLOR.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => {
+                setForm({ ...form, tema: t.id });
+                document.documentElement.dataset.theme = t.id;
+              }}
+              className="flex flex-col items-center gap-1"
+            >
+              <span
+                className="w-9 h-9 rounded-full flex items-center justify-center"
+                style={{
+                  backgroundColor: t.color,
+                  boxShadow: form.tema === t.id ? `0 0 0 2px var(--card), 0 0 0 4px ${t.color}` : "none",
+                }}
+              >
+                {form.tema === t.id && <span className="text-[13px] font-bold" style={{ color: "#0D1210" }}>✓</span>}
+              </span>
+              <span className="text-[10px] text-[var(--muted)]">{t.label}</span>
+            </button>
           ))}
         </div>
       </Campo>
@@ -98,12 +133,12 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
             value={equipoPersonalizado}
             onChange={(e) => setEquipoPersonalizado(e.target.value)}
             placeholder="¿Tienes algo más? Escríbelo aquí"
-            className="flex-1 bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C8FF3D]"
+            className="flex-1 bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           />
           <button
             type="button"
             onClick={agregarEquipoPersonalizado}
-            className="px-3 rounded-lg border border-[#262E2B] text-[#8B948F] text-sm"
+            className="px-3 rounded-lg border border-[var(--border)] text-[var(--muted)] text-sm"
           >
             Agregar
           </button>
@@ -119,12 +154,24 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
         </div>
       </Campo>
 
-      <button onClick={guardar} className="w-full bg-[#C8FF3D] hover:bg-[#9FCC2E] text-[#0D1210] rounded-xl py-3 text-sm font-semibold">
-        Guardar cambios
+      <button
+        onClick={guardar}
+        disabled={estado !== "idle"}
+        className={`w-full rounded-xl py-3 text-sm font-semibold transition-colors ${
+          estado === "idle"
+            ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)]"
+            : estado === "guardando"
+            ? "bg-[var(--border)] text-[var(--muted)]"
+            : "bg-[var(--border)] text-[var(--accent)]"
+        }`}
+      >
+        {estado === "idle" && "Guardar cambios"}
+        {estado === "guardando" && "Guardando…"}
+        {estado === "guardado" && "✓ Guardado"}
       </button>
 
-      <div className="pt-4 border-t border-[#262E2B] flex items-center justify-between">
-        <button onClick={onCerrarSesion} className="text-xs text-[#8B948F] underline flex items-center gap-1">
+      <div className="pt-4 border-t border-[var(--border)] flex items-center justify-between">
+        <button onClick={onCerrarSesion} className="text-xs text-[var(--muted)] underline flex items-center gap-1">
           <X size={12} /> Cerrar sesión
         </button>
       </div>
@@ -135,12 +182,12 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
 function MiniCampo({ label, value, onChange }) {
   return (
     <div>
-      <p className="text-[10px] text-[#8B948F] mb-1">{label}</p>
+      <p className="text-[10px] text-[var(--muted)] mb-1">{label}</p>
       <input
         type="number"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-2 py-2 text-sm text-center outline-none focus:border-[#C8FF3D]"
+        className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-2 py-2 text-sm text-center outline-none focus:border-[var(--accent)]"
       />
     </div>
   );

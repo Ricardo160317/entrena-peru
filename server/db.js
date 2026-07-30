@@ -17,6 +17,13 @@ async function initSchema() {
       creado_en TIMESTAMP DEFAULT NOW()
     );
 
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS rol TEXT DEFAULT 'usuario';
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS entrenador_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL;
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS codigo_invitacion TEXT UNIQUE;
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'inicial';
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS limite_clientes INTEGER DEFAULT 10;
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS estado_suscripcion TEXT DEFAULT 'activo';
+
     CREATE TABLE IF NOT EXISTS perfiles (
       usuario_id INTEGER PRIMARY KEY REFERENCES usuarios(id) ON DELETE CASCADE,
       peso NUMERIC,
@@ -35,6 +42,7 @@ async function initSchema() {
     );
 
     ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS dias_entreno INTEGER DEFAULT 3;
+    ALTER TABLE perfiles ADD COLUMN IF NOT EXISTS tema TEXT DEFAULT 'verde';
 
     CREATE TABLE IF NOT EXISTS entrenamientos (
       id SERIAL PRIMARY KEY,
@@ -86,6 +94,27 @@ async function initSchema() {
       habito_id INTEGER REFERENCES habitos(id) ON DELETE CASCADE,
       fecha DATE NOT NULL,
       UNIQUE(habito_id, fecha)
+    );
+
+    CREATE TABLE IF NOT EXISTS rutinas_favoritas (
+      id SERIAL PRIMARY KEY,
+      entrenador_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+      nombre TEXT NOT NULL,
+      grupo TEXT NOT NULL,
+      ejercicios JSONB NOT NULL,
+      creado_en TIMESTAMP DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS rutinas_asignadas (
+      id SERIAL PRIMARY KEY,
+      cliente_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+      grupo TEXT NOT NULL,
+      origen TEXT NOT NULL DEFAULT 'ia',
+      rutina_favorita_id INTEGER REFERENCES rutinas_favoritas(id) ON DELETE SET NULL,
+      ejercicios JSONB NOT NULL,
+      asignado_por INTEGER REFERENCES usuarios(id) ON DELETE SET NULL,
+      generado_en TIMESTAMP DEFAULT NOW(),
+      UNIQUE(cliente_id, grupo)
     );
   `);
 }

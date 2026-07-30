@@ -1,15 +1,18 @@
 import { useRef, useState } from "react";
-import { Plus, Trash2, Flame, Camera, Loader2 } from "lucide-react";
+import { Plus, Trash2, Flame, Camera, Loader2, Sparkles } from "lucide-react";
 import { ALIMENTOS, calcularMacros, hoy } from "../data";
 import { Anillo, BarraMacro } from "./Comunes";
 import { redimensionarImagen } from "../imageUtils";
-import { analizarFotoComida } from "../api";
+import { analizarFotoComida, buscarMacrosPorTexto } from "../api";
 
 export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
   const metas = calcularMacros(perfil);
   const [buscar, setBuscar] = useState("");
   const [seleccionado, setSeleccionado] = useState(null);
   const [gramos, setGramos] = useState("");
+  const [manualAbierto, setManualAbierto] = useState(false);
+  const [manualForm, setManualForm] = useState({ nombre: "", kcal: "", prot: "", carb: "", grasa: "" });
+  const [buscandoIA, setBuscandoIA] = useState(false);
   const [analizando, setAnalizando] = useState(false);
   const [errorFoto, setErrorFoto] = useState("");
   const inputFotoRef = useRef(null);
@@ -47,6 +50,42 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
     onGuardarDia(hoy(), [...comidas, nuevo]);
     setSeleccionado(null);
     setGramos("");
+  }
+
+  function agregarManual() {
+    if (!manualForm.nombre || !manualForm.kcal) return;
+    const nuevo = {
+      nombre: manualForm.nombre,
+      kcal: Number(manualForm.kcal) || 0,
+      prot: Number(manualForm.prot) || 0,
+      carb: Number(manualForm.carb) || 0,
+      grasa: Number(manualForm.grasa) || 0,
+    };
+    onGuardarDia(hoy(), [...comidas, nuevo]);
+    setManualForm({ nombre: "", kcal: "", prot: "", carb: "", grasa: "" });
+    setManualAbierto(false);
+    setBuscar("");
+  }
+
+  async function buscarConIA() {
+    if (!buscar.trim()) return;
+    setBuscandoIA(true);
+    setErrorFoto("");
+    try {
+      const resultado = await buscarMacrosPorTexto(buscar.trim());
+      setManualForm({
+        nombre: resultado.nombre || buscar,
+        kcal: resultado.kcal ?? "",
+        prot: resultado.prot ?? "",
+        carb: resultado.carb ?? "",
+        grasa: resultado.grasa ?? "",
+      });
+      setManualAbierto(true);
+    } catch (err) {
+      setErrorFoto(err.message);
+    } finally {
+      setBuscandoIA(false);
+    }
   }
 
   function quitarComida(idx) {
@@ -91,51 +130,62 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
 
   return (
     <div className="space-y-6">
-      <div className="bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4">
-        <p className="text-xs text-[#8B948F] mb-3">Tu meta diaria</p>
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4">
+        <p className="text-xs text-[var(--muted)] mb-3">Tu meta diaria</p>
         <div className="flex items-center gap-4">
           <div className="relative">
-            <Anillo pct={totales.kcal / metas.kcal} color="#C8FF3D" />
+            <Anillo pct={totales.kcal / metas.kcal} color="var(--accent)" />
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <Flame size={14} color="#C8FF3D" />
+              <Flame size={14} color="var(--accent)" />
               <p className="text-[11px] font-semibold">{totales.kcal}</p>
             </div>
           </div>
           <div className="flex-1 space-y-1.5">
-            <BarraMacro label="Proteína" valor={totales.prot} meta={metas.prot} color="#C8FF3D" />
-            <BarraMacro label="Carbos" valor={totales.carb} meta={metas.carb} color="#C8FF3D" />
-            <BarraMacro label="Grasa" valor={totales.grasa} meta={metas.grasa} color="#C8FF3D" />
+            <BarraMacro label="Proteína" valor={totales.prot} meta={metas.prot} color="var(--accent)" />
+            <BarraMacro label="Carbos" valor={totales.carb} meta={metas.carb} color="var(--accent)" />
+            <BarraMacro label="Grasa" valor={totales.grasa} meta={metas.grasa} color="var(--accent)" />
           </div>
         </div>
-        <p className="text-[11px] text-[#5F6864] mt-3">
+        <p className="text-[11px] text-[var(--muted2)] mt-3">
           Meta: {metas.kcal} kcal · {metas.prot}g prot · {metas.carb}g carbs · {metas.grasa}g grasa
         </p>
       </div>
 
-      <div className="bg-[#171D1B] border border-[#262E2B] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4">
-        <p className="text-xs text-[#C8FF3D] font-medium mb-1">Consejo rápido</p>
-        <p className="text-sm text-[#F5F7F6]">{consejo}</p>
+      {metas.pisoAplicado && (
+        <div className="bg-[var(--warning-bg)] border border-[var(--warning-40)] rounded-xl p-3.5">
+          <p className="text-sm text-[var(--text)] font-medium">
+            El cálculo con tus datos dio menos de {metas.pisoSeguridad} kcal, así que usamos ese mínimo en vez del número exacto.
+          </p>
+          <p className="text-xs text-[var(--muted)] mt-1">
+            Revisa que tu peso y altura estén bien ingresados en Perfil. Comer menos de {metas.pisoSeguridad} kcal al día por tiempo prolongado no es seguro sin supervisión de un profesional de la salud.
+          </p>
+        </div>
+      )}
+
+      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-4">
+        <p className="text-xs text-[var(--accent)] font-medium mb-1">Consejo rápido</p>
+        <p className="text-sm text-[var(--text)]">{consejo}</p>
       </div>
 
       <div>
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-[#8B948F]">Agregar comida</p>
+          <p className="text-xs text-[var(--muted)]">Agregar comida</p>
           <button
             onClick={() => inputFotoRef.current?.click()}
             disabled={analizando}
-            className="text-xs text-[#C8FF3D] flex items-center gap-1 border border-[#262E2B] rounded-full px-2.5 py-1 disabled:opacity-50"
+            className="text-xs text-[var(--accent)] flex items-center gap-1 border border-[var(--border)] rounded-full px-2.5 py-1 disabled:opacity-50"
           >
             {analizando ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
             {analizando ? "Analizando…" : "Foto de tu comida"}
           </button>
           <input ref={inputFotoRef} type="file" accept="image/*" capture="environment" onChange={elegirFotoComida} className="hidden" />
         </div>
-        {errorFoto && <p className="text-xs text-[#EF4444] mb-2">{errorFoto}</p>}
+        {errorFoto && <p className="text-xs text-[var(--error)] mb-2">{errorFoto}</p>}
         <input
           value={buscar}
           onChange={(e) => setBuscar(e.target.value)}
           placeholder="Buscar: pollo, ceviche, quinoa…"
-          className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[#C8FF3D]"
+          className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[var(--accent)]"
         />
         {filtrados.length > 0 && (
           <div className="mt-2 space-y-2">
@@ -143,22 +193,87 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
               <button
                 key={a.nombre}
                 onClick={() => elegirAlimento(a)}
-                className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2.5 flex items-center justify-between text-left"
+                className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2.5 flex items-center justify-between text-left"
               >
                 <div>
                   <p className="text-sm">{a.nombre}</p>
-                  <p className="text-xs text-[#5F6864]">
+                  <p className="text-xs text-[var(--muted2)]">
                     Base: {a.gramos}g · {a.kcal} kcal · {a.prot}g prot
                   </p>
                 </div>
-                <Plus size={16} color="#C8FF3D" />
+                <Plus size={16} color="var(--accent)" />
               </button>
             ))}
           </div>
         )}
 
+        {buscar && filtrados.length === 0 && !manualAbierto && (
+          <div className="mt-2 space-y-2">
+            <button
+              onClick={buscarConIA}
+              disabled={buscandoIA}
+              className="w-full bg-[var(--card)] border border-[var(--accent-40)] rounded-lg px-3 py-2.5 text-left text-sm text-[var(--text)] flex items-center gap-2 disabled:opacity-50"
+            >
+              {buscandoIA ? <Loader2 size={14} className="animate-spin" color="var(--accent)" /> : <Sparkles size={14} color="var(--accent)" />}
+              {buscandoIA ? "Buscando con IA…" : `Buscar "${buscar}" con IA`}
+            </button>
+            <button
+              onClick={() => {
+                setManualAbierto(true);
+                setManualForm({ ...manualForm, nombre: buscar });
+              }}
+              className="w-full bg-[var(--card)] border border-dashed border-[var(--border)] rounded-lg px-3 py-2.5 text-left text-sm text-[var(--muted)]"
+            >
+              O agregar "{buscar}" manualmente
+            </button>
+          </div>
+        )}
+
+        {manualAbierto && (
+          <div className="mt-2 bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5 space-y-2.5">
+            <input
+              value={manualForm.nombre}
+              onChange={(e) => setManualForm({ ...manualForm, nombre: e.target.value })}
+              placeholder="Nombre del plato"
+              className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2.5 py-2 text-sm outline-none focus:border-[var(--accent)]"
+            />
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                ["kcal", "Kcal"],
+                ["prot", "Prot g"],
+                ["carb", "Carb g"],
+                ["grasa", "Grasa g"],
+              ].map(([campo, label]) => (
+                <div key={campo}>
+                  <p className="text-[10px] text-[var(--muted2)] mb-1">{label}</p>
+                  <input
+                    type="number"
+                    value={manualForm[campo]}
+                    onChange={(e) => setManualForm({ ...manualForm, [campo]: e.target.value })}
+                    className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2 py-1.5 text-sm text-center outline-none focus:border-[var(--accent)]"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={agregarManual}
+                className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] text-sm font-semibold rounded-lg py-2"
+              >
+                Agregar
+              </button>
+              <button
+                onClick={() => setManualAbierto(false)}
+                className="px-4 border border-[var(--border)] text-[var(--muted)] text-sm rounded-lg py-2"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
         {seleccionado && (
-          <div className="mt-3 bg-[#171D1B] border border-[#262E2B] rounded-lg p-3.5">
+          <div className="mt-3 bg-[var(--card)] border border-[var(--border)] rounded-lg p-3.5">
             <p className="text-sm font-medium mb-2">{seleccionado.nombre}</p>
             <div className="flex items-center gap-2">
               <input
@@ -166,15 +281,15 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
                 autoFocus
                 value={gramos}
                 onChange={(e) => setGramos(e.target.value)}
-                className="w-24 bg-[#0D1210] border border-[#262E2B] rounded-lg px-2.5 py-2 text-sm outline-none focus:border-[#C8FF3D]"
+                className="w-24 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2.5 py-2 text-sm outline-none focus:border-[var(--accent)]"
               />
-              <span className="text-xs text-[#8B948F]">gramos</span>
-              <button onClick={agregarConGramos} className="ml-auto bg-[#C8FF3D] hover:bg-[#9FCC2E] text-[#0D1210] text-sm rounded-lg px-4 py-2">
+              <span className="text-xs text-[var(--muted)]">gramos</span>
+              <button onClick={agregarConGramos} className="ml-auto bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] text-sm rounded-lg px-4 py-2">
                 Agregar
               </button>
             </div>
             {gramos && (
-              <p className="text-[11px] text-[#5F6864] mt-2">
+              <p className="text-[11px] text-[var(--muted2)] mt-2">
                 ≈ {Math.round(seleccionado.kcal * (Number(gramos) / seleccionado.gramos))} kcal ·{" "}
                 {Math.round(seleccionado.prot * (Number(gramos) / seleccionado.gramos) * 10) / 10}g prot
               </p>
@@ -184,21 +299,21 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
       </div>
 
       <div>
-        <p className="text-xs text-[#8B948F] mb-2">Hoy comiste</p>
+        <p className="text-xs text-[var(--muted)] mb-2">Hoy comiste</p>
         {comidas.length === 0 && (
-          <p className="text-sm text-[#5F6864] bg-[#171D1B] rounded-xl p-4">Aún no registras comidas hoy.</p>
+          <p className="text-sm text-[var(--muted2)] bg-[var(--card)] rounded-xl p-4">Aún no registras comidas hoy.</p>
         )}
         <div className="space-y-2">
           {comidas.map((c, i) => (
-            <div key={i} className="bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2.5 flex items-center justify-between">
+            <div key={i} className="bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2.5 flex items-center justify-between">
               <div>
                 <p className="text-sm">{c.nombre}</p>
-                <p className="text-xs text-[#5F6864]">
+                <p className="text-xs text-[var(--muted2)]">
                   {c.kcal} kcal · P {c.prot}g · C {c.carb}g · G {c.grasa}g
                 </p>
               </div>
               <button onClick={() => quitarComida(i)}>
-                <Trash2 size={15} color="#5F6864" />
+                <Trash2 size={15} color="var(--muted2)" />
               </button>
             </div>
           ))}

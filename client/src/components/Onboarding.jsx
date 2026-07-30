@@ -47,13 +47,13 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
   }
 
   return (
-    <div className="min-h-[700px] bg-[#0D1210] text-[#F5F7F6] font-sans flex flex-col max-w-md mx-auto px-6 py-8">
-      <p className="text-xs tracking-[0.2em] uppercase text-[#C8FF3D]">Entrena Perú</p>
+    <div className="min-h-[700px] bg-[var(--bg)] text-[var(--text)] font-sans flex flex-col max-w-md mx-auto px-6 py-8">
+      <p className="text-xs tracking-[0.2em] uppercase text-[var(--accent)]">Entrena Perú</p>
       <h1 className="text-2xl font-bold mt-1 mb-1">Armemos tu perfil</h1>
-      <p className="text-sm text-[#8B948F] mb-6">Con esto calculamos tus rutinas y tus macros. Toma 1 minuto.</p>
+      <p className="text-sm text-[var(--muted)] mb-6">Con esto calculamos tus rutinas y tus macros. Toma 1 minuto.</p>
 
       {errorGuardado && (
-        <div className="mb-4 text-xs text-[#C8FF3D] bg-[#2A2313] border border-[#F59E0B] rounded-lg p-3">
+        <div className="mb-4 text-xs text-[var(--accent)] bg-[var(--warning-bg)] border border-[var(--warning)] rounded-lg p-3">
           No se pudo guardar tu perfil. Intenta de nuevo en unos segundos.
         </div>
       )}
@@ -65,7 +65,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.peso}
               onChange={(e) => setForm({ ...form, peso: e.target.value })}
-              className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-[#F5F7F6] outline-none focus:border-[#C8FF3D]"
+              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text)] outline-none focus:border-[var(--accent)]"
               placeholder="70"
             />
           </Campo>
@@ -74,7 +74,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.altura}
               onChange={(e) => setForm({ ...form, altura: e.target.value })}
-              className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-[#F5F7F6] outline-none focus:border-[#C8FF3D]"
+              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text)] outline-none focus:border-[var(--accent)]"
               placeholder="170"
             />
           </Campo>
@@ -83,7 +83,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               type="number"
               value={form.edad}
               onChange={(e) => setForm({ ...form, edad: e.target.value })}
-              className="w-full bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-[#F5F7F6] outline-none focus:border-[#C8FF3D]"
+              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-[var(--text)] outline-none focus:border-[var(--accent)]"
               placeholder="28"
             />
           </Campo>
@@ -128,7 +128,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
                 </Chip>
               ))}
             </div>
-            <p className="text-[11px] text-[#5F6864] mt-1.5">
+            <p className="text-[11px] text-[var(--muted2)] mt-1.5">
               Con esto armamos un plan por día (ej. pecho/bíceps, pierna, espalda) en vez de que elijas cada vez.
             </p>
           </Campo>
@@ -137,7 +137,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
 
       {paso === 2 && (
         <div className="space-y-3">
-          <p className="text-sm text-[#8B948F]">
+          <p className="text-sm text-[var(--muted)]">
             Marca el equipo que tienes en casa. En el gimnasio asumimos que tienes todo disponible.
           </p>
           <div className="flex flex-wrap gap-2">
@@ -159,12 +159,12 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
               value={equipoPersonalizado}
               onChange={(e) => setEquipoPersonalizado(e.target.value)}
               placeholder="¿Tienes algo más? Escríbelo aquí"
-              className="flex-1 bg-[#171D1B] border border-[#262E2B] rounded-lg px-3 py-2 text-sm outline-none focus:border-[#C8FF3D]"
+              className="flex-1 bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
             />
             <button
               type="button"
               onClick={agregarEquipoPersonalizado}
-              className="px-3 rounded-lg border border-[#262E2B] text-[#8B948F] text-sm"
+              className="px-3 rounded-lg border border-[var(--border)] text-[var(--muted)] text-sm"
             >
               Agregar
             </button>
@@ -176,7 +176,7 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
         {paso > 0 && (
           <button
             onClick={() => setPaso(paso - 1)}
-            className="px-4 py-3 rounded-xl border border-[#262E2B] text-[#8B948F] text-sm font-medium"
+            className="px-4 py-3 rounded-xl border border-[var(--border)] text-[var(--muted)] text-sm font-medium"
           >
             Atrás
           </button>
@@ -185,13 +185,13 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
           <button
             disabled={!puedeAvanzar}
             onClick={() => setPaso(paso + 1)}
-            className="flex-1 bg-[#C8FF3D] hover:bg-[#9FCC2E] disabled:opacity-40 text-[#0D1210] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
+            className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--bg)] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
           >
             Continuar <ChevronRight size={16} />
           </button>
         )}
         {paso === 2 && (
-          <button onClick={finalizar} className="flex-1 bg-[#C8FF3D] hover:bg-[#9FCC2E] text-[#0D1210] rounded-xl py-3 text-sm font-semibold">
+          <button onClick={finalizar} className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] rounded-xl py-3 text-sm font-semibold">
             Empezar
           </button>
         )}
