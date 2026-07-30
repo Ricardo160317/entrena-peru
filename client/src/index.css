@@ -8,21 +8,21 @@ body {
 
 :root {
   /* Neutros: iguales para todos los temas */
-  --bg: var(--bg);
-  --card: var(--card);
-  --border: var(--border);
-  --text: var(--text);
-  --muted: var(--muted);
-  --muted2: var(--muted2);
-  --error: var(--error);
-  --warning: var(--warning);
-  --warning-bg: var(--warning-bg);
+  --bg: #0D1210;
+  --card: #171D1B;
+  --border: #262E2B;
+  --text: #F5F7F6;
+  --muted: #8B948F;
+  --muted2: #5F6864;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --warning-bg: #2A2313;
   --warning-40: rgba(245, 158, 11, 0.4);
-  --on-accent: var(--bg);
+  --on-accent: #0D1210;
 
   /* Acento: por defecto verde neón */
-  --accent: var(--accent);
-  --accent-hover: var(--accent-hover);
+  --accent: #C8FF3D;
+  --accent-hover: #9FCC2E;
   --accent-10: rgba(200, 255, 61, 0.1);
   --accent-15: rgba(200, 255, 61, 0.15);
   --accent-20: rgba(200, 255, 61, 0.2);
