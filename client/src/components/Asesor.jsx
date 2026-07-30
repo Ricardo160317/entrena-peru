@@ -45,7 +45,7 @@ export default function Asesor() {
             key={i}
             className={`max-w-[85%] rounded-xl px-3.5 py-2.5 text-sm ${
               m.role === "user"
-                ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] ml-auto"
+                ? "bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] ml-auto"
                 : "bg-[var(--card)] border border-[var(--border)] text-[var(--text)]"
             }`}
           >
@@ -66,7 +66,7 @@ export default function Asesor() {
         />
         <button
           disabled={cargando}
-          className="bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 text-[var(--bg)] rounded-lg px-3.5 flex items-center justify-center"
+          className="bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-50 text-[var(--bg)] rounded-lg px-3.5 flex items-center justify-center"
         >
           <Send size={16} />
         </button>

@@ -103,7 +103,7 @@ export default function Habitos() {
             placeholder="Ej: Tomar 2L de agua"
             className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--accent)]"
           />
-          <button onClick={agregar} className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] rounded-lg py-2.5 text-sm font-semibold">
+          <button onClick={agregar} className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] rounded-lg py-2.5 text-sm font-semibold">
             Agregar hábito
           </button>
         </div>

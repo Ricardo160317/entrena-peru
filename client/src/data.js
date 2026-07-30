@@ -356,13 +356,14 @@ export function tipDelDia() {
 }
 
 export const TEMAS_COLOR = [
-  { id: "verde", label: "Verde", color: "#C8FF3D" },
-  { id: "morado", label: "Morado", color: "#C4B5FD" },
-  { id: "azul", label: "Azul", color: "#7DD3FC" },
-  { id: "turquesa", label: "Turquesa", color: "#5EEAD4" },
-  { id: "naranja", label: "Naranja", color: "#FDBA74" },
-  { id: "rosa", label: "Rosa", color: "#F9A8D4" },
-  { id: "dorado", label: "Dorado", color: "#FCD34D" },
+  { id: "verde", label: "Verde (oscuro)", color: "#C8FF3D" },
+  { id: "morado", label: "Morado (oscuro)", color: "#C4B5FD" },
+  { id: "azul", label: "Azul (oscuro)", color: "#7DD3FC" },
+  { id: "turquesa", label: "Turquesa (oscuro)", color: "#5EEAD4" },
+  { id: "naranja", label: "Naranja (oscuro)", color: "#FDBA74" },
+  { id: "rosa", label: "Rosa (oscuro)", color: "#F9A8D4" },
+  { id: "dorado", label: "Dorado (oscuro)", color: "#FCD34D" },
+  { id: "claro", label: "Claro", color: "#FFFFFF", borde: true },
 ];
 
 export const hoy = () => new Date().toISOString().slice(0, 10);

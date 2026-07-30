@@ -92,7 +92,11 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
                 className="w-9 h-9 rounded-full flex items-center justify-center"
                 style={{
                   backgroundColor: t.color,
-                  boxShadow: form.tema === t.id ? `0 0 0 2px var(--card), 0 0 0 4px ${t.color}` : "none",
+                  border: t.borde ? "1px solid var(--border)" : "none",
+                  boxShadow:
+                    form.tema === t.id
+                      ? `0 0 0 2px var(--card), 0 0 0 4px ${t.borde ? "var(--muted)" : t.color}`
+                      : "none",
                 }}
               >
                 {form.tema === t.id && <span className="text-[13px] font-bold" style={{ color: "#0D1210" }}>✓</span>}
@@ -159,7 +163,7 @@ export default function PerfilTab({ perfil, onGuardarPerfil, onCerrarSesion }) {
         disabled={estado !== "idle"}
         className={`w-full rounded-xl py-3 text-sm font-semibold transition-colors ${
           estado === "idle"
-            ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)]"
+            ? "bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)]"
             : estado === "guardando"
             ? "bg-[var(--border)] text-[var(--muted)]"
             : "bg-[var(--border)] text-[var(--accent)]"

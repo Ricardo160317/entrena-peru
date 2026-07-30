@@ -110,7 +110,7 @@ export default function SeguidorMedidas({ medidas, onMedidaGuardada }) {
           <button
             onClick={guardar}
             disabled={guardando}
-            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 text-[var(--bg)] rounded-lg py-2.5 text-sm font-semibold"
+            className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-50 text-[var(--bg)] rounded-lg py-2.5 text-sm font-semibold"
           >
             {guardando ? "Guardando…" : "Guardar medición"}
           </button>

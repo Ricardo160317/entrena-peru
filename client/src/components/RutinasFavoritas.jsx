@@ -75,7 +75,7 @@ export default function RutinasFavoritas() {
                   setSeleccionados([]);
                 }}
                 className={`px-3 py-1.5 rounded-full text-xs border ${
-                  grupo === g.id ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--on-accent)]" : "border-[var(--border)] text-[var(--muted)]"
+                  grupo === g.id ? "bg-[var(--btn)] border-[var(--btn)] text-[var(--btn-text)]" : "border-[var(--border)] text-[var(--muted)]"
                 }`}
               >
                 {g.label}
@@ -103,7 +103,7 @@ export default function RutinasFavoritas() {
           <button
             onClick={guardar}
             disabled={!nombre || seleccionados.length === 0}
-            className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--on-accent)] text-sm font-semibold rounded-lg py-2.5"
+            className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-40 text-[var(--btn-text)] text-sm font-semibold rounded-lg py-2.5"
           >
             Guardar rutina ({seleccionados.length} ejercicios)
           </button>

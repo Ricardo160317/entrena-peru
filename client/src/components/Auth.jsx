@@ -82,7 +82,7 @@ export default function Auth({ onAutenticado }) {
                   setCodigoEntrenador("");
                 }}
                 className={`w-5 h-5 rounded border flex items-center justify-center ${
-                  esEntrenador ? "bg-[var(--accent)] border-[var(--accent)]" : "border-[var(--border)]"
+                  esEntrenador ? "bg-[var(--btn)] border-[var(--btn)]" : "border-[var(--border)]"
                 }`}
               >
                 {esEntrenador && <span className="text-[var(--bg)] text-xs font-bold">✓</span>}
@@ -108,7 +108,7 @@ export default function Auth({ onAutenticado }) {
 
         <button
           disabled={cargando}
-          className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-50 text-[var(--bg)] rounded-xl py-3 text-sm font-semibold"
+          className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-50 text-[var(--bg)] rounded-xl py-3 text-sm font-semibold"
         >
           {cargando ? "Un momento…" : modo === "login" ? "Entrar" : "Crear cuenta"}
         </button>

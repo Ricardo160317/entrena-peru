@@ -286,7 +286,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
         <button
           onClick={() => { setLugar("casa"); setRutina(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium ${
-            lugar === "casa" ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--bg)]" : "border-[var(--border)] text-[var(--muted)]"
+            lugar === "casa" ? "bg-[var(--btn)] border-[var(--btn)] text-[var(--bg)]" : "border-[var(--border)] text-[var(--muted)]"
           }`}
         >
           <Home size={16} /> Casa
@@ -294,7 +294,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
         <button
           onClick={() => { setLugar("gimnasio"); setRutina(null); }}
           className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border text-sm font-medium ${
-            lugar === "gimnasio" ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--bg)]" : "border-[var(--border)] text-[var(--muted)]"
+            lugar === "gimnasio" ? "bg-[var(--btn)] border-[var(--btn)] text-[var(--bg)]" : "border-[var(--border)] text-[var(--muted)]"
           }`}
         >
           <Building2 size={16} /> Gimnasio
@@ -461,7 +461,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
                 <button
                   onClick={() => generarConIA(grupo)}
                   disabled={generandoIA}
-                  className="shrink-0 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--on-accent)] text-xs font-semibold rounded-lg px-3 py-1.5 disabled:opacity-50"
+                  className="shrink-0 bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--btn-text)] text-xs font-semibold rounded-lg px-3 py-1.5 disabled:opacity-50"
                 >
                   Renovar
                 </button>
@@ -551,7 +551,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           {rutina.length > 0 && (
             <button
               onClick={guardarSesion}
-              className="w-full bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2 mt-2"
+              className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-2 mt-2"
             >
               <Check size={16} /> Guardar sesión de hoy
             </button>

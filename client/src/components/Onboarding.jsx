@@ -185,13 +185,13 @@ export default function Onboarding({ onGuardar, errorGuardado }) {
           <button
             disabled={!puedeAvanzar}
             onClick={() => setPaso(paso + 1)}
-            className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] disabled:opacity-40 text-[var(--bg)] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
+            className="flex-1 bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-40 text-[var(--bg)] rounded-xl py-3 text-sm font-semibold flex items-center justify-center gap-1"
           >
             Continuar <ChevronRight size={16} />
           </button>
         )}
         {paso === 2 && (
-          <button onClick={finalizar} className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] rounded-xl py-3 text-sm font-semibold">
+          <button onClick={finalizar} className="flex-1 bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] rounded-xl py-3 text-sm font-semibold">
             Empezar
           </button>
         )}

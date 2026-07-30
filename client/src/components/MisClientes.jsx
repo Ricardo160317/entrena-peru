@@ -68,7 +68,7 @@ export default function MisClientes() {
         <button
           onClick={() => setVista("clientes")}
           className={`flex-1 text-xs font-medium rounded-lg py-2 flex items-center justify-center gap-1.5 ${
-            vista === "clientes" ? "bg-[var(--accent)] text-[var(--on-accent)]" : "text-[var(--muted)]"
+            vista === "clientes" ? "bg-[var(--btn)] text-[var(--btn-text)]" : "text-[var(--muted)]"
           }`}
         >
           <Users size={13} /> Clientes
@@ -76,7 +76,7 @@ export default function MisClientes() {
         <button
           onClick={() => setVista("favoritas")}
           className={`flex-1 text-xs font-medium rounded-lg py-2 flex items-center justify-center gap-1.5 ${
-            vista === "favoritas" ? "bg-[var(--accent)] text-[var(--on-accent)]" : "text-[var(--muted)]"
+            vista === "favoritas" ? "bg-[var(--btn)] text-[var(--btn-text)]" : "text-[var(--muted)]"
           }`}
         >
           <ClipboardList size={13} /> Rutinas favoritas
@@ -156,7 +156,7 @@ export default function MisClientes() {
                           onClick={() => setGrupoAsignar(g.id)}
                           className={`px-2.5 py-1 rounded-full text-[11px] border ${
                             grupoAsignar === g.id
-                              ? "bg-[var(--accent)] border-[var(--accent)] text-[var(--on-accent)]"
+                              ? "bg-[var(--btn)] border-[var(--btn)] text-[var(--btn-text)]"
                               : "border-[var(--border)] text-[var(--muted)]"
                           }`}
                         >

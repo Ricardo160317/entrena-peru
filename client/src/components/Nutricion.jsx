@@ -258,7 +258,7 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
             <div className="flex gap-2">
               <button
                 onClick={agregarManual}
-                className="flex-1 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] text-sm font-semibold rounded-lg py-2"
+                className="flex-1 bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] text-sm font-semibold rounded-lg py-2"
               >
                 Agregar
               </button>
@@ -284,7 +284,7 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
                 className="w-24 bg-[var(--bg)] border border-[var(--border)] rounded-lg px-2.5 py-2 text-sm outline-none focus:border-[var(--accent)]"
               />
               <span className="text-xs text-[var(--muted)]">gramos</span>
-              <button onClick={agregarConGramos} className="ml-auto bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-[var(--bg)] text-sm rounded-lg px-4 py-2">
+              <button onClick={agregarConGramos} className="ml-auto bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--bg)] text-sm rounded-lg px-4 py-2">
                 Agregar
               </button>
             </div>

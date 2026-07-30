@@ -13,7 +13,7 @@ export function Chip({ active, onClick, children }) {
       onClick={onClick}
       type="button"
       className={`px-3 py-2 rounded-full text-sm font-medium border transition-colors ${
-        active ? "bg-[var(--accent)] hover:bg-[var(--accent-hover)] border-[var(--accent)] text-[var(--bg)]" : "bg-transparent border-[var(--border)] text-[var(--muted)]"
+        active ? "bg-[var(--btn)] hover:bg-[var(--btn-hover)] border-[var(--accent)] text-[var(--bg)]" : "bg-transparent border-[var(--border)] text-[var(--muted)]"
       }`}
     >
       {children}
