@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Send, ArrowLeft, MessageSquare } from "lucide-react";
-import { obtenerConversacion, enviarMensajeChat, obtenerResumenChats } from "../api";
+import { Send, ArrowLeft, MessageSquare, Megaphone, X } from "lucide-react";
+import { obtenerConversacion, enviarMensajeChat, obtenerResumenChats, enviarMensajeMasivo } from "../api";
 
 function horaLegible(fecha) {
   return new Date(fecha).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
@@ -96,6 +96,9 @@ function Conversacion({ usuarioId, clienteId, nombreOtro, onVolver }) {
 export default function Chat({ usuario }) {
   const [conversaciones, setConversaciones] = useState(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
+  const [masivoAbierto, setMasivoAbierto] = useState(false);
+  const [textoMasivo, setTextoMasivo] = useState("");
+  const [enviandoMasivo, setEnviandoMasivo] = useState(false);
 
   const esEntrenador = usuario?.rol === "entrenador";
 
@@ -114,6 +117,21 @@ export default function Chat({ usuario }) {
       setConversaciones(data);
     } catch {
       setConversaciones([]);
+    }
+  }
+
+  async function enviarMasivo() {
+    if (!textoMasivo.trim()) return;
+    setEnviandoMasivo(true);
+    try {
+      await enviarMensajeMasivo(textoMasivo.trim());
+      setTextoMasivo("");
+      setMasivoAbierto(false);
+      cargarResumen();
+    } catch {
+      alert("No se pudo enviar el mensaje masivo");
+    } finally {
+      setEnviandoMasivo(false);
     }
   }
 
@@ -145,6 +163,33 @@ export default function Chat({ usuario }) {
 
   return (
     <div className="space-y-2">
+      <button
+        onClick={() => setMasivoAbierto(!masivoAbierto)}
+        className="w-full flex items-center justify-center gap-1.5 text-xs text-[var(--accent)] border border-[var(--accent-40)] rounded-lg py-2"
+      >
+        {masivoAbierto ? <X size={13} /> : <Megaphone size={13} />}
+        {masivoAbierto ? "Cancelar" : "Enviar mensaje a todos mis clientes"}
+      </button>
+
+      {masivoAbierto && (
+        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-3.5 space-y-2">
+          <textarea
+            value={textoMasivo}
+            onChange={(e) => setTextoMasivo(e.target.value)}
+            placeholder="Ej: Recuerden hidratarse bien esta semana 💧"
+            rows={3}
+            className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm outline-none focus:border-[var(--accent)] resize-none"
+          />
+          <button
+            onClick={enviarMasivo}
+            disabled={enviandoMasivo || !textoMasivo.trim()}
+            className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-40 text-[var(--btn-text)] text-sm font-semibold rounded-lg py-2"
+          >
+            {enviandoMasivo ? "Enviando…" : "Enviar a todos"}
+          </button>
+        </div>
+      )}
+
       {conversaciones === null && <p className="text-sm text-[var(--muted)]">Cargando…</p>}
       {conversaciones && conversaciones.length === 0 && (
         <p className="text-sm text-[var(--muted)] bg-[var(--card)] rounded-xl p-4">

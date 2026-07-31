@@ -1,6 +1,7 @@
 const express = require("express");
 const { pool } = require("../db");
 const { requireAuth } = require("../middleware/auth");
+const { enviarPushAUsuario } = require("../push");
 
 const router = express.Router();
 router.use(requireAuth);
@@ -55,6 +56,13 @@ router.post("/", async (req, res) => {
      VALUES ($1,$2,$3,$4) RETURNING *`,
     [conv.entrenadorId, conv.clienteId, req.usuarioId, contenido.trim().slice(0, 2000)]
   );
+
+  const destinatarioId = req.usuarioId === conv.entrenadorId ? conv.clienteId : conv.entrenadorId;
+  enviarPushAUsuario(pool, destinatarioId, {
+    titulo: "Nuevo mensaje en NEX-FIT",
+    cuerpo: contenido.trim().slice(0, 120),
+  }).catch(() => {});
+
   res.json(result.rows[0]);
 });
 
@@ -85,6 +93,33 @@ router.get("/resumen", async (req, res) => {
   );
 
   res.json(resumen);
+});
+
+// Mensaje masivo del entrenador a todos sus clientes
+router.post("/masivo", async (req, res) => {
+  const { contenido } = req.body;
+  if (!contenido || !contenido.trim()) return res.status(400).json({ error: "Mensaje vacío" });
+
+  const rol = await pool.query("SELECT rol FROM usuarios WHERE id = $1", [req.usuarioId]);
+  if (rol.rows[0]?.rol !== "entrenador") return res.status(403).json({ error: "Solo para entrenadores" });
+
+  const clientes = await pool.query("SELECT id FROM usuarios WHERE entrenador_id = $1", [req.usuarioId]);
+  const texto = contenido.trim().slice(0, 2000);
+
+  await Promise.all(
+    clientes.rows.map((c) =>
+      pool.query(
+        `INSERT INTO mensajes (entrenador_id, cliente_id, remitente_id, contenido) VALUES ($1,$2,$1,$3)`,
+        [req.usuarioId, c.id, texto]
+      )
+    )
+  );
+
+  clientes.rows.forEach((c) => {
+    enviarPushAUsuario(pool, c.id, { titulo: "Mensaje de tu entrenador", cuerpo: texto.slice(0, 120) }).catch(() => {});
+  });
+
+  res.json({ ok: true, enviados: clientes.rows.length });
 });
 
 module.exports = router;

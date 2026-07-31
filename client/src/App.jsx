@@ -13,6 +13,7 @@ import {
   obtenerMe,
 } from "./api";
 import { hoy } from "./data";
+import { activarNotificacionesPush } from "./push";
 import Auth from "./components/Auth";
 import Onboarding from "./components/Onboarding";
 import Entrenar from "./components/Entrenar";
@@ -54,12 +55,32 @@ export default function App() {
         obtenerMedidas(),
         obtenerMe(),
       ]);
-      setPerfil(p);
-      if (p?.tema) document.documentElement.dataset.theme = p.tema;
+      setUsuario(u);
+      activarNotificacionesPush();
+
+      if (!p && u?.rol === "entrenador") {
+        // Las cuentas de entrenador son más de administrador: no necesitan datos físicos propios
+        const perfilMinimo = await apiGuardarPerfil({
+          peso: 0,
+          altura: 0,
+          edad: 0,
+          sexo: "M",
+          nivel: "moderado",
+          objetivo: "mantener",
+          equipo: [],
+          dias_entreno: 3,
+          lesiones: [],
+        });
+        setPerfil(perfilMinimo);
+        setTab("clientes");
+      } else {
+        setPerfil(p);
+        if (p?.tema) document.documentElement.dataset.theme = p.tema;
+      }
+
       setEntrenamientos(e);
       setNutricion(n);
       setMedidas(m);
-      setUsuario(u);
     } catch (err) {
       if (err.message === "Sesión inválida o expirada" || err.message === "No autenticado") {
         clearToken();
@@ -131,7 +152,7 @@ export default function App() {
 
       <main className="flex-1 px-5 pb-24 overflow-y-auto">
         {tab === "inicio" && (
-          <Inicio perfil={perfil} entrenamientos={entrenamientos} diaHoy={diaHoy} onIrATab={setTab} />
+          <Inicio perfil={perfil} entrenamientos={entrenamientos} diaHoy={diaHoy} onIrATab={setTab} usuario={usuario} />
         )}
         {tab === "entrenar" && (
           <Entrenar perfil={perfil} entrenamientos={entrenamientos} onGuardarSesion={guardarSesionEntrenamiento} />
@@ -159,11 +180,15 @@ export default function App() {
 
       <nav className="fixed bottom-0 left-0 right-0 max-w-md mx-auto bg-[var(--card)] border-t border-[var(--border)] flex justify-around py-2">
         <NavBtn icon={HomeIcon} label="Inicio" active={tab === "inicio"} onClick={() => setTab("inicio")} />
-        <NavBtn icon={Dumbbell} label="Entrenar" active={tab === "entrenar"} onClick={() => setTab("entrenar")} />
-        <NavBtn icon={TrendingUp} label="Progreso" active={tab === "progreso"} onClick={() => setTab("progreso")} />
-        <NavBtn icon={Salad} label="Nutrición" active={tab === "nutricion"} onClick={() => setTab("nutricion")} />
-        <NavBtn icon={MessageCircleHeart} label="Asesor" active={tab === "asesor"} onClick={() => setTab("asesor")} />
-        <NavBtn icon={CheckSquare} label="Hábitos" active={tab === "habitos"} onClick={() => setTab("habitos")} />
+        {usuario?.rol !== "entrenador" && (
+          <>
+            <NavBtn icon={Dumbbell} label="Entrenar" active={tab === "entrenar"} onClick={() => setTab("entrenar")} />
+            <NavBtn icon={TrendingUp} label="Progreso" active={tab === "progreso"} onClick={() => setTab("progreso")} />
+            <NavBtn icon={Salad} label="Nutrición" active={tab === "nutricion"} onClick={() => setTab("nutricion")} />
+            <NavBtn icon={MessageCircleHeart} label="Asesor" active={tab === "asesor"} onClick={() => setTab("asesor")} />
+            <NavBtn icon={CheckSquare} label="Hábitos" active={tab === "habitos"} onClick={() => setTab("habitos")} />
+          </>
+        )}
         {(usuario?.rol === "entrenador" || usuario?.entrenador_id) && (
           <NavBtn icon={MessageSquare} label="Chat" active={tab === "chat"} onClick={() => setTab("chat")} />
         )}

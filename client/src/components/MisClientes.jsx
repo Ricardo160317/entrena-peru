@@ -1,8 +1,17 @@
 import { useEffect, useState } from "react";
-import { Copy, Check, Users, ClipboardList, FileDown, Sparkles } from "lucide-react";
-import { obtenerClientesEntrenador, obtenerRutinasFavoritas, asignarRutinaFavorita, asignarRutinaIA, descargarInformePDF } from "../api";
-import { fechaLegible, GRUPOS } from "../data";
+import { Copy, Check, Users, ClipboardList, FileDown, Sparkles, AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  obtenerClientesEntrenador,
+  obtenerRutinasFavoritas,
+  asignarRutinaFavorita,
+  asignarRutinaIA,
+  descargarInformePDF,
+  crearRutinaFavorita,
+} from "../api";
+import { fechaLegible, GRUPOS, EJERCICIOS } from "../data";
 import RutinasFavoritas from "./RutinasFavoritas";
+
+const DIAS_INACTIVO_ALERTA = 7;
 
 export default function MisClientes() {
   const [vista, setVista] = useState("clientes"); // clientes | favoritas
@@ -13,6 +22,9 @@ export default function MisClientes() {
   const [asignandoA, setAsignandoA] = useState(null); // id del cliente con el panel abierto
   const [grupoAsignar, setGrupoAsignar] = useState("empuje");
   const [trabajando, setTrabajando] = useState(false);
+  const [construyendoManual, setConstruyendoManual] = useState(false);
+  const [nombreManual, setNombreManual] = useState("");
+  const [seleccionManual, setSeleccionManual] = useState([]);
 
   useEffect(() => {
     cargar();
@@ -34,11 +46,24 @@ export default function MisClientes() {
     setTimeout(() => setCopiado(false), 2000);
   }
 
+  function diasInactivo(c) {
+    if (!c.ultima_sesion) return null;
+    return Math.floor((Date.now() - new Date(c.ultima_sesion).getTime()) / 86400000);
+  }
+
+  function abrirAsignar(clienteId) {
+    setAsignandoA(clienteId);
+    setConstruyendoManual(false);
+    setNombreManual("");
+    setSeleccionManual([]);
+  }
+
   async function asignarFavorita(clienteId, favoritaId) {
     setTrabajando(true);
     try {
       await asignarRutinaFavorita(clienteId, favoritaId);
       setAsignandoA(null);
+      cargar();
     } finally {
       setTrabajando(false);
     }
@@ -56,11 +81,45 @@ export default function MisClientes() {
     }
   }
 
+  function toggleEjercicioManual(ej) {
+    setSeleccionManual((s) =>
+      s.some((e) => e.nombre === ej.nombre)
+        ? s.filter((e) => e.nombre !== ej.nombre)
+        : [...s, { nombre: ej.nombre, series: ej.series, reps: ej.reps }]
+    );
+  }
+
+  function actualizarCampoManual(nombreEj, campo, valor) {
+    setSeleccionManual((s) => s.map((e) => (e.nombre === nombreEj ? { ...e, [campo]: valor } : e)));
+  }
+
+  async function guardarYAsignarManual(clienteId) {
+    if (!nombreManual || seleccionManual.length === 0) return;
+    setTrabajando(true);
+    try {
+      const ejerciciosFinales = seleccionManual.map((e) => ({
+        nombre: e.nombre,
+        series: Number(e.series) || 1,
+        reps: String(e.reps || "10"),
+      }));
+      const favoritaNueva = await crearRutinaFavorita(nombreManual, grupoAsignar, ejerciciosFinales);
+      await asignarRutinaFavorita(clienteId, favoritaNueva.id);
+      setAsignandoA(null);
+      setConstruyendoManual(false);
+      cargar();
+    } catch {
+      alert("No se pudo guardar y asignar la rutina");
+    } finally {
+      setTrabajando(false);
+    }
+  }
+
   if (cargando) return <p className="text-sm text-[var(--muted)]">Cargando…</p>;
   if (!datos) return <p className="text-sm text-[var(--muted)]">No se pudo cargar tu panel.</p>;
 
   const { clientes, entrenador } = datos;
   const limite = entrenador.limite_clientes;
+  const ejerciciosDelGrupoManual = EJERCICIOS.filter((ej) => ej.grupo === grupoAsignar);
 
   return (
     <div className="space-y-5">
@@ -124,78 +183,160 @@ export default function MisClientes() {
                 Aún no tienes clientes vinculados. Comparte tu código para que se registren.
               </p>
             )}
-            {clientes.map((c) => (
-              <div key={c.id} className="bg-[var(--card)] border border-[var(--border)] rounded-lg px-3.5 py-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div>
-                    <p className="text-sm font-medium">{c.email}</p>
-                    <p className="text-[11px] text-[var(--muted)] mt-0.5">
-                      Registrado {fechaLegible(c.creado_en)}
-                      {c.ultima_sesion ? ` · Última sesión: ${fechaLegible(c.ultima_sesion)}` : " · Sin sesiones aún"}
-                    </p>
-                  </div>
-                  <button onClick={() => descargarInformePDF(c.id)} title="Descargar informe">
-                    <FileDown size={15} color="var(--muted)" />
-                  </button>
-                </div>
-
-                {asignandoA !== c.id ? (
-                  <button
-                    onClick={() => setAsignandoA(c.id)}
-                    className="mt-2 text-xs text-[var(--accent)] border border-[var(--border)] rounded-full px-2.5 py-1"
-                  >
-                    Asignar rutina
-                  </button>
-                ) : (
-                  <div className="mt-3 space-y-2.5 border-t border-[var(--border)] pt-3">
-                    <p className="text-[11px] text-[var(--muted)]">Grupo a asignar</p>
-                    <div className="flex gap-1.5 flex-wrap">
-                      {GRUPOS.map((g) => (
-                        <button
-                          key={g.id}
-                          onClick={() => setGrupoAsignar(g.id)}
-                          className={`px-2.5 py-1 rounded-full text-[11px] border ${
-                            grupoAsignar === g.id
-                              ? "bg-[var(--btn)] border-[var(--btn)] text-[var(--btn-text)]"
-                              : "border-[var(--border)] text-[var(--muted)]"
-                          }`}
-                        >
-                          {g.label}
-                        </button>
-                      ))}
+            {clientes.map((c) => {
+              const dias = diasInactivo(c);
+              const inactivo = dias === null || dias >= DIAS_INACTIVO_ALERTA;
+              return (
+                <div key={c.id} className="bg-[var(--card)] border border-[var(--border)] rounded-lg px-3.5 py-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="text-sm font-medium">{c.email}</p>
+                      <p className="text-[11px] text-[var(--muted)] mt-0.5">
+                        Registrado {fechaLegible(c.creado_en)}
+                        {c.ultima_sesion ? ` · Última sesión: ${fechaLegible(c.ultima_sesion)}` : " · Sin sesiones aún"}
+                      </p>
+                      {inactivo && (
+                        <p className="text-[11px] text-[var(--warning)] mt-1 flex items-center gap-1">
+                          <AlertTriangle size={11} />
+                          {dias === null ? "Nunca entrenó — hazle seguimiento" : `Sin entrenar hace ${dias} días`}
+                        </p>
+                      )}
                     </div>
-
-                    <p className="text-[11px] text-[var(--muted)] pt-1">Tus rutinas favoritas para este grupo</p>
-                    {favoritas.filter((f) => f.grupo === grupoAsignar).length === 0 && (
-                      <p className="text-[11px] text-[var(--muted2)]">No tienes rutinas favoritas para este grupo aún.</p>
-                    )}
-                    {favoritas
-                      .filter((f) => f.grupo === grupoAsignar)
-                      .map((f) => (
-                        <button
-                          key={f.id}
-                          disabled={trabajando}
-                          onClick={() => asignarFavorita(c.id, f.id)}
-                          className="w-full text-left text-xs bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 disabled:opacity-50"
-                        >
-                          {f.nombre}
-                        </button>
-                      ))}
-
-                    <button
-                      disabled={trabajando}
-                      onClick={() => asignarConIA(c.id)}
-                      className="w-full flex items-center justify-center gap-1.5 text-xs bg-[var(--accent-15)] border border-[var(--accent-40)] text-[var(--accent)] rounded-lg px-3 py-2 disabled:opacity-50"
-                    >
-                      <Sparkles size={12} /> Que la IA elija por mí
-                    </button>
-                    <button onClick={() => setAsignandoA(null)} className="w-full text-[11px] text-[var(--muted)] py-1">
-                      Cancelar
+                    <button onClick={() => descargarInformePDF(c.id)} title="Descargar informe">
+                      <FileDown size={15} color="var(--muted)" />
                     </button>
                   </div>
-                )}
-              </div>
-            ))}
+
+                  {asignandoA !== c.id ? (
+                    <button
+                      onClick={() => abrirAsignar(c.id)}
+                      className="mt-2 text-xs text-[var(--accent)] border border-[var(--border)] rounded-full px-2.5 py-1"
+                    >
+                      Asignar rutina
+                    </button>
+                  ) : (
+                    <div className="mt-3 space-y-2.5 border-t border-[var(--border)] pt-3">
+                      <p className="text-[11px] text-[var(--muted)]">Grupo a asignar</p>
+                      <div className="flex gap-1.5 flex-wrap">
+                        {GRUPOS.map((g) => (
+                          <button
+                            key={g.id}
+                            onClick={() => {
+                              setGrupoAsignar(g.id);
+                              setSeleccionManual([]);
+                            }}
+                            className={`px-2.5 py-1 rounded-full text-[11px] border ${
+                              grupoAsignar === g.id
+                                ? "bg-[var(--btn)] border-[var(--btn)] text-[var(--btn-text)]"
+                                : "border-[var(--border)] text-[var(--muted)]"
+                            }`}
+                          >
+                            {g.label}
+                          </button>
+                        ))}
+                      </div>
+
+                      <p className="text-[11px] text-[var(--muted)] pt-1">Tus rutinas favoritas para este grupo</p>
+                      {favoritas.filter((f) => f.grupo === grupoAsignar).length === 0 && (
+                        <p className="text-[11px] text-[var(--muted2)]">No tienes rutinas favoritas para este grupo aún.</p>
+                      )}
+                      {favoritas
+                        .filter((f) => f.grupo === grupoAsignar)
+                        .map((f) => (
+                          <button
+                            key={f.id}
+                            disabled={trabajando}
+                            onClick={() => asignarFavorita(c.id, f.id)}
+                            className="w-full text-left text-xs bg-[var(--bg)] border border-[var(--border)] rounded-lg px-3 py-2 disabled:opacity-50"
+                          >
+                            {f.nombre}
+                          </button>
+                        ))}
+
+                      <button
+                        disabled={trabajando}
+                        onClick={() => asignarConIA(c.id)}
+                        className="w-full flex items-center justify-center gap-1.5 text-xs bg-[var(--accent-15)] border border-[var(--accent-40)] text-[var(--accent)] rounded-lg px-3 py-2 disabled:opacity-50"
+                      >
+                        <Sparkles size={12} /> Que la IA elija por mí
+                      </button>
+
+                      <button
+                        onClick={() => setConstruyendoManual(!construyendoManual)}
+                        className="w-full flex items-center justify-between text-xs text-[var(--text)] border border-[var(--border)] rounded-lg px-3 py-2"
+                      >
+                        Armar rutina manual ahora
+                        {construyendoManual ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+                      </button>
+
+                      {construyendoManual && (
+                        <div className="space-y-2 bg-[var(--bg)] border border-[var(--border)] rounded-lg p-3">
+                          <input
+                            value={nombreManual}
+                            onChange={(e) => setNombreManual(e.target.value)}
+                            placeholder="Nombre de la rutina"
+                            className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-xs outline-none focus:border-[var(--accent)]"
+                          />
+                          <div className="space-y-1 max-h-40 overflow-y-auto">
+                            {ejerciciosDelGrupoManual.map((ej) => (
+                              <button
+                                key={ej.nombre}
+                                onClick={() => toggleEjercicioManual(ej)}
+                                className={`w-full text-left px-2.5 py-1.5 rounded-lg border text-[11px] flex items-center justify-between ${
+                                  seleccionManual.some((e) => e.nombre === ej.nombre)
+                                    ? "bg-[var(--accent-15)] border-[var(--accent)]"
+                                    : "border-[var(--border)]"
+                                }`}
+                              >
+                                <span>{ej.nombre}</span>
+                                <span className="text-[10px] text-[var(--muted)]">
+                                  {ej.series}x{ej.reps}
+                                </span>
+                              </button>
+                            ))}
+                          </div>
+
+                          {seleccionManual.length > 0 && (
+                            <div className="space-y-1.5 pt-1">
+                              {seleccionManual.map((e) => (
+                                <div key={e.nombre} className="flex items-center gap-1.5">
+                                  <p className="text-[10px] flex-1 truncate">{e.nombre}</p>
+                                  <input
+                                    type="number"
+                                    value={e.series}
+                                    onChange={(ev) => actualizarCampoManual(e.nombre, "series", ev.target.value)}
+                                    className="w-10 bg-[var(--card)] border border-[var(--border)] rounded px-1 py-1 text-[10px] text-center outline-none"
+                                  />
+                                  <span className="text-[9px] text-[var(--muted2)]">×</span>
+                                  <input
+                                    value={e.reps}
+                                    onChange={(ev) => actualizarCampoManual(e.nombre, "reps", ev.target.value)}
+                                    placeholder="reps"
+                                    className="w-16 bg-[var(--card)] border border-[var(--border)] rounded px-1 py-1 text-[10px] text-center outline-none"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          <button
+                            onClick={() => guardarYAsignarManual(c.id)}
+                            disabled={trabajando || !nombreManual || seleccionManual.length === 0}
+                            className="w-full bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-40 text-[var(--btn-text)] text-xs font-semibold rounded-lg py-2"
+                          >
+                            Guardar y asignar a {c.email.split("@")[0]}
+                          </button>
+                        </div>
+                      )}
+
+                      <button onClick={() => setAsignandoA(null)} className="w-full text-[11px] text-[var(--muted)] py-1">
+                        Cerrar
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </>
       )}

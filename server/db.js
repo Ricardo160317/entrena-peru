@@ -129,6 +129,15 @@ async function initSchema() {
       leido BOOLEAN DEFAULT FALSE,
       creado_en TIMESTAMP DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS push_subscripciones (
+      id SERIAL PRIMARY KEY,
+      usuario_id INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+      endpoint TEXT UNIQUE NOT NULL,
+      p256dh TEXT NOT NULL,
+      auth TEXT NOT NULL,
+      creado_en TIMESTAMP DEFAULT NOW()
+    );
   `);
 }
 

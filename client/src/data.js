@@ -28,7 +28,16 @@ export const GRUPOS = [
   { id: "pierna", label: "Pierna", sub: "Cuádriceps · glúteo · isquios" },
   { id: "abdomen", label: "Abdomen", sub: "Core · abdominales" },
   { id: "full", label: "Cardio / Full body", sub: "Cuerpo completo · cardio" },
+  { id: "superior", label: "Tren Superior", sub: "Pecho, espalda, hombro y brazos" },
+  { id: "inferior", label: "Tren Inferior", sub: "Pierna, glúteo y abdomen" },
+  { id: "gluteo", label: "Glúteo y Pierna (tonificación)", sub: "Enfoque en glúteo, isquios y pierna" },
 ];
+
+// Combina varios grupos base en uno solo (para splits tren superior/inferior o enfoques específicos)
+export const SUBGRUPOS_COMBINADOS = {
+  superior: ["empuje", "tiron"],
+  inferior: ["pierna", "abdomen"],
+};
 
 export const CALENTAMIENTO = {
   empuje: [
@@ -57,6 +66,23 @@ export const CALENTAMIENTO = {
     "Movilidad general: círculos de cadera, hombro y tobillo",
     "1 serie corta del primer ejercicio a baja intensidad",
   ],
+  superior: [
+    "3-5 min de cardio ligero (soga o caminadora)",
+    "Círculos de brazos y rotación de hombros, 15 c/lado",
+    "Flexiones o remo con banda ligera, 1-2 series de 10-12",
+  ],
+  inferior: [
+    "3-5 min de cardio ligero (bici o caminadora)",
+    "Sentadillas al aire, 2 series de 12",
+    "Puente de glúteo sin peso, 12-15 reps",
+    "Movilidad de cadera y tobillo, 30s por lado",
+  ],
+  gluteo: [
+    "3-5 min de cardio ligero",
+    "Puente de glúteo con banda, 15 reps",
+    "Sentadillas al aire con pausa arriba, 12 reps",
+    "Activación con banda en las rodillas (monster walk), 10 pasos c/lado",
+  ],
 };
 
 export const DIAS_SEMANA = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
@@ -67,6 +93,9 @@ export const NOMBRE_DIA_GRUPO = {
   pierna: "Pierna y Glúteo",
   abdomen: "Abdomen",
   full: "Cardio y Full Body",
+  superior: "Tren Superior",
+  inferior: "Tren Inferior",
+  gluteo: "Glúteo y Pierna (tonificación)",
 };
 
 // Según cuántos días a la semana entrena la persona, arma un split recomendado (empieza en lunes).
@@ -154,6 +183,7 @@ export const PRIORIDAD_PATRON = {
   aislamiento_pecho: 3,
   antebrazo: 3,
   pantorrilla: 3,
+  gluteo_activacion: 3,
 };
 
 export const EJERCICIOS = [
@@ -268,6 +298,17 @@ export const EJERCICIOS = [
 
   { nombre: "Bicicleta abdominal", grupo: "abdomen", patron: "core_rotacion", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "20 c/lado", evitar_si: ["cadera"] },
   { nombre: "Giro ruso con disco o mancuerna", grupo: "abdomen", patron: "core_rotacion", estilo: "libre", equipo: ["discos"], series: 3, reps: "15 c/lado", evitar_si: ["espalda_baja"] },
+
+  // ===== GLÚTEO Y PIERNA (TONIFICACIÓN) =====
+  { nombre: "Puente de glúteo con banda", grupo: "gluteo", patron: "bisagra_cadera", estilo: "funcional", equipo: ["banda", "colchoneta"], series: 3, reps: "15-20" },
+  { nombre: "Hip thrust con barra", grupo: "gluteo", patron: "bisagra_cadera", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 4, reps: "12-15", evitar_si: ["espalda_baja"] },
+  { nombre: "Peso muerto rumano con mancuernas", grupo: "gluteo", patron: "bisagra_cadera", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12-15", evitar_si: ["espalda_baja"] },
+  { nombre: "Patada de glúteo en polea", grupo: "gluteo", patron: "gluteo_aislado", estilo: "maquina", equipo: ["polea"], series: 3, reps: "15 c/lado" },
+  { nombre: "Patada de glúteo a cuadrupedia", grupo: "gluteo", patron: "gluteo_aislado", estilo: "funcional", equipo: ["colchoneta"], series: 3, reps: "15-20 c/lado" },
+  { nombre: "Sentadilla sumo con mancuerna", grupo: "gluteo", patron: "sentadilla", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "15", evitar_si: ["rodilla"] },
+  { nombre: "Zancada lateral", grupo: "gluteo", patron: "zancada", estilo: "funcional", equipo: [], series: 3, reps: "12 c/pierna", evitar_si: ["rodilla"] },
+  { nombre: "Abducción de cadera con banda", grupo: "gluteo", patron: "gluteo_activacion", estilo: "funcional", equipo: ["banda"], series: 3, reps: "15-20" },
+  { nombre: "Caminata lateral con banda (monster walk)", grupo: "gluteo", patron: "gluteo_activacion", estilo: "funcional", equipo: ["banda"], series: 3, reps: "10 pasos c/lado" },
 ];
 
 export const ALIMENTOS = [

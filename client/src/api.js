@@ -92,3 +92,4 @@ export async function descargarInformePDF(clienteId) {
 export const obtenerConversacion = (clienteId) => api(`/chat${clienteId ? `?clienteId=${clienteId}` : ""}`);
 export const enviarMensajeChat = (contenido, clienteId) => api("/chat", { method: "POST", body: { contenido, clienteId } });
 export const obtenerResumenChats = () => api("/chat/resumen");
+export const enviarMensajeMasivo = (contenido) => api("/chat/masivo", { method: "POST", body: { contenido } });

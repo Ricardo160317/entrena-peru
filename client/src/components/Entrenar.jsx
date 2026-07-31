@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle, Calendar, ChevronDown, ChevronUp, Plus, Sparkles, UserCheck, Timer, MapPin } from "lucide-react";
-import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, hoy } from "../data";
+import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, SUBGRUPOS_COMBINADOS, hoy } from "../data";
 import { Chip } from "./Comunes";
 import { obtenerMisRutinasAsignadas, generarMiRutinaIA } from "../api";
 
@@ -47,9 +47,10 @@ function elegirEjercicio(opciones, estiloUsuario, lugar) {
 }
 
 function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesiones }) {
+  const gruposObjetivo = SUBGRUPOS_COMBINADOS[grupo] || [grupo];
   const disponibles = EJERCICIOS.filter(
     (ej) =>
-      ej.grupo === grupo &&
+      gruposObjetivo.includes(ej.grupo) &&
       ej.equipo.every((id) => equipoDisponible.includes(id)) &&
       !(ej.evitar_si || []).some((zona) => (lesiones || []).includes(zona))
   );
@@ -81,7 +82,7 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesione
   });
 
   // Si el día no es de abdomen, cerramos con 2 ejercicios de core (no cuentan contra el máximo de arriba)
-  if (grupo !== "abdomen") {
+  if (grupo !== "abdomen" && grupo !== "inferior") {
     const absDisponibles = EJERCICIOS.filter(
       (ej) =>
         ej.grupo === "abdomen" &&
@@ -310,7 +311,6 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
       inicial[ej.nombre] = { filas, referencia };
     });
     setRegistro(inicial);
-    iniciarSesionEntreno();
   }
 
   async function generarConIA(g) {
@@ -332,7 +332,6 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
           inicial[ej.nombre] = { filas, referencia };
         });
         setRegistro(inicial);
-        iniciarSesionEntreno();
       }
     } catch {
       alert("No se pudo generar la rutina con IA, intenta de nuevo.");
@@ -547,6 +546,15 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
               Cambiar
             </button>
           </div>
+
+          {!sesionActiva && rutina.length > 0 && (
+            <button
+              onClick={iniciarSesionEntreno}
+              className="flex items-center justify-center gap-2 bg-[var(--btn)] hover:bg-[var(--btn-hover)] text-[var(--btn-text)] rounded-lg px-4 py-2.5 text-sm font-semibold w-fit"
+            >
+              <Timer size={15} /> Iniciar entrenamiento
+            </button>
+          )}
 
           {sesionActiva && (
             <div className="flex items-center gap-1.5 text-[13px] font-semibold text-[var(--text)] bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 w-fit">
