@@ -8,7 +8,13 @@ function DIAS_SIN_ENTRENAR_ALERTA() {
   return 7;
 }
 
-function InicioEntrenador({ onIrATab }) {
+function nombreDeSaludo(usuario) {
+  if (usuario?.nombre) return usuario.nombre.split(" ")[0];
+  if (usuario?.email) return usuario.email.split("@")[0];
+  return "";
+}
+
+function InicioEntrenador({ onIrATab, usuario }) {
   const [datos, setDatos] = useState(null);
   const [noLeidos, setNoLeidos] = useState(0);
 
@@ -34,7 +40,7 @@ function InicioEntrenador({ onIrATab }) {
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-lg font-bold">¡Hola de nuevo!</p>
+          <p className="text-lg font-bold">¡Hola{nombreDeSaludo(usuario) ? `, ${nombreDeSaludo(usuario)}` : " de nuevo"}!</p>
           <p className="text-xs text-[var(--muted)]">Así están tus clientes hoy.</p>
         </div>
         <button
@@ -144,7 +150,7 @@ function calcularRachaYSemanas(entrenamientos, metaDias) {
 
 export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab, usuario }) {
   if (usuario?.rol === "entrenador") {
-    return <InicioEntrenador onIrATab={onIrATab} />;
+    return <InicioEntrenador onIrATab={onIrATab} usuario={usuario} />;
   }
 
   const tip = tipDelDia();
@@ -189,7 +195,7 @@ export default function Inicio({ perfil, entrenamientos, diaHoy, onIrATab, usuar
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-lg font-bold">¡Hola de nuevo!</p>
+          <p className="text-lg font-bold">¡Hola{nombreDeSaludo(usuario) ? `, ${nombreDeSaludo(usuario)}` : " de nuevo"}!</p>
           <p className="text-xs text-[var(--muted)]">Listo para superar tus límites hoy.</p>
         </div>
         <button className="w-9 h-9 rounded-full border border-[var(--border)] flex items-center justify-center relative">

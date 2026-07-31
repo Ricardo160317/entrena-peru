@@ -5,6 +5,7 @@ import { login, registrar, setToken } from "../api";
 export default function Auth({ onAutenticado }) {
   const [modo, setModo] = useState("login");
   const [email, setEmail] = useState("");
+  const [nombre, setNombre] = useState("");
   const [password, setPassword] = useState("");
   const [verPassword, setVerPassword] = useState(false);
   const [esEntrenador, setEsEntrenador] = useState(false);
@@ -21,7 +22,7 @@ export default function Auth({ onAutenticado }) {
       const data =
         modo === "login"
           ? await login(emailLimpio, password)
-          : await registrar(emailLimpio, password, esEntrenador, codigoEntrenador);
+          : await registrar(emailLimpio, password, esEntrenador, codigoEntrenador, nombre);
       setToken(data.token);
       onAutenticado();
     } catch (err) {
@@ -37,6 +38,18 @@ export default function Auth({ onAutenticado }) {
       <h1 className="text-2xl font-bold mt-1 mb-6">{modo === "login" ? "Inicia sesión" : "Crea tu cuenta"}</h1>
 
       <form onSubmit={enviar} className="space-y-4">
+        {modo === "registro" && (
+          <div>
+            <p className="text-xs text-[var(--muted)] mb-1.5">Tu nombre</p>
+            <input
+              required
+              value={nombre}
+              onChange={(e) => setNombre(e.target.value)}
+              placeholder="¿Cómo te llamas?"
+              className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2.5 outline-none focus:border-[var(--accent)]"
+            />
+          </div>
+        )}
         <div>
           <p className="text-xs text-[var(--muted)] mb-1.5">Email</p>
           <input

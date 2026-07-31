@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Plus, Trash2, X } from "lucide-react";
-import { EJERCICIOS, GRUPOS } from "../data";
+import { EJERCICIOS, GRUPOS, SUBGRUPOS_COMBINADOS } from "../data";
 import { obtenerRutinasFavoritas, crearRutinaFavorita, borrarRutinaFavorita } from "../api";
 
 export default function RutinasFavoritas() {
@@ -22,7 +22,9 @@ export default function RutinasFavoritas() {
       .finally(() => setCargando(false));
   }
 
-  const ejerciciosDelGrupo = EJERCICIOS.filter((ej) => ej.grupo === grupo);
+  const [mezclarTodo, setMezclarTodo] = useState(false);
+  const gruposObjetivo = SUBGRUPOS_COMBINADOS[grupo] || [grupo];
+  const ejerciciosDelGrupo = mezclarTodo ? EJERCICIOS : EJERCICIOS.filter((ej) => gruposObjetivo.includes(ej.grupo));
 
   function toggleEjercicio(ej) {
     setSeleccionados((s) =>
@@ -94,7 +96,17 @@ export default function RutinasFavoritas() {
             ))}
           </div>
 
-          <p className="text-[11px] text-[var(--muted)]">Toca un ejercicio para agregarlo, y ajusta sus series/reps abajo</p>
+          <div className="flex items-center justify-between">
+            <p className="text-[11px] text-[var(--muted)]">Toca un ejercicio para agregarlo</p>
+            <button
+              onClick={() => setMezclarTodo(!mezclarTodo)}
+              className={`text-[11px] px-2.5 py-1 rounded-full border ${
+                mezclarTodo ? "bg-[var(--accent-15)] border-[var(--accent)] text-[var(--accent)]" : "border-[var(--border)] text-[var(--muted)]"
+              }`}
+            >
+              {mezclarTodo ? "✓ Mezclando todos los grupos" : "Mezclar todos los grupos"}
+            </button>
+          </div>
           <div className="space-y-1.5 max-h-52 overflow-y-auto">
             {ejerciciosDelGrupo.map((ej) => (
               <button
@@ -106,7 +118,14 @@ export default function RutinasFavoritas() {
                     : "border-[var(--border)]"
                 }`}
               >
-                <span>{ej.nombre}</span>
+                <span>
+                  {ej.nombre}
+                  {mezclarTodo && (
+                    <span className="text-[9px] text-[var(--muted2)] ml-1.5">
+                      ({GRUPOS.find((g) => g.id === ej.grupo)?.label || ej.grupo})
+                    </span>
+                  )}
+                </span>
                 <span className="text-[10px] text-[var(--muted)]">
                   {ej.series}x{ej.reps} (sugerido)
                 </span>

@@ -8,7 +8,7 @@ import {
   descargarInformePDF,
   crearRutinaFavorita,
 } from "../api";
-import { fechaLegible, GRUPOS, EJERCICIOS } from "../data";
+import { fechaLegible, GRUPOS, EJERCICIOS, SUBGRUPOS_COMBINADOS } from "../data";
 import RutinasFavoritas from "./RutinasFavoritas";
 
 const DIAS_INACTIVO_ALERTA = 7;
@@ -25,6 +25,7 @@ export default function MisClientes() {
   const [construyendoManual, setConstruyendoManual] = useState(false);
   const [nombreManual, setNombreManual] = useState("");
   const [seleccionManual, setSeleccionManual] = useState([]);
+  const [mezclarTodoManual, setMezclarTodoManual] = useState(false);
 
   useEffect(() => {
     cargar();
@@ -119,7 +120,10 @@ export default function MisClientes() {
 
   const { clientes, entrenador } = datos;
   const limite = entrenador.limite_clientes;
-  const ejerciciosDelGrupoManual = EJERCICIOS.filter((ej) => ej.grupo === grupoAsignar);
+  const gruposObjetivoManual = SUBGRUPOS_COMBINADOS[grupoAsignar] || [grupoAsignar];
+  const ejerciciosDelGrupoManual = mezclarTodoManual
+    ? EJERCICIOS
+    : EJERCICIOS.filter((ej) => gruposObjetivoManual.includes(ej.grupo));
 
   return (
     <div className="space-y-5">
@@ -277,6 +281,16 @@ export default function MisClientes() {
                             placeholder="Nombre de la rutina"
                             className="w-full bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2 text-xs outline-none focus:border-[var(--accent)]"
                           />
+                          <button
+                            onClick={() => setMezclarTodoManual(!mezclarTodoManual)}
+                            className={`text-[10px] px-2 py-1 rounded-full border ${
+                              mezclarTodoManual
+                                ? "bg-[var(--accent-15)] border-[var(--accent)] text-[var(--accent)]"
+                                : "border-[var(--border)] text-[var(--muted)]"
+                            }`}
+                          >
+                            {mezclarTodoManual ? "✓ Mezclando todos los grupos" : "Mezclar todos los grupos"}
+                          </button>
                           <div className="space-y-1 max-h-40 overflow-y-auto">
                             {ejerciciosDelGrupoManual.map((ej) => (
                               <button
@@ -288,7 +302,14 @@ export default function MisClientes() {
                                     : "border-[var(--border)]"
                                 }`}
                               >
-                                <span>{ej.nombre}</span>
+                                <span>
+                                  {ej.nombre}
+                                  {mezclarTodoManual && (
+                                    <span className="text-[9px] text-[var(--muted2)] ml-1">
+                                      ({GRUPOS.find((g) => g.id === ej.grupo)?.label || ej.grupo})
+                                    </span>
+                                  )}
+                                </span>
                                 <span className="text-[10px] text-[var(--muted)]">
                                   {ej.series}x{ej.reps}
                                 </span>

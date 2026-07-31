@@ -11,6 +11,7 @@ import {
   guardarDiaNutricion,
   obtenerMedidas,
   obtenerMe,
+  actualizarNombre as apiActualizarNombre,
 } from "./api";
 import { hoy } from "./data";
 import { activarNotificacionesPush } from "./push";
@@ -98,6 +99,11 @@ export default function App() {
     obtenerMedidas().then(setMedidas);
   }
 
+  async function guardarNombre(nombre) {
+    const resultado = await apiActualizarNombre(nombre);
+    setUsuario((u) => ({ ...u, nombre: resultado.nombre }));
+  }
+
   async function guardarSesionEntrenamiento(sesion) {
     const guardada = await crearEntrenamiento(sesion);
     setEntrenamientos([...entrenamientos, guardada]);
@@ -168,7 +174,9 @@ export default function App() {
         {tab === "perfil" && (
           <PerfilTab
             perfil={perfil}
+            usuario={usuario}
             onGuardarPerfil={guardarPerfil}
+            onGuardarNombre={guardarNombre}
             onCerrarSesion={() => {
               clearToken();
               setAutenticado(false);

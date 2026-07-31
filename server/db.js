@@ -18,6 +18,7 @@ async function initSchema() {
     );
 
     ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS rol TEXT DEFAULT 'usuario';
+    ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS nombre TEXT;
     ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS entrenador_id INTEGER REFERENCES usuarios(id) ON DELETE SET NULL;
     ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS codigo_invitacion TEXT UNIQUE;
     ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'inicial';

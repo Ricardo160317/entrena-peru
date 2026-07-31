@@ -12,7 +12,7 @@ function generarCodigoInvitacion() {
 }
 
 router.post("/registro", async (req, res) => {
-  const { email, password, esEntrenador, codigoEntrenador } = req.body;
+  const { email, password, esEntrenador, codigoEntrenador, nombre } = req.body;
 
   if (!email || !password || password.length < 6) {
     return res.status(400).json({ error: "Email y contraseña (mínimo 6 caracteres) son requeridos" });
@@ -48,9 +48,9 @@ router.post("/registro", async (req, res) => {
     const codigoInvitacion = esEntrenador ? generarCodigoInvitacion() : null;
 
     const result = await pool.query(
-      `INSERT INTO usuarios (email, password_hash, rol, entrenador_id, codigo_invitacion)
-       VALUES ($1,$2,$3,$4,$5) RETURNING id`,
-      [email.toLowerCase(), hash, rol, entrenadorId, codigoInvitacion]
+      `INSERT INTO usuarios (email, password_hash, rol, entrenador_id, codigo_invitacion, nombre)
+       VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`,
+      [email.toLowerCase(), hash, rol, entrenadorId, codigoInvitacion, nombre?.trim() || null]
     );
     const usuarioId = result.rows[0].id;
     const token = jwt.sign({ usuarioId }, process.env.JWT_SECRET, { expiresIn: "30d" });
@@ -83,10 +83,16 @@ router.post("/login", async (req, res) => {
 
 router.get("/me", requireAuth, async (req, res) => {
   const result = await pool.query(
-    "SELECT id, email, rol, entrenador_id, codigo_invitacion, plan, limite_clientes, estado_suscripcion FROM usuarios WHERE id = $1",
+    "SELECT id, email, nombre, rol, entrenador_id, codigo_invitacion, plan, limite_clientes, estado_suscripcion FROM usuarios WHERE id = $1",
     [req.usuarioId]
   );
   res.json(result.rows[0] || null);
+});
+
+router.put("/nombre", requireAuth, async (req, res) => {
+  const { nombre } = req.body;
+  await pool.query("UPDATE usuarios SET nombre = $1 WHERE id = $2", [nombre?.trim() || null, req.usuarioId]);
+  res.json({ ok: true, nombre: nombre?.trim() || null });
 });
 
 module.exports = router;
