@@ -32,6 +32,8 @@ export const registrar = (email, password, esEntrenador, codigoEntrenador, nombr
   api("/auth/registro", { method: "POST", body: { email, password, esEntrenador, codigoEntrenador, nombre } });
 
 export const actualizarNombre = (nombre) => api("/auth/nombre", { method: "PUT", body: { nombre } });
+export const vincularEntrenador = (codigoEntrenador) =>
+  api("/auth/vincular-entrenador", { method: "POST", body: { codigoEntrenador } });
 
 export const obtenerMe = () => api("/auth/me");
 export const obtenerClientesEntrenador = () => api("/entrenador/clientes");

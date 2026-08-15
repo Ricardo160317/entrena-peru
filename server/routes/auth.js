@@ -95,4 +95,41 @@ router.put("/nombre", requireAuth, async (req, res) => {
   res.json({ ok: true, nombre: nombre?.trim() || null });
 });
 
+router.post("/vincular-entrenador", requireAuth, async (req, res) => {
+  const { codigoEntrenador } = req.body;
+  if (!codigoEntrenador || !codigoEntrenador.trim()) {
+    return res.status(400).json({ error: "Ingresa un código de entrenador" });
+  }
+
+  const actual = await pool.query("SELECT rol, entrenador_id FROM usuarios WHERE id = $1", [req.usuarioId]);
+  const yo = actual.rows[0];
+  if (yo.rol === "entrenador") {
+    return res.status(400).json({ error: "Las cuentas de entrenador no pueden vincularse a otro entrenador" });
+  }
+  if (yo.entrenador_id) {
+    return res.status(400).json({ error: "Ya estás vinculado a un entrenador" });
+  }
+
+  const entrenador = await pool.query(
+    "SELECT id, limite_clientes FROM usuarios WHERE codigo_invitacion = $1 AND rol = 'entrenador'",
+    [codigoEntrenador.trim().toUpperCase()]
+  );
+  if (entrenador.rows.length === 0) {
+    return res.status(400).json({ error: "Código de entrenador inválido" });
+  }
+  const entr = entrenador.rows[0];
+  if (entr.id === req.usuarioId) {
+    return res.status(400).json({ error: "No puedes vincularte a ti mismo" });
+  }
+  if (entr.limite_clientes != null) {
+    const conteo = await pool.query("SELECT COUNT(*) FROM usuarios WHERE entrenador_id = $1", [entr.id]);
+    if (Number(conteo.rows[0].count) >= entr.limite_clientes) {
+      return res.status(400).json({ error: "Este entrenador alcanzó el límite de su plan actual" });
+    }
+  }
+
+  await pool.query("UPDATE usuarios SET entrenador_id = $1 WHERE id = $2", [entr.id, req.usuarioId]);
+  res.json({ ok: true, entrenador_id: entr.id });
+});
+
 module.exports = router;

@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { EQUIPO_OPCIONES, NIVEL_ACTIVIDAD, OBJETIVOS, DIAS_ENTRENO_OPCIONES, TEMAS_COLOR, LESIONES_OPCIONES } from "../data";
 import { Campo, Chip } from "./Comunes";
 
-export default function PerfilTab({ perfil, usuario, onGuardarPerfil, onGuardarNombre, onCerrarSesion }) {
+export default function PerfilTab({ perfil, usuario, onGuardarPerfil, onGuardarNombre, onVincularEntrenador, onCerrarSesion }) {
   const esEntrenador = usuario?.rol === "entrenador";
 
   const [form, setForm] = useState({
@@ -19,6 +19,24 @@ export default function PerfilTab({ perfil, usuario, onGuardarPerfil, onGuardarN
 
   const [equipoPersonalizado, setEquipoPersonalizado] = useState("");
   const [estado, setEstado] = useState("idle"); // idle | guardando | guardado
+
+  const [codigoEntrenador, setCodigoEntrenador] = useState("");
+  const [estadoVinculo, setEstadoVinculo] = useState("idle"); // idle | vinculando | error
+  const [errorVinculo, setErrorVinculo] = useState("");
+
+  async function vincular() {
+    if (!codigoEntrenador.trim()) return;
+    setEstadoVinculo("vinculando");
+    setErrorVinculo("");
+    try {
+      await onVincularEntrenador(codigoEntrenador);
+      setEstadoVinculo("idle");
+      setCodigoEntrenador("");
+    } catch (err) {
+      setEstadoVinculo("idle");
+      setErrorVinculo(err.message);
+    }
+  }
 
   const toggleEquipo = (id) =>
     setForm((f) => ({
@@ -196,6 +214,35 @@ export default function PerfilTab({ perfil, usuario, onGuardarPerfil, onGuardarN
             </div>
           </Campo>
         </>
+      )}
+
+      {!esEntrenador && (
+        <Campo label="Entrenador">
+          {usuario?.entrenador_id ? (
+            <p className="text-sm text-[var(--muted)]">✓ Estás vinculado con tu entrenador. Ya puedes chatear con él y recibir rutinas que te asigne.</p>
+          ) : (
+            <>
+              <p className="text-xs text-[var(--muted)] mb-2">Si tu entrenador te compartió un código, ingrésalo aquí para vincular tu cuenta.</p>
+              <div className="flex gap-2">
+                <input
+                  value={codigoEntrenador}
+                  onChange={(e) => setCodigoEntrenador(e.target.value)}
+                  placeholder="Ej. A1B2C3"
+                  className="flex-1 bg-[var(--card)] border border-[var(--border)] rounded-lg px-3 py-2.5 text-sm outline-none focus:border-[var(--accent)] uppercase"
+                />
+                <button
+                  type="button"
+                  onClick={vincular}
+                  disabled={estadoVinculo === "vinculando" || !codigoEntrenador.trim()}
+                  className="px-4 rounded-lg bg-[var(--btn)] hover:bg-[var(--btn-hover)] disabled:opacity-50 text-[var(--bg)] text-sm font-semibold"
+                >
+                  {estadoVinculo === "vinculando" ? "…" : "Vincular"}
+                </button>
+              </div>
+              {errorVinculo && <p className="text-sm text-[var(--error)] mt-1.5">{errorVinculo}</p>}
+            </>
+          )}
+        </Campo>
       )}
 
       <button
