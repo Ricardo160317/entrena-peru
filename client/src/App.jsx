@@ -169,13 +169,15 @@ export default function App() {
         {tab === "entrenar" && (
           <Entrenar perfil={perfil} entrenamientos={entrenamientos} onGuardarSesion={guardarSesionEntrenamiento} />
         )}
-        {tab === "progreso" && <Progreso entrenamientos={entrenamientos} medidas={medidas} onMedidaGuardada={refrescarMedidas} />}
+        {tab === "progreso" && (
+          <Progreso entrenamientos={entrenamientos} medidas={medidas} onMedidaGuardada={refrescarMedidas} onIrATab={setTab} />
+        )}
         {tab === "nutricion" && (
           <Nutricion perfil={perfil} diaHoy={diaHoy} onGuardarDia={guardarDiaNutricionLocal} />
         )}
         {tab === "asesor" && <Asesor />}
         {tab === "habitos" && <Habitos />}
-        {tab === "chat" && <Chat usuario={usuario} />}
+        {tab === "chat" && <Chat usuario={usuario} onIrATab={setTab} />}
         {tab === "clientes" && usuario?.rol === "entrenador" && <MisClientes />}
         {tab === "perfil" && (
           <PerfilTab

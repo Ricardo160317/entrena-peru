@@ -1,6 +1,12 @@
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Dumbbell, Sparkles, TrendingUp } from "lucide-react";
 import { login, registrar, setToken } from "../api";
+
+const PROPUESTA = [
+  { icon: Dumbbell, texto: "Rutinas que se adaptan a tu tiempo, equipo y lesiones" },
+  { icon: Sparkles, texto: "Asesor con IA para dudas de entrenamiento y nutrición" },
+  { icon: TrendingUp, texto: "Progreso con fotos, medidas y gráficos de evolución" },
+];
 
 export default function Auth({ onAutenticado }) {
   const [modo, setModo] = useState("login");
@@ -33,11 +39,43 @@ export default function Auth({ onAutenticado }) {
   }
 
   return (
-    <div className="min-h-[700px] bg-[var(--bg)] text-[var(--text)] font-sans flex flex-col max-w-md mx-auto px-6 py-10">
-      <p className="text-xl font-black tracking-wide text-[var(--accent)]">NEX-FIT</p>
-      <h1 className="text-2xl font-bold mt-1 mb-6">{modo === "login" ? "Inicia sesión" : "Crea tu cuenta"}</h1>
+    <div className="relative min-h-[700px] bg-[var(--bg)] text-[var(--text)] font-sans flex flex-col max-w-md mx-auto px-6 py-10 overflow-hidden">
+      <div
+        className="absolute -top-24 -right-20 w-64 h-64 rounded-full blur-3xl opacity-25 pointer-events-none"
+        style={{ background: "var(--accent)" }}
+      />
 
-      <form onSubmit={enviar} className="space-y-4">
+      <div className="relative">
+        <div
+          className="w-12 h-12 rounded-2xl flex items-center justify-center mb-4"
+          style={{ background: "var(--accent-15)", border: "1px solid var(--accent-40)" }}
+        >
+          <Dumbbell size={22} color="var(--accent)" />
+        </div>
+        <p className="text-xl font-black tracking-wide text-[var(--accent)]">NEX-FIT</p>
+        <h1 className="text-2xl font-bold mt-1">{modo === "login" ? "Inicia sesión" : "Crea tu cuenta"}</h1>
+        <p className="text-sm text-[var(--muted)] mt-1 mb-6">
+          {modo === "login" ? "Tu progreso te está esperando." : "Rutinas, nutrición y seguimiento en una sola app."}
+        </p>
+
+        {modo === "registro" && (
+          <div className="space-y-2.5 mb-6">
+            {PROPUESTA.map(({ icon: Icon, texto }) => (
+              <div key={texto} className="flex items-start gap-2.5">
+                <div
+                  className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 mt-0.5"
+                  style={{ background: "var(--accent-15)" }}
+                >
+                  <Icon size={13} color="var(--accent)" />
+                </div>
+                <p className="text-xs text-[var(--muted)] leading-relaxed">{texto}</p>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      <form onSubmit={enviar} className="relative space-y-4">
         {modo === "registro" && (
           <div>
             <p className="text-xs text-[var(--muted)] mb-1.5">Tu nombre</p>

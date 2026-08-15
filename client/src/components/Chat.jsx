@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Send, ArrowLeft, MessageSquare, Megaphone, X } from "lucide-react";
 import { obtenerConversacion, enviarMensajeChat, obtenerResumenChats, enviarMensajeMasivo } from "../api";
+import { EmptyState } from "./Comunes";
 
 function horaLegible(fecha) {
   return new Date(fecha).toLocaleTimeString("es-PE", { hour: "2-digit", minute: "2-digit" });
@@ -93,7 +94,7 @@ function Conversacion({ usuarioId, clienteId, nombreOtro, onVolver }) {
   );
 }
 
-export default function Chat({ usuario }) {
+export default function Chat({ usuario, onIrATab }) {
   const [conversaciones, setConversaciones] = useState(null);
   const [clienteSeleccionado, setClienteSeleccionado] = useState(null);
   const [masivoAbierto, setMasivoAbierto] = useState(false);
@@ -137,12 +138,13 @@ export default function Chat({ usuario }) {
 
   if (!esEntrenador && !usuario?.entrenador_id) {
     return (
-      <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl p-6 text-center">
-        <MessageSquare size={22} color="var(--muted2)" className="mx-auto mb-2" />
-        <p className="text-sm text-[var(--muted)]">
-          Aún no tienes un entrenador vinculado. Cuando ingreses el código de un entrenador, podrás chatear con él aquí.
-        </p>
-      </div>
+      <EmptyState
+        icon={MessageSquare}
+        title="Aún no tienes un entrenador vinculado"
+        description="Ingresa el código de tu entrenador desde tu perfil y vas a poder chatear con él aquí."
+        actionLabel={onIrATab ? "Ir a mi perfil" : undefined}
+        onAction={onIrATab ? () => onIrATab("perfil") : undefined}
+      />
     );
   }
 

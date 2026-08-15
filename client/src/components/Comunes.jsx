@@ -7,6 +7,30 @@ export function Campo({ label, children }) {
   );
 }
 
+// Estado vacío consistente para toda la app: ícono en un círculo con tinte del acento,
+// mensaje corto y, si aplica, una acción directa (en vez de una caja de texto gris muerta).
+export function EmptyState({ icon: Icon, title, description, actionLabel, onAction }) {
+  return (
+    <div className="flex flex-col items-center text-center gap-2 bg-[var(--card)] border border-[var(--border)] rounded-xl px-6 py-9">
+      {Icon && (
+        <div className="w-12 h-12 rounded-full flex items-center justify-center mb-1" style={{ background: "var(--accent-15)" }}>
+          <Icon size={20} color="var(--accent)" />
+        </div>
+      )}
+      {title && <p className="text-sm font-semibold">{title}</p>}
+      <p className="text-xs text-[var(--muted)] max-w-[260px]">{description}</p>
+      {actionLabel && onAction && (
+        <button
+          onClick={onAction}
+          className="mt-2 text-xs font-semibold text-[var(--btn-text)] bg-[var(--btn)] hover:bg-[var(--btn-hover)] rounded-full px-4 py-2"
+        >
+          {actionLabel}
+        </button>
+      )}
+    </div>
+  );
+}
+
 export function Chip({ active, onClick, children }) {
   return (
     <button

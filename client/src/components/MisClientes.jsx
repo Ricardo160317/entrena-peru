@@ -10,6 +10,7 @@ import {
 } from "../api";
 import { fechaLegible, GRUPOS, EJERCICIOS, SUBGRUPOS_COMBINADOS } from "../data";
 import RutinasFavoritas from "./RutinasFavoritas";
+import { EmptyState } from "./Comunes";
 
 const DIAS_INACTIVO_ALERTA = 7;
 
@@ -183,9 +184,11 @@ export default function MisClientes() {
 
           <div className="space-y-2">
             {clientes.length === 0 && (
-              <p className="text-sm text-[var(--muted)] bg-[var(--card)] rounded-xl p-4">
-                Aún no tienes clientes vinculados. Comparte tu código para que se registren.
-              </p>
+              <EmptyState
+                icon={Users}
+                title="Aún no tienes clientes vinculados"
+                description="Comparte tu código de arriba — en cuanto alguien se registre con él, va a aparecer aquí."
+              />
             )}
             {clientes.map((c) => {
               const dias = diasInactivo(c);

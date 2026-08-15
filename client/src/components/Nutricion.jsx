@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
-import { Plus, Trash2, Flame, Camera, Loader2, Sparkles } from "lucide-react";
+import { Plus, Trash2, Flame, Camera, Loader2, Sparkles, UtensilsCrossed } from "lucide-react";
 import { ALIMENTOS, calcularMacros, hoy } from "../data";
-import { Anillo, BarraMacro } from "./Comunes";
+import { Anillo, BarraMacro, EmptyState } from "./Comunes";
 import { redimensionarImagen } from "../imageUtils";
 import { analizarFotoComida, buscarMacrosPorTexto } from "../api";
 
@@ -301,7 +301,11 @@ export default function Nutricion({ perfil, diaHoy, onGuardarDia }) {
       <div>
         <p className="text-xs text-[var(--muted)] mb-2">Hoy comiste</p>
         {comidas.length === 0 && (
-          <p className="text-sm text-[var(--muted2)] bg-[var(--card)] rounded-xl p-4">Aún no registras comidas hoy.</p>
+          <EmptyState
+            icon={UtensilsCrossed}
+            title="Aún no registras comidas hoy"
+            description="Busca un alimento arriba, toma una foto de tu plato o agrégalo manualmente."
+          />
         )}
         <div className="space-y-2">
           {comidas.map((c, i) => (
