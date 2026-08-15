@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle, Calendar, ChevronDown, ChevronUp, Plus, Sparkles, UserCheck, Timer, MapPin } from "lucide-react";
-import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, SUBGRUPOS_COMBINADOS, descansoRecomendado, hoy } from "../data";
+import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, SUBGRUPOS_COMBINADOS, descansoRecomendado, ajustarRepsPorObjetivo, hoy } from "../data";
 import { Chip } from "./Comunes";
 import { obtenerMisRutinasAsignadas, generarMiRutinaIA } from "../api";
 
@@ -32,19 +32,24 @@ const INCREMENTOS = {
 };
 
 // Elige el mejor ejercicio disponible para un patrón, según preferencia explícita del usuario
-// o, si no hay preferencia, según el lugar y el tipo de movimiento.
+// o, si no hay preferencia, según el lugar, el tipo de movimiento y el objetivo.
 // Principio de "El Libro Negro de los Secretos de Entrenamiento" (Thibaudeau, cap. 6):
 // los compuestos (prioridad 1) deben priorizar pesos libres siempre que estén disponibles
 // (mejoran control corporal y reclutan más musculatura estabilizadora); el aislamiento
 // (prioridad 2-3) se beneficia de máquina/cable, que permiten sumar volumen con menor
 // desgaste del sistema nervioso — por eso ahí sí se respeta la preferencia por lugar.
-function elegirEjercicio(opciones, estiloUsuario, lugar, prioridad) {
+// Con objetivo "bajar" se prioriza funcional/peso corporal sobre todo lo demás: son
+// ejercicios de transición rápida entre series, clave para sostener la densidad de
+// entrenamiento que persigue "Eliminación de grasa" (Vince DelMonte).
+function elegirEjercicio(opciones, estiloUsuario, lugar, prioridad, objetivo) {
   if (estiloUsuario && estiloUsuario !== "mixto") {
     const match = opciones.find((o) => o.estilo === estiloUsuario);
     if (match) return match;
   }
   const orden =
-    prioridad === 1
+    objetivo === "bajar"
+      ? ["funcional", "libre", "maquina"]
+      : prioridad === 1
       ? ["libre", "funcional", "maquina"]
       : lugar === "gimnasio"
       ? ["maquina", "libre", "funcional"]
@@ -56,7 +61,24 @@ function elegirEjercicio(opciones, estiloUsuario, lugar, prioridad) {
   return opciones[0];
 }
 
-function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesiones }) {
+// Agrega un finisher metabólico (cardio/HIIT) al cerrar la rutina cuando el objetivo es
+// bajar de grasa y hay tiempo suficiente. "Eliminación de grasa" (DelMonte) insiste en
+// combinar el trabajo de fuerza con acondicionamiento para maximizar el gasto calórico
+// de la sesión sin sacrificar el estímulo de fuerza que preserva el músculo.
+function elegirFinisher(equipoDisponible, lesiones) {
+  const opciones = EJERCICIOS.filter(
+    (ej) =>
+      ej.grupo === "full" &&
+      ej.patron === "hiit_funcional" &&
+      ej.equipo.every((id) => equipoDisponible.includes(id)) &&
+      !(ej.evitar_si || []).some((zona) => (lesiones || []).includes(zona))
+  );
+  if (opciones.length === 0) return null;
+  const diaDelAño = Math.floor((Date.now() - new Date(new Date().getFullYear(), 0, 0)) / 86400000);
+  return opciones[diaDelAño % opciones.length];
+}
+
+function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesiones, objetivo }) {
   const gruposObjetivo = SUBGRUPOS_COMBINADOS[grupo] || [grupo];
   const disponibles = EJERCICIOS.filter(
     (ej) =>
@@ -73,7 +95,7 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesione
 
   let elegidos = Object.entries(porPatron).map(([patron, opciones]) => {
     const prioridad = PRIORIDAD_PATRON[patron] ?? 2;
-    return { patron, prioridad, ejercicio: elegirEjercicio(opciones, estilo, lugar, prioridad) };
+    return { patron, prioridad, ejercicio: elegirEjercicio(opciones, estilo, lugar, prioridad, objetivo) };
   });
 
   // Los patrones de menor número (compuestos) siempre van primero; con más tiempo entran más patrones
@@ -84,13 +106,15 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesione
 
   // Con 60+ minutos, dale una serie extra a los movimientos compuestos principales
   const rutina = seleccion.map(({ ejercicio, prioridad }) => {
-    if (tiempo >= 60 && prioridad === 1 && ejercicio.series) {
-      return { ...ejercicio, series: ejercicio.series + 1 };
+    const conReps = { ...ejercicio, reps: ajustarRepsPorObjetivo(ejercicio.reps, objetivo) };
+    if (tiempo >= 60 && prioridad === 1 && conReps.series) {
+      return { ...conReps, series: conReps.series + 1 };
     }
-    return ejercicio;
+    return conReps;
   });
 
   // Si el día no es de abdomen, cerramos con 2 ejercicios de core (no cuentan contra el máximo de arriba)
+  let rutinaFinal = rutina;
   if (grupo !== "abdomen" && grupo !== "inferior") {
     const absDisponibles = EJERCICIOS.filter(
       (ej) =>
@@ -104,12 +128,18 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesione
       absPorPatron[ej.patron].push(ej);
     });
     const absElegidos = Object.entries(absPorPatron)
-      .map(([patron, opciones]) => elegirEjercicio(opciones, estilo, lugar, PRIORIDAD_PATRON[patron] ?? 2))
-      .slice(0, 2);
-    return [...rutina, ...absElegidos];
+      .map(([patron, opciones]) => elegirEjercicio(opciones, estilo, lugar, PRIORIDAD_PATRON[patron] ?? 2, objetivo))
+      .slice(0, 2)
+      .map((ej) => ({ ...ej, reps: ajustarRepsPorObjetivo(ej.reps, objetivo) }));
+    rutinaFinal = [...rutina, ...absElegidos];
   }
 
-  return rutina;
+  if (objetivo === "bajar" && grupo !== "full" && tiempo >= 45) {
+    const finisher = elegirFinisher(equipoDisponible, lesiones);
+    if (finisher) rutinaFinal = [...rutinaFinal, { ...finisher, reps: ajustarRepsPorObjetivo(finisher.reps, objetivo) }];
+  }
+
+  return rutinaFinal;
 }
 
 function objetivoMaxReps(repsStr) {
@@ -306,7 +336,9 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
   function generar(g) {
     setGrupo(g);
     const asignada = rutinaAsignadaDe(g);
-    const elegidos = asignada ? asignada.ejercicios : generarRutina({ grupo: g, equipoDisponible, estilo, tiempo, lugar, lesiones: perfil.lesiones });
+    const elegidos = asignada
+      ? asignada.ejercicios
+      : generarRutina({ grupo: g, equipoDisponible, estilo, tiempo, lugar, lesiones: perfil.lesiones, objetivo: perfil.objetivo });
     setOrigenRutina(asignada ? { origen: asignada.origen, generado_en: asignada.generado_en } : null);
     setRutina(elegidos);
     const inicial = {};
@@ -556,6 +588,12 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
             </button>
           </div>
 
+          {perfil.objetivo === "bajar" && (
+            <p className="text-[11px] text-[var(--muted2)] -mt-2">
+              Ajustada para bajar grasa: más reps, descansos más cortos y un cierre de acondicionamiento.
+            </p>
+          )}
+
           {!sesionActiva && rutina.length > 0 && (
             <button
               onClick={iniciarSesionEntreno}
@@ -647,7 +685,8 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
                 <div>
                   <p className="font-medium text-sm">{ej.nombre}</p>
                   <p className="text-xs text-[var(--muted)]">
-                    {ej.series} series × {ej.reps} · descansa {descansoRecomendado(PRIORIDAD_PATRON[ej.patron] ?? 2)}
+                    {ej.series} series × {ej.reps} · descansa{" "}
+                    {descansoRecomendado(PRIORIDAD_PATRON[ej.patron] ?? 2, perfil.objetivo)}
                   </p>
                 </div>
                 <a
