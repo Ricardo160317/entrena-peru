@@ -3,6 +3,7 @@ import { Camera, Plus, X, Trash2 } from "lucide-react";
 import { registrarMedida, borrarMedida } from "../api";
 import { fechaLegible, hoy } from "../data";
 import { redimensionarImagen } from "../imageUtils";
+import { EmptyState } from "./Comunes";
 
 export default function SeguidorMedidas({ medidas, onMedidaGuardada }) {
   const [abierto, setAbierto] = useState(false);
@@ -136,7 +137,15 @@ export default function SeguidorMedidas({ medidas, onMedidaGuardada }) {
           ))}
         </div>
       ) : (
-        !abierto && <p className="text-xs text-[var(--muted2)] bg-[var(--card)] rounded-xl p-4">Aún no tienes fotos de seguimiento.</p>
+        !abierto && (
+          <EmptyState
+            icon={Camera}
+            title="Sin fotos de seguimiento"
+            description="Una foto y tus medidas cada cierto tiempo son la mejor forma de ver tu progreso real."
+            actionLabel="Tomar mi primera foto"
+            onAction={() => setAbierto(true)}
+          />
+        )
       )}
     </div>
   );

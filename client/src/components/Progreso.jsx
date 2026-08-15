@@ -13,7 +13,8 @@ import {
 import { GRUPOS, fechaLegible } from "../data";
 import SeguidorMedidas from "./SeguidorMedidas";
 import { descargarInformePDF } from "../api";
-import { FileDown } from "lucide-react";
+import { FileDown, Dumbbell } from "lucide-react";
+import { EmptyState } from "./Comunes";
 
 const tooltipStyle = {
   backgroundColor: "var(--card)",
@@ -23,7 +24,7 @@ const tooltipStyle = {
   color: "var(--text)",
 };
 
-export default function Progreso({ entrenamientos, medidas, onMedidaGuardada }) {
+export default function Progreso({ entrenamientos, medidas, onMedidaGuardada, onIrATab }) {
   const [generandoPDF, setGenerandoPDF] = useState(false);
 
   async function descargarInforme() {
@@ -107,11 +108,13 @@ export default function Progreso({ entrenamientos, medidas, onMedidaGuardada }) 
       </button>
 
       {sinNadaAun && (
-        <div className="bg-[var(--card)] border border-[var(--border)] rounded-xl shadow-[0_4px_16px_rgba(0,0,0,0.06)] p-6 text-center">
-          <p className="text-sm text-[var(--muted)]">
-            Todavía no registras sesiones. Ve a la pestaña Entrenar y guarda tu primera rutina.
-          </p>
-        </div>
+        <EmptyState
+          icon={Dumbbell}
+          title="Todavía no registras sesiones"
+          description="Guarda tu primera rutina en Entrenar y aquí vas a ver tu evolución en gráficos."
+          actionLabel={onIrATab ? "Ir a Entrenar" : undefined}
+          onAction={onIrATab ? () => onIrATab("entrenar") : undefined}
+        />
       )}
 
       {ultimaMedida && (

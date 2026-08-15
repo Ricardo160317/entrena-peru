@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Flame, X } from "lucide-react";
+import { Plus, Trash2, Flame, X, ListChecks } from "lucide-react";
 import { obtenerHabitos, crearHabito, borrarHabito, alternarHabito } from "../api";
 import { hoy, fechaLegible } from "../data";
+import { EmptyState } from "./Comunes";
 
 const EMOJIS_SUGERIDOS = ["💧", "📖", "🧘", "🥗", "🚶", "😴", "☀️", "✍️"];
 
@@ -110,9 +111,13 @@ export default function Habitos() {
       )}
 
       {habitos.length === 0 && !mostrarForm && (
-        <p className="text-sm text-[var(--muted2)] bg-[var(--card)] rounded-xl p-4">
-          Aún no tienes hábitos. Agrega el primero — ej. tomar agua, leer, dormir temprano.
-        </p>
+        <EmptyState
+          icon={ListChecks}
+          title="Sin hábitos todavía"
+          description="Agrega el primero — ej. tomar agua, leer, dormir temprano — y arma tu racha día a día."
+          actionLabel="Agregar hábito"
+          onAction={() => setMostrarForm(true)}
+        />
       )}
 
       <div className="space-y-2">
