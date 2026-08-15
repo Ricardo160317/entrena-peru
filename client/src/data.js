@@ -102,14 +102,22 @@ export const NOMBRE_DIA_GRUPO = {
 // Devuelve un array de 7 posiciones (domingo=0 ... sábado=6), con el grupo del día o null (descanso).
 export function armarPlanSemanal(diasPorSemana) {
   // Cada array tiene 7 posiciones en orden Lunes..Domingo (null = descanso).
-  // Diseñados para nunca poner dos días de tren superior (empuje/tirón) seguidos,
-  // alternando con pierna/abdomen/descanso entre medio.
+  // Diseñados para nunca poner dos días del mismo split seguidos,
+  // alternando con descanso entre medio.
+  //
+  // Frecuencia basada en "El Libro Negro de los Secretos de Entrenamiento"
+  // (Thibaudeau, cap. 6, citando el meta-análisis de Rhea y col. 2003): la mayoría
+  // de las personas progresa mejor entrenando cada grupo muscular ~2 veces por
+  // semana ("frecuencia intermedia") en vez de una sola vez. Con 3-5 días se usa
+  // el split superior/inferior (que combina empuje+tirón y pierna+abdomen) para
+  // lograr esa frecuencia sin agregar sesiones extra; con 6-7 días ya alcanza para
+  // repetir empuje/pierna/tirón directamente.
   const planesLunesADomingo = {
     1: [null, null, "full", null, null, null, null],
     2: ["full", null, null, "full", null, null, null],
-    3: ["empuje", null, "pierna", null, "tiron", null, null],
-    4: ["empuje", null, "pierna", null, "tiron", "abdomen", null],
-    5: ["empuje", "pierna", null, "tiron", "abdomen", "full", null],
+    3: ["superior", null, "inferior", null, "superior", null, null],
+    4: ["superior", null, "inferior", null, "superior", "inferior", null],
+    5: ["superior", "inferior", null, "superior", "inferior", "full", null],
     6: ["empuje", "pierna", "tiron", "empuje", "pierna", "tiron", null],
     7: ["empuje", "pierna", "tiron", "abdomen", "empuje", "pierna", "tiron"],
   };
