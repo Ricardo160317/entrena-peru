@@ -186,6 +186,18 @@ export const PRIORIDAD_PATRON = {
   gluteo_activacion: 3,
 };
 
+// Descanso recomendado según el tipo de movimiento (patrón de prioridad 1 = compuesto,
+// 2 = accesorio, 3 = aislamiento). Basado en "El Libro Negro de los Secretos de
+// Entrenamiento" (Christian Thibaudeau, cap. 6 "Variables de entrenamiento críticas"):
+// los compuestos pesados necesitan más recuperación neuromuscular (60-120s) que el
+// trabajo de aislamiento, donde intervalos más cortos (45-60s) aumentan la densidad
+// de entrenamiento sin comprometer la carga.
+export function descansoRecomendado(prioridad) {
+  if (prioridad === 1) return "90-120s entre series";
+  if (prioridad === 2) return "60-90s entre series";
+  return "45-60s entre series";
+}
+
 export const EJERCICIOS = [
   // ===== EMPUJE =====
   { nombre: "Press banca", grupo: "empuje", patron: "press_horizontal", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 4, reps: "6-8", evitar_si: ["hombro"] },

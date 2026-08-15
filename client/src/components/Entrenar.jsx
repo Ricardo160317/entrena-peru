@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Home, Building2, ChevronRight, Check, Clock, SlidersHorizontal, TrendingUp, PlayCircle, Calendar, ChevronDown, ChevronUp, Plus, Sparkles, UserCheck, Timer, MapPin } from "lucide-react";
-import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, SUBGRUPOS_COMBINADOS, hoy } from "../data";
+import { EJERCICIOS, GRUPOS, TODO_EQUIPO, TIEMPOS_DISPONIBLES, ESTILOS_ENTRENAMIENTO, PRIORIDAD_PATRON, CALENTAMIENTO, DIAS_SEMANA, NOMBRE_DIA_GRUPO, armarPlanSemanal, CONSEJOS_DESCANSO, SUBGRUPOS_COMBINADOS, descansoRecomendado, hoy } from "../data";
 import { Chip } from "./Comunes";
 import { obtenerMisRutinasAsignadas, generarMiRutinaIA } from "../api";
 
@@ -32,13 +32,23 @@ const INCREMENTOS = {
 };
 
 // Elige el mejor ejercicio disponible para un patrón, según preferencia explícita del usuario
-// o, si no hay preferencia, según el lugar: en gimnasio se prioriza máquina/cable, en casa libre/funcional.
-function elegirEjercicio(opciones, estiloUsuario, lugar) {
+// o, si no hay preferencia, según el lugar y el tipo de movimiento.
+// Principio de "El Libro Negro de los Secretos de Entrenamiento" (Thibaudeau, cap. 6):
+// los compuestos (prioridad 1) deben priorizar pesos libres siempre que estén disponibles
+// (mejoran control corporal y reclutan más musculatura estabilizadora); el aislamiento
+// (prioridad 2-3) se beneficia de máquina/cable, que permiten sumar volumen con menor
+// desgaste del sistema nervioso — por eso ahí sí se respeta la preferencia por lugar.
+function elegirEjercicio(opciones, estiloUsuario, lugar, prioridad) {
   if (estiloUsuario && estiloUsuario !== "mixto") {
     const match = opciones.find((o) => o.estilo === estiloUsuario);
     if (match) return match;
   }
-  const orden = lugar === "gimnasio" ? ["maquina", "libre", "funcional"] : ["libre", "funcional", "maquina"];
+  const orden =
+    prioridad === 1
+      ? ["libre", "funcional", "maquina"]
+      : lugar === "gimnasio"
+      ? ["maquina", "libre", "funcional"]
+      : ["libre", "funcional", "maquina"];
   for (const est of orden) {
     const match = opciones.find((o) => o.estilo === est);
     if (match) return match;
@@ -61,11 +71,10 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesione
     porPatron[ej.patron].push(ej);
   });
 
-  let elegidos = Object.entries(porPatron).map(([patron, opciones]) => ({
-    patron,
-    prioridad: PRIORIDAD_PATRON[patron] ?? 2,
-    ejercicio: elegirEjercicio(opciones, estilo, lugar),
-  }));
+  let elegidos = Object.entries(porPatron).map(([patron, opciones]) => {
+    const prioridad = PRIORIDAD_PATRON[patron] ?? 2;
+    return { patron, prioridad, ejercicio: elegirEjercicio(opciones, estilo, lugar, prioridad) };
+  });
 
   // Los patrones de menor número (compuestos) siempre van primero; con más tiempo entran más patrones
   elegidos.sort((a, b) => a.prioridad - b.prioridad);
@@ -94,8 +103,8 @@ function generarRutina({ grupo, equipoDisponible, estilo, tiempo, lugar, lesione
       if (!absPorPatron[ej.patron]) absPorPatron[ej.patron] = [];
       absPorPatron[ej.patron].push(ej);
     });
-    const absElegidos = Object.values(absPorPatron)
-      .map((opciones) => elegirEjercicio(opciones, estilo, lugar))
+    const absElegidos = Object.entries(absPorPatron)
+      .map(([patron, opciones]) => elegirEjercicio(opciones, estilo, lugar, PRIORIDAD_PATRON[patron] ?? 2))
       .slice(0, 2);
     return [...rutina, ...absElegidos];
   }
@@ -638,7 +647,7 @@ export default function Entrenar({ perfil, entrenamientos, onGuardarSesion }) {
                 <div>
                   <p className="font-medium text-sm">{ej.nombre}</p>
                   <p className="text-xs text-[var(--muted)]">
-                    {ej.series} series × {ej.reps}
+                    {ej.series} series × {ej.reps} · descansa {descansoRecomendado(PRIORIDAD_PATRON[ej.patron] ?? 2)}
                   </p>
                 </div>
                 <a
