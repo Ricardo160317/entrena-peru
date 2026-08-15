@@ -12,6 +12,7 @@ import {
   obtenerMedidas,
   obtenerMe,
   actualizarNombre as apiActualizarNombre,
+  vincularEntrenador as apiVincularEntrenador,
 } from "./api";
 import { hoy } from "./data";
 import { activarNotificacionesPush } from "./push";
@@ -104,6 +105,11 @@ export default function App() {
     setUsuario((u) => ({ ...u, nombre: resultado.nombre }));
   }
 
+  async function vincularEntrenador(codigo) {
+    const resultado = await apiVincularEntrenador(codigo);
+    setUsuario((u) => ({ ...u, entrenador_id: resultado.entrenador_id }));
+  }
+
   async function guardarSesionEntrenamiento(sesion) {
     const guardada = await crearEntrenamiento(sesion);
     setEntrenamientos([...entrenamientos, guardada]);
@@ -177,6 +183,7 @@ export default function App() {
             usuario={usuario}
             onGuardarPerfil={guardarPerfil}
             onGuardarNombre={guardarNombre}
+            onVincularEntrenador={vincularEntrenador}
             onCerrarSesion={() => {
               clearToken();
               setAutenticado(false);
