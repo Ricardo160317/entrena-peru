@@ -192,6 +192,7 @@ export const PRIORIDAD_PATRON = {
   antebrazo: 3,
   pantorrilla: 3,
   gluteo_activacion: 3,
+  aislamiento_trapecio: 3,
 };
 
 // Descanso recomendado según el tipo de movimiento (patrón de prioridad 1 = compuesto,
@@ -200,10 +201,38 @@ export const PRIORIDAD_PATRON = {
 // los compuestos pesados necesitan más recuperación neuromuscular (60-120s) que el
 // trabajo de aislamiento, donde intervalos más cortos (45-60s) aumentan la densidad
 // de entrenamiento sin comprometer la carga.
-export function descansoRecomendado(prioridad) {
+// Con objetivo "bajar" (pérdida de grasa) se acortan los descansos un escalón más:
+// mayor densidad de entrenamiento = más gasto calórico por sesión (mismo capítulo,
+// sección de intervalos de descanso).
+export function descansoRecomendado(prioridad, objetivo) {
+  if (objetivo === "bajar") {
+    if (prioridad === 1) return "60-90s entre series";
+    if (prioridad === 2) return "45-60s entre series";
+    return "30-45s entre series";
+  }
   if (prioridad === 1) return "90-120s entre series";
   if (prioridad === 2) return "60-90s entre series";
   return "45-60s entre series";
+}
+
+// Ajusta el rango de reps de un ejercicio según el objetivo, moviéndolo hacia la zona de
+// "fuerza-resistencia" (15-24 reps) cuando el objetivo es bajar de grasa — más reps y menos
+// descanso aumentan el gasto calórico de la sesión sin sacrificar la intensidad del
+// entrenamiento (cap. 6 de Thibaudeau + "Eliminación de grasa" de Vince DelMonte: mantener
+// la intensidad del entrenamiento es clave para no perder músculo mientras se hace déficit).
+// Solo toca rangos numéricos simples ("6-8", "10-12 c/lado", "15"); deja intactos los
+// ejercicios medidos en tiempo (planchas, cardio) ya que esos no son "reps" en ese sentido.
+export function ajustarRepsPorObjetivo(reps, objetivo) {
+  if (objetivo !== "bajar") return reps;
+  // Solo números de reps puros, opcionalmente "N-M" y/o sufijo "c/lado" o "c/pierna".
+  // Deja sin tocar cualquier cosa medida en tiempo (segundos, minutos) o con formato libre.
+  const match = /^(\d+)(?:-(\d+))?( c\/\w+)?$/.exec(reps);
+  if (!match) return reps;
+  const bonus = 4;
+  const min = Number(match[1]) + bonus;
+  const max = match[2] ? Number(match[2]) + bonus : null;
+  const sufijo = match[3] || "";
+  return max ? `${min}-${max}${sufijo}` : `${min}${sufijo}`;
 }
 
 export const EJERCICIOS = [
@@ -231,8 +260,11 @@ export const EJERCICIOS = [
   { nombre: "Elevaciones laterales con mancuernas", grupo: "empuje", patron: "aislamiento_hombro", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12-15" },
   { nombre: "Elevaciones laterales en polea", grupo: "empuje", patron: "aislamiento_hombro", estilo: "maquina", equipo: ["polea"], series: 3, reps: "12-15" },
   { nombre: "Elevación lateral con banda", grupo: "empuje", patron: "aislamiento_hombro", estilo: "funcional", equipo: ["banda"], series: 3, reps: "15-20" },
+  { nombre: "Elevación frontal de hombros con mancuernas", grupo: "empuje", patron: "aislamiento_hombro", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12-15", evitar_si: ["hombro"] },
+  { nombre: "Remo vertical con barra", grupo: "empuje", patron: "aislamiento_hombro", estilo: "libre", equipo: ["barra", "discos"], series: 3, reps: "10-12", evitar_si: ["hombro"] },
 
   { nombre: "Extensión de tríceps con mancuerna", grupo: "empuje", patron: "aislamiento_triceps", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "10-12" },
+  { nombre: "Press francés con barra (extensión tumbado)", grupo: "empuje", patron: "aislamiento_triceps", estilo: "libre", equipo: ["barra", "banco", "discos"], series: 3, reps: "10-12" },
   { nombre: "Extensión de tríceps en polea (cuerda)", grupo: "empuje", patron: "aislamiento_triceps", estilo: "maquina", equipo: ["polea"], series: 3, reps: "12-15" },
   { nombre: "Fondos entre bancos (tríceps)", grupo: "empuje", patron: "aislamiento_triceps", estilo: "funcional", equipo: ["banco"], series: 3, reps: "12-15" },
 
@@ -257,6 +289,9 @@ export const EJERCICIOS = [
   { nombre: "Curl de bíceps en polea", grupo: "tiron", patron: "aislamiento_biceps", estilo: "maquina", equipo: ["polea"], series: 3, reps: "12-15" },
 
   { nombre: "Curl de muñeca con mancuernas", grupo: "tiron", patron: "antebrazo", estilo: "libre", equipo: ["mancuernas"], series: 2, reps: "15-20", evitar_si: ["muñeca"] },
+
+  { nombre: "Encogimientos con mancuernas (shrugs)", grupo: "tiron", patron: "aislamiento_trapecio", estilo: "libre", equipo: ["mancuernas"], series: 3, reps: "12-15" },
+  { nombre: "Encogimientos con barra", grupo: "tiron", patron: "aislamiento_trapecio", estilo: "libre", equipo: ["barra", "discos"], series: 3, reps: "12-15" },
 
   // ===== PIERNA =====
   { nombre: "Sentadilla con barra (back squat)", grupo: "pierna", patron: "sentadilla", estilo: "libre", equipo: ["barra", "discos"], series: 4, reps: "6-8", evitar_si: ["rodilla"] },
@@ -420,7 +455,7 @@ export const TIPS_DIARIOS = [
   { categoria: "Fitness", texto: "La técnica correcta con menos peso siempre gana a más peso con mala forma. Prioriza el control del movimiento." },
   { categoria: "Alimentación", texto: "La proteína en cada comida ayuda a mantenerte saciado y a preservar músculo, entrenes o no ese día." },
   { categoria: "Superación", texto: "El progreso no es lineal. Una semana floja no borra las anteriores — lo que importa es volver a empezar." },
-  { categoria: "Fitness", texto: "El descanso entre series importa tanto como el ejercicio: 60-90s en aislamiento, 2-3 min en compuestos pesados." },
+  { categoria: "Fitness", texto: "El descanso entre series importa tanto como el ejercicio: 45-90s en aislamiento, 90-120s en compuestos pesados." },
   { categoria: "Alimentación", texto: "Tomar agua antes de cada comida ayuda a regular el apetito y es un hábito simple de sostener." },
   { categoria: "Superación", texto: "No necesitas motivación todos los días, necesitas un sistema. Los hábitos sostienen cuando la motivación falta." },
   { categoria: "Fitness", texto: "El calentamiento no es opcional: reduce el riesgo de lesión y mejora tu rendimiento en la sesión." },
@@ -429,6 +464,8 @@ export const TIPS_DIARIOS = [
   { categoria: "Fitness", texto: "El sueño es parte del entrenamiento: la recuperación muscular ocurre mientras descansas, no solo en el gimnasio." },
   { categoria: "Alimentación", texto: "No hay alimentos 'prohibidos' en una dieta balanceada, hay cantidades y frecuencia. Todo entra con moderación." },
   { categoria: "Superación", texto: "Escribe lo que lograste hoy, aunque sea pequeño. Ver el progreso escrito ayuda a sostener el hábito." },
+  { categoria: "Alimentación", texto: "Si estás en déficit y el progreso se estanca, un día puntual más alto en carbohidratos cada 4-5 días puede reactivar tu metabolismo sin sacarte de control." },
+  { categoria: "Alimentación", texto: "Prioriza carbohidratos complejos (avena, camote, arroz integral) sobre los refinados: se digieren más lento y sostienen mejor tu energía para entrenar." },
 ];
 
 export function tipDelDia() {

@@ -73,9 +73,14 @@ router.post("/asignar", requireEntrenador, async (req, res) => {
 // ---------- Generar con IA (el entrenador para un cliente, o cualquier usuario para sí mismo) ----------
 
 async function generarRutinaConIA({ grupo, perfilCliente }) {
+  const guiaPorObjetivo =
+    perfilCliente.objetivo === "bajar"
+      ? `Objetivo de bajar grasa: usa reps más altas (12-20 según el ejercicio) y descansos cortos entre series para maximizar la densidad de la sesión sin sacrificar la intensidad (así se preserva el músculo mientras se pierde grasa). Incluye 1 ejercicio final de acondicionamiento (ej. burpees, mountain climbers, sentadilla con salto) si el equipo lo permite.`
+      : `Usa reps de 6-8 para los movimientos compuestos principales y 10-15 para accesorios/aislamiento (rango estándar de hipertrofia).`;
   const prompt = `Genera una rutina de ejercicios para el grupo muscular "${grupo}" (opciones de grupo: empuje=pecho/hombro/tríceps, tiron=espalda/bíceps, pierna, abdomen, full=cardio/full body).
 Perfil de la persona: objetivo=${perfilCliente.objetivo}, nivel de actividad=${perfilCliente.nivel}, equipo disponible=${JSON.stringify(perfilCliente.equipo || [])}.
 Lesiones o molestias a evitar: ${JSON.stringify(perfilCliente.lesiones || [])} (si la lista no está vacía, evita ejercicios que carguen esas zonas; por ejemplo si dice "rodilla", evita sentadillas profundas o saltos).
+${guiaPorObjetivo}
 Responde ÚNICAMENTE con JSON válido, sin texto ni markdown, con este formato exacto:
 {"ejercicios": [{"nombre": string, "series": number, "reps": string}]}
 Incluye entre 4 y 6 ejercicios variados y realistas, usando solo equipo de la lista disponible (o ninguno si la lista está vacía, usando peso corporal).`;

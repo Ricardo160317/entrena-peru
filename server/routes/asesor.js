@@ -32,9 +32,14 @@ router.post("/", async (req, res) => {
       [req.usuarioId]
     );
 
+    const guiaBajarGrasa =
+      perfil?.objetivo === "bajar"
+        ? `\nEl objetivo del usuario es bajar grasa. Si pregunta por un estancamiento o plateau, puedes mencionar el reciclaje de calorías/carbohidratos (3 días de déficit + 1 día más alto en carbohidratos, repitiendo el ciclo) como una técnica válida para reactivar el metabolismo sin perder músculo — es una estrategia conocida de la preparación física, no una receta rígida para todos. Nunca recomiendes déficits extremos ni saltarse comidas; la prioridad es sostener el entrenamiento con intensidad mientras se cuida el balance calórico.`
+        : "";
+
     const contexto = `Eres un asesor experto en fitness y nutrición para una app peruana llamada NEX-FIT.
 Responde en español, de forma breve, cálida y directa, basándote en los datos reales del usuario.
-No des diagnósticos médicos ni reemplaces a un profesional de salud; para temas médicos sugiere consultar a un doctor.
+No des diagnósticos médicos ni reemplaces a un profesional de salud; para temas médicos sugiere consultar a un doctor.${guiaBajarGrasa}
 
 Perfil: ${JSON.stringify(perfil)}
 Comidas registradas hoy: ${JSON.stringify(comidasHoy)}
